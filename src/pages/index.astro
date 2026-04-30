@@ -1,0 +1,413 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import MotionScript from "@/components/MotionScript.astro";
+import GBPAuditWidget from "@/components/GBPAuditWidget";
+import ContactForm from "@/components/ContactForm";
+import addonArticlesImage from "../../assets/avif/addon-articles.avif";
+import addonLandingpageImage from "../../assets/avif/addon-landingpage.avif";
+import addonQrImage from "../../assets/avif/addon-qr.avif";
+
+const industries = [
+  ["Notar", "business_center"],
+  ["Hausarzt", "medical_services"],
+  ["Internist", "stethoscope"],
+  ["Anwalt", "balance"],
+  ["Steuerberater", "query_stats"],
+  ["Agenturen", "hub"],
+  ["Tierarzt", "pets"],
+  ["Autohändler", "directions_car"],
+  ["Handwerker", "construction"],
+  ["Installateur", "shower"],
+  ["Wellness", "spa"],
+  ["Zahnarzt", "dentistry"],
+  ["Restaurants", "restaurant"],
+  ["Friseure", "content_cut"],
+  ["Frauenarzt", "gynecology"],
+  ["Fitness Studio", "fitness_center"],
+  ["Cafes", "local_cafe"],
+];
+
+const industryColumns = [
+  {
+    direction: "down",
+    items: industries.slice(8),
+  },
+  {
+    direction: "up",
+    items: industries.slice(0, 8),
+  },
+];
+
+const benefits = [
+  {
+    icon: "travel_explore",
+    title: "Sichtbar, wenn aktiv gesucht wird",
+    text: "Menschen suchen nicht irgendwann. Sie suchen jetzt. Ein vollständiges Google Business Profile hilft Ihrem Unternehmen, bei lokalen Suchanfragen in Google Suche und Maps klarer und professioneller aufzutreten.",
+  },
+  {
+    icon: "trending_up",
+    title: "Besser wirken als nahe Mitbewerber",
+    text: "Viele lokale Profile sind unvollständig, veraltet oder lieblos gepflegt. Genau dort entsteht Ihr Vorteil: ein sauberer Auftritt, stärkere Signale und mehr Vertrauen auf den ersten Blick.",
+  },
+  {
+    icon: "route",
+    title: "Den Weg zur Anfrage verkürzen",
+    text: "Anrufen, Route starten, Website öffnen oder Termin buchen: Ein gutes Profil reduziert Reibung genau dort, wo Interessenten entscheiden, ob sie handeln oder weitersuchen.",
+  },
+  {
+    icon: "verified",
+    title: "Vertrauen vor dem Website-Besuch schaffen",
+    text: "Aktuelle Fotos, klare Leistungen, korrekte Öffnungszeiten und gepflegte Bewertungen zeigen sofort: Dieses Unternehmen ist aktiv, erreichbar und wirkt seriös.",
+  },
+];
+
+const tabs = [
+  {
+    name: "QR Review Trigger",
+    title: "QR Review Trigger",
+    subtitle: "Mehr Bewertungen. Weniger Reibung. Mehr Vertrauen.",
+    icon: "qr_code_2",
+    image: addonQrImage.src,
+    imageAlt: "QR Review Trigger Add-on Vorschau",
+    points: ["Kundinnen und Kunden direkt vor Ort zur Bewertung führen.", "Der QR-Code öffnet den Bewertungsprozess ohne Umwege.", "Individuell mit Logo, Text und klarer Handlungsaufforderung gestaltet."],
+    closingText: "Optimal für Betriebe, die zufriedene Kunden nicht dem Zufall überlassen möchten.",
+  },
+  {
+    name: "Google Beiträge",
+    title: "Google Beiträge",
+    subtitle: "Aktuell bleiben. Sichtbar wirken. Vertrauen stärken.",
+    icon: "article",
+    image: addonArticlesImage.src,
+    imageAlt: "Google Beiträge Add-on Vorschau",
+    points: ["Regelmäßige Updates direkt im Google Business Profil veröffentlichen.", "Angebote, News oder saisonale Aktionen sichtbar platzieren.", "Ein aktives Profil wirkt gepflegter und professioneller."],
+    closingText: "Ideal für Unternehmen, die regelmäßig sichtbar bleiben möchten.",
+  },
+  {
+    name: "Landingpages",
+    title: "Landingpages",
+    subtitle: "Wenn der Klick nicht ins Leere laufen soll.",
+    icon: "wysiwyg",
+    image: addonLandingpageImage.src,
+    imageAlt: "Landingpage Add-on Vorschau",
+    points: ["Kompakte Seite für Unternehmen ohne starke Website.", "Klarer Aufbau mit Leistungen, Vertrauen und Kontaktmöglichkeit.", "Optimiert als Anschlussstrecke von Google Profil zur Anfrage."],
+    closingText: "Perfekt, wenn das Google Profil mehr leisten soll als nur gefunden werden.",
+  },
+];
+
+const packages = [
+  { name: "Starter", badge: "Einmalig", price: "€287", period: "einmalig", text: "Der perfekte Einstieg für ein professionelles Profil-Setup.", items: ["GBP Audit & Analyse", "Vollständiges Profil-Setup", "Kategorien, Texte, Öffnungszeiten"] },
+  { name: "Essential", badge: "Einmalig", price: "€497", period: "einmalig", text: "Für einen starken ersten Eindruck mit den wichtigsten Extras.", items: ["Alles aus Starter", "Foto-Briefing Dokument", "1x Google Post"] },
+  { name: "Growth", badge: "3 Monate", price: "€1.397", period: "3 Monate Laufzeit", text: "Aktives Management für mehr Sichtbarkeit und Interaktionen.", items: ["Alles aus Essential", "3 Monate aktives Management", "4x Google Posts / Monat", "Review-Monitoring & Antworten", "Monatliches PDF-Reporting"], featured: true },
+  { name: "Local Pro", badge: "6 Monate", price: "€2.697", period: "6 Monate Laufzeit", text: "Die Komplettlösung für nachhaltiges Wachstum & maximale Präsenz.", items: ["Alles aus Growth", "6 Monate aktives Management", "8x Google Posts / Monat", "Review- & Q&A Management", "Strategie-Call pro Monat"] },
+];
+
+const addons = [
+  ["Extra Google Posts", "+4 / Monat", "€97", "/ Monat"],
+  ["Review-Response Service", "", "€127", "/ Monat"],
+  ["Landingpage", "1-Pager", "€797", "einmalig"],
+  ["Konkurrenzanalyse", "3 Mitbewerber", "€197", "einmalig"],
+  ["Foto-Briefing Dokument", "", "€97", "einmalig"],
+  ["Q&A Management", "monatlich", "€79", "/ Monat"],
+];
+---
+
+<BaseLayout>
+  <Header />
+
+  <main>
+    <section class="hero">
+      <div class="container-wide hero-grid">
+        <div class="hero-copy reveal is-visible">
+          <p class="hero-kicker"><span aria-hidden="true">🚀</span> Boosten Sie Ihr Google Business Profil - <strong>noch heute!</strong></p>
+          <h1 class="h1">Weil der erste Eindruck zählt. <span class="text-blue">Auf Google.</span></h1>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href={import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit"} target="_blank" rel="noreferrer">
+              Kostenloses Erstgespräch
+              <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
+            </a>
+            <a class="learn-link" href="#quick-check">Mehr erfahren</a>
+          </div>
+        </div>
+
+        <div class="hero-visual" data-gsap="parallax" aria-hidden="true">
+          <div class="browser-shell">
+            <div class="browser-bar"><span></span><span></span><span></span><i></i></div>
+            <div class="map-canvas">
+              <div class="profile-card">
+                <div class="profile-photo"></div>
+                <strong>Wendy Coiffeur & Saloon</strong>
+                <small>4,8 ★★★★★ (102)</small>
+                <div class="profile-actions">
+                  <span></span><span></span><span></span><span></span>
+                </div>
+                <div class="profile-lines">
+                  <i></i><i></i><i></i>
+                </div>
+              </div>
+              <div class="score-card">
+                <strong>Profilstärke</strong>
+                <div class="score">82<small>/100</small></div>
+                <span>Sehr Gut</span>
+              </div>
+              <div class="pin"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container trust-cluster reveal is-visible">
+        <div class="trust-row">
+          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Mehr Sichtbarkeit</span>
+          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Mehr Vertrauen</span>
+          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Mehr Anfragen</span>
+        </div>
+        <span class="expert-badge"><span class="material-symbols-rounded" aria-hidden="true">hotel_class</span>Google Business Profil Experte</span>
+      </div>
+    </section>
+
+    <section class="section check-section" id="quick-check">
+      <div class="container section-heading" data-gsap="reveal">
+        <span class="map-icon" aria-hidden="true"><span>G</span></span>
+        <h2 class="h2">Machen Sie einen <span class="text-blue">kostenlosen</span> GBP-Check</h2>
+        <p class="lead">Einfach bestehende Google Business Profil-URL eingeben und prüfen lassen.</p>
+      </div>
+      <div class="panel-shell widget-shell" data-gsap="reveal">
+        <div class="panel-core widget-core">
+          <GBPAuditWidget client:visible />
+        </div>
+      </div>
+    </section>
+
+    <section class="section industries-section">
+      <div class="container industries-grid">
+        <div data-gsap="reveal">
+          <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">storefront</span>Für lokale Unternehmen</span>
+          <h2 class="h2">Mehr Sichtbarkeit für jede Branche</h2>
+          <p class="lead"><strong>LokalOptimal</strong> hilft Unternehmen, dort besser sichtbar zu werden, wo Kund:innen aktiv suchen - auf Google.</p>
+        </div>
+        <div class="industry-marquee" data-gsap="reveal" aria-label="Branchen">
+          {industryColumns.map((column) => (
+            <div class={`industry-column ${column.direction}`}>
+              <div class="industry-track">
+                {Array.from({ length: 2 }).map((_, groupIndex) => (
+                  <div class="industry-group" aria-hidden={groupIndex === 1 ? "true" : undefined}>
+                    {column.items.map(([industry, icon]) => (
+                      <span class="industry-pill">
+                        <i class="material-symbols-rounded" aria-hidden="true">{icon}</i>{industry}
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="section benefits-section" id="vorteile">
+      <div class="container section-heading" data-gsap="reveal">
+        <span class="stars" aria-label="Fünf Sterne">
+          {Array.from({ length: 5 }).map(() => <span class="material-symbols-rounded" aria-hidden="true">star</span>)}
+        </span>
+        <h2 class="h2">Warum ein gepflegtes Google-Profil mehr ist, als ein Brancheneintrag</h2>
+      </div>
+      <div class="container benefit-grid">
+        {benefits.map((benefit) => (
+          <article class="panel-shell benefit-card" data-gsap="reveal">
+            <div class="panel-core benefit-core">
+              <span class="benefit-icon material-symbols-rounded" aria-hidden="true">{benefit.icon}</span>
+              <div>
+                <h3 class="h3">{benefit.title}</h3>
+                <p>{benefit.text}</p>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="section addon-showcase" id="wirkung">
+      <div class="container section-heading" data-gsap="reveal">
+        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">extension</span>Add-ons für mehr Wirkung</span>
+        <h2 class="h2">Ergänzen Sie Ihr Profil mit <span class="text-blue">starken Add-ons</span></h2>
+        <p class="lead">Maximieren Sie Vertrauen, Interaktionen und Anfragen - mit den richtigen Bausteinen für Ihren Google-Auftritt.</p>
+      </div>
+      <div class="container addon-grid">
+        <div class="panel-shell addon-tabs" data-gsap="reveal">
+          <div class="panel-core">
+            <div class="tab-nav" role="tablist" aria-label="Add-ons">
+              {tabs.map((tab, index) => (
+                <button
+                  id={`addon-tab-${index}`}
+                  class={index === 0 ? "active" : ""}
+                  type="button"
+                  role="tab"
+                  aria-selected={index === 0 ? "true" : "false"}
+                  aria-controls={`addon-panel-${index}`}
+                  tabindex={index === 0 ? "0" : "-1"}
+                  data-tab-index={index}
+                >
+                  {tab.name}
+                </button>
+              ))}
+            </div>
+            {tabs.map((tab, index) => (
+              <div
+                id={`addon-panel-${index}`}
+                class="tab-content"
+                role="tabpanel"
+                aria-labelledby={`addon-tab-${index}`}
+                data-tab-index={index}
+                hidden={index !== 0}
+              >
+                <span class="tab-icon material-symbols-rounded" aria-hidden="true">{tab.icon}</span>
+                <h3>{tab.title}</h3>
+                <strong>{tab.subtitle}</strong>
+                <ul>
+                  {tab.points.map((point) => <li>{point}</li>)}
+                </ul>
+                <p class="tab-closing">{tab.closingText}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div class="review-visual panel-shell addon-visual" data-gsap="reveal">
+          <div class="panel-core addon-visual-core">
+            {tabs.map((tab, index) => (
+              <img
+                src={tab.image}
+                alt={tab.imageAlt}
+                loading={index === 0 ? "eager" : "lazy"}
+                decoding="async"
+                data-tab-index={index}
+                hidden={index !== 0}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pricing-section" id="preise">
+      <div class="container section-heading" data-gsap="reveal">
+        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">inventory_2</span>Unsere Pakete</span>
+        <h2 class="h2">Das passende Paket für <span class="text-blue">Ihren Google-Auftritt</span></h2>
+      </div>
+      <div class="container-wide pricing-grid">
+        {packages.map((pkg) => (
+          <article class={`price-card panel-shell ${pkg.featured ? "featured" : ""}`} data-gsap="reveal">
+            <div class="panel-core price-core">
+              <div class="price-meta">
+                <span class="package-badge">{pkg.badge}</span>
+                {pkg.featured && (
+                  <span class="recommended">
+                    <span class="material-symbols-rounded" aria-hidden="true">verified</span>
+                    Empfohlen
+                  </span>
+                )}
+              </div>
+              <div class="price-head">
+                <h3>{pkg.name}</h3>
+              </div>
+              <p>{pkg.text}</p>
+              <strong class="price">{pkg.price}</strong>
+              <small>{pkg.period}</small>
+              <ul>
+                {pkg.items.map((item) => <li>{item}</li>)}
+              </ul>
+              <a class={`btn ${pkg.featured ? "btn-primary" : "btn-secondary"}`} href="#kontakt">
+                Zum Paket <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <p class="price-note container">Alle Preise verstehen sich zzgl. MwSt. Zahlung: 50 % Anzahlung bei Auftragserteilung, 50 % nach Abschluss.</p>
+
+      <div class="container section-heading compact" data-gsap="reveal">
+        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">add_circle</span>Zusätzliche Add-ons</span>
+        <h2 class="h3">Erweitern Sie Ihr Paket <span class="text-blue">nach Bedarf</span></h2>
+      </div>
+      <div class="container addon-price-grid">
+        {addons.map(([name, sub, price, period]) => (
+          <div class="addon-price panel-shell" data-gsap="reveal">
+            <div class="panel-core">
+              <span class="material-symbols-rounded" aria-hidden="true">auto_awesome</span>
+              <div><strong>{name}</strong>{sub && <small>{sub}</small>}</div>
+              <b>{price}<small>{period}</small></b>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div class="container important-note" data-gsap="reveal">
+        <strong>Wichtiger Hinweis:</strong> LokalOptimal optimiert und pflegt Ihr Google Business Profil nach aktuellen Best Practices. Konkrete Rankingversprechen werden bewusst nicht gegeben.
+      </div>
+    </section>
+
+    <section class="section contact-section" id="kontakt">
+      <div class="container contact-grid">
+        <div data-gsap="reveal">
+          <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">forum</span>Kontakt</span>
+          <h2 class="h2">Lassen Sie uns Ihren lokalen Auftritt sauber einordnen.</h2>
+          <p class="lead">Schicken Sie eine kurze Anfrage oder buchen Sie direkt einen Termin. Der erste Check ist kostenlos und unverbindlich.</p>
+          <a class="btn btn-secondary contact-cal" href={import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit"} target="_blank" rel="noreferrer">Termin über Cal.com buchen</a>
+        </div>
+        <div class="panel-shell" data-gsap="reveal">
+          <div class="panel-core contact-core">
+            <ContactForm client:visible />
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+  <MotionScript />
+  <script>
+    document.querySelectorAll<HTMLElement>(".addon-tabs").forEach((tabsRoot) => {
+      const addonGrid = tabsRoot.closest<HTMLElement>(".addon-grid");
+      const tabs = Array.from(tabsRoot.querySelectorAll<HTMLButtonElement>("[role='tab']"));
+      const panels = Array.from(tabsRoot.querySelectorAll<HTMLElement>("[role='tabpanel']"));
+      const images = Array.from(addonGrid?.querySelectorAll<HTMLImageElement>(".addon-visual img") ?? []);
+
+      const activateTab = (nextIndex: number, shouldFocus = false) => {
+        tabs.forEach((tab, index) => {
+          const isActive = index === nextIndex;
+          tab.classList.toggle("active", isActive);
+          tab.setAttribute("aria-selected", String(isActive));
+          tab.tabIndex = isActive ? 0 : -1;
+          if (isActive && shouldFocus) tab.focus();
+        });
+
+        panels.forEach((panel, index) => {
+          panel.hidden = index !== nextIndex;
+        });
+
+        images.forEach((image, index) => {
+          image.hidden = index !== nextIndex;
+        });
+      };
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => activateTab(index));
+        tab.addEventListener("keydown", (event) => {
+          const lastIndex = tabs.length - 1;
+          let nextIndex = index;
+
+          if (event.key === "ArrowRight") nextIndex = index === lastIndex ? 0 : index + 1;
+          else if (event.key === "ArrowLeft") nextIndex = index === 0 ? lastIndex : index - 1;
+          else if (event.key === "Home") nextIndex = 0;
+          else if (event.key === "End") nextIndex = lastIndex;
+          else return;
+
+          event.preventDefault();
+          activateTab(nextIndex, true);
+        });
+      });
+    });
+  </script>
+</BaseLayout>

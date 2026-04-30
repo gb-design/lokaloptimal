@@ -1,0 +1,163 @@
+---
+const calUrl = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
+const calEmbedUrl = `${calUrl}${calUrl.includes("?") ? "&" : "?"}embed=true`;
+
+const navItems = [
+  { href: "#quick-check", label: "Quick Check" },
+  { href: "#vorteile", label: "Vorteile" },
+  { href: "#wirkung", label: "Wirkung" },
+  { href: "#preise", label: "Preise" },
+  { href: "#kontakt", label: "Kontakt" },
+];
+---
+
+<header class="site-header">
+  <nav class="nav container-wide" aria-label="Hauptnavigation">
+    <a class="brand" href="/" aria-label="LokalOptimal Startseite">
+      <span class="brand-mark">lo</span>
+      <span>Lokal<span>Optimal</span></span>
+    </a>
+
+    <div class="nav-links">
+      {navItems.map((item) => (
+        <a href={item.href}>{item.label}</a>
+      ))}
+    </div>
+
+    <button class="btn btn-secondary nav-cta" type="button" data-cal-open>
+      <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
+      Termin vereinbaren
+    </button>
+
+    <button class="mobile-menu-button" aria-label="Menü öffnen" aria-expanded="false" data-menu-button>
+      <span></span>
+      <span></span>
+    </button>
+  </nav>
+
+  <div class="mobile-menu" data-mobile-menu>
+    {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+    <button class="mobile-cal-cta" type="button" data-cal-open>Termin vereinbaren</button>
+  </div>
+</header>
+
+<div class="cal-modal" data-cal-modal hidden aria-hidden="true">
+  <div class="cal-dialog" role="dialog" aria-modal="true" aria-labelledby="cal-modal-title">
+    <div class="cal-dialog-head">
+      <div>
+        <span class="cal-kicker">Kostenloses Erstgespräch</span>
+        <h2 id="cal-modal-title">Termin vereinbaren</h2>
+      </div>
+      <button class="cal-close" type="button" aria-label="Modal schließen" data-cal-close>
+        <span class="material-symbols-rounded" aria-hidden="true">close</span>
+      </button>
+    </div>
+    <iframe
+      class="cal-frame"
+      data-cal-src={calEmbedUrl}
+      title="Cal.com Terminbuchung"
+      loading="lazy"
+    ></iframe>
+  </div>
+</div>
+
+<script>
+  const button = document.querySelector("[data-menu-button]");
+  const menu = document.querySelector("[data-mobile-menu]");
+  const modal = document.querySelector("[data-cal-modal]");
+  const dialog = modal?.querySelector(".cal-dialog");
+  const calFrame = modal?.querySelector(".cal-frame");
+  const modalOpeners = document.querySelectorAll("[data-cal-open]");
+  const modalClose = modal?.querySelector("[data-cal-close]");
+  let lastFocusedElement = null;
+
+  button?.addEventListener("click", () => {
+    const isOpen = button.getAttribute("aria-expanded") === "true";
+    button.setAttribute("aria-expanded", String(!isOpen));
+    document.body.toggleAttribute("data-menu-open", !isOpen);
+    menu?.toggleAttribute("data-open", !isOpen);
+  });
+
+  menu?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      button?.setAttribute("aria-expanded", "false");
+      document.body.removeAttribute("data-menu-open");
+      menu.removeAttribute("data-open");
+    });
+  });
+
+  const closeMenu = () => {
+    button?.setAttribute("aria-expanded", "false");
+    document.body.removeAttribute("data-menu-open");
+    menu?.removeAttribute("data-open");
+  };
+
+  const openModal = (event) => {
+    event?.preventDefault();
+    lastFocusedElement = document.activeElement;
+    closeMenu();
+    if (calFrame && !calFrame.getAttribute("src")) {
+      calFrame.setAttribute("src", calFrame.dataset.calSrc || "");
+    }
+    modal?.removeAttribute("hidden");
+    modal?.setAttribute("aria-hidden", "false");
+    document.body.setAttribute("data-cal-modal-open", "");
+    requestAnimationFrame(() => {
+      modal?.setAttribute("data-open", "");
+      modalClose?.focus();
+    });
+  };
+
+  const closeModal = () => {
+    if (!modal || modal.hasAttribute("hidden")) return;
+
+    modal.removeAttribute("data-open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.removeAttribute("data-cal-modal-open");
+
+    window.setTimeout(() => {
+      modal.setAttribute("hidden", "");
+      if (lastFocusedElement instanceof HTMLElement) {
+        lastFocusedElement.focus();
+      }
+      lastFocusedElement = null;
+    }, 260);
+  };
+
+  modalOpeners.forEach((opener) => {
+    opener.addEventListener("click", openModal);
+  });
+
+  modalClose?.addEventListener("click", closeModal);
+
+  modal?.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modal?.hasAttribute("data-open")) {
+      closeModal();
+      return;
+    }
+
+    if (event.key !== "Tab" || !modal?.hasAttribute("data-open") || !dialog) return;
+
+    const focusable = Array.from(
+      dialog.querySelectorAll("button, iframe, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")
+    ).filter((element) => !element.hasAttribute("disabled") && !element.getAttribute("aria-hidden"));
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (!first || !last) return;
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  });
+</script>

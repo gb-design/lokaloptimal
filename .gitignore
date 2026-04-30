@@ -1,0 +1,10 @@
+node_modules
+.astro
+dist
+.vercel
+.env
+.env.local
+output
+.playwright-cli
+.DS_Store
+._*

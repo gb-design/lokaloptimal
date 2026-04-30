@@ -1,0 +1,110 @@
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+  const header = document.querySelector<HTMLElement>(".site-header");
+
+  if (header) {
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    const updateHeader = () => {
+      const currentScrollY = window.scrollY;
+      const isMenuOpen = document.body.hasAttribute("data-menu-open");
+      const isScrollingDown = currentScrollY > lastScrollY;
+
+      if (currentScrollY <= 8 || isMenuOpen || !isScrollingDown) {
+        header.classList.remove("is-hidden");
+      } else if (currentScrollY > 80) {
+        header.classList.add("is-hidden");
+      }
+
+      lastScrollY = Math.max(currentScrollY, 0);
+      ticking = false;
+    };
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!ticking) {
+          window.requestAnimationFrame(updateHeader);
+          ticking = true;
+        }
+      },
+      { passive: true },
+    );
+  }
+
+  const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>(".nav-links a[href^='#']"));
+  const navSections = navLinks
+    .map((link) => {
+      const target = document.querySelector<HTMLElement>(link.hash);
+      return target ? { link, target } : null;
+    })
+    .filter((item): item is { link: HTMLAnchorElement; target: HTMLElement } => Boolean(item));
+
+  if (navSections.length > 0) {
+    const setActiveLink = () => {
+      const headerOffset = header?.offsetHeight ?? 0;
+      const activePoint = window.scrollY + headerOffset + 120;
+      const activeSection =
+        [...navSections]
+          .reverse()
+          .find(({ target }) => target.offsetTop <= activePoint) ?? null;
+
+      navLinks.forEach((link) => {
+        const isActive = activeSection ? link === activeSection.link : false;
+        link.classList.toggle("active", isActive);
+        link.toggleAttribute("aria-current", isActive);
+      });
+    };
+
+    setActiveLink();
+    window.addEventListener("scroll", setActiveLink, { passive: true });
+    window.addEventListener("resize", setActiveLink);
+  }
+
+  if (!reduceMotion) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.utils.toArray<HTMLElement>("[data-gsap='reveal']").forEach((element, index) => {
+      gsap.fromTo(
+        element,
+        { autoAlpha: 0, y: 42 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.9,
+          delay: Math.min(index * 0.04, 0.18),
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: element,
+            start: "top 86%",
+            once: true,
+            toggleActions: "play none none none",
+          },
+        },
+      );
+    });
+
+    if (isDesktop) {
+      gsap.utils.toArray<HTMLElement>("[data-gsap='parallax']").forEach((element) => {
+        gsap.to(element, {
+          yPercent: -7,
+          ease: "none",
+          scrollTrigger: {
+            trigger: element,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 0.65,
+          },
+        });
+      });
+    }
+
+  } else {
+    document.querySelectorAll(".reveal, [data-gsap='reveal']").forEach((element) => element.classList.add("is-visible"));
+  }
+</script>
