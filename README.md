@@ -26,6 +26,7 @@ Die API-Endpunkte liegen bewusst als native Vercel Functions im Root-Ordner `api
 
 ```bash
 GOOGLE_PLACES_API_KEY=...
+GBP_AUDIT_DAILY_LIMIT=3
 KV_REST_API_URL=...
 KV_REST_API_TOKEN=...
 ALLOWED_ORIGIN=https://deine-domain.at
@@ -41,6 +42,7 @@ PUBLIC_CAL_URL=https://cal.com/dein-name/gbp-audit
 - Booking: Cal.com Free
 - Kontakt: Resend Free
 - GBP-Check: Google Places API mit eingeschraenktem API-Key, Field Masks und Budget Alerts
+- GBP-Check Tageslimit: `GBP_AUDIT_DAILY_LIMIT` steuert die Scans pro Nutzer und 24 Stunden, Fallback ist `3`
 
 ## Rechtliches
 

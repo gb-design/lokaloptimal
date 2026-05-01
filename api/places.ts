@@ -1,6 +1,7 @@
 const PLACES_BASE = "https://places.googleapis.com/v1";
-const RATE_LIMIT_MAX = 3;
+const DEFAULT_RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_WINDOW_SECONDS = 60 * 60 * 24;
+const RATE_LIMIT_NAMESPACE = "gbp-audit:v2";
 const INVALID_GOOGLE_MAPS_URL = "INVALID_GOOGLE_MAPS_URL";
 
 type FoundBusiness = { place_id: string; name: string; address?: string | null };
@@ -30,6 +31,11 @@ function setCors(req: any, res: any) {
 
 function firstValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
+}
+
+function dailyRateLimitMax() {
+  const configuredLimit = Number.parseInt(process.env.GBP_AUDIT_DAILY_LIMIT || "", 10);
+  return Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : DEFAULT_RATE_LIMIT_MAX;
 }
 
 function isAllowedSubmittedGoogleMapsUrl(raw: string) {
@@ -162,24 +168,28 @@ async function kvCommand<T>(command: string, ...args: Array<string | number>): P
 }
 
 async function enforceRateLimit(req: any) {
-  const key = `gbp-audit:${await clientKey(req)}`;
+  const maxRequests = dailyRateLimitMax();
+  const key = `${RATE_LIMIT_NAMESPACE}:${await clientKey(req)}`;
   const count = await kvCommand<number>("incr", key);
 
   if (count === 1) {
     await kvCommand<number>("expire", key, RATE_LIMIT_WINDOW_SECONDS);
   }
 
-  if (count > RATE_LIMIT_MAX) {
+  if (count > maxRequests) {
     const ttl = await kvCommand<number>("ttl", key);
     return {
       allowed: false,
       retryAfter: Math.max(ttl, 60),
+      limit: maxRequests,
+      remaining: 0,
     };
   }
 
   return {
     allowed: true,
-    remaining: Math.max(RATE_LIMIT_MAX - count, 0),
+    remaining: Math.max(maxRequests - count, 0),
+    limit: maxRequests,
   };
 }
 
@@ -265,14 +275,15 @@ async function getPlaceDetails(apiKey: string, placeId: string): Promise<Details
 async function guardGoogleCalls(req: any, res: any) {
   try {
     const limit = await enforceRateLimit(req);
+    res.setHeader("X-RateLimit-Limit", String(limit.limit));
+    res.setHeader("X-RateLimit-Remaining", String(limit.remaining));
+
     if (!limit.allowed) {
       res.setHeader("Retry-After", String(limit.retryAfter));
       res.status(429).json({ error: "RATE_LIMITED", retry_after_seconds: limit.retryAfter });
       return false;
     }
 
-    res.setHeader("X-RateLimit-Limit", String(RATE_LIMIT_MAX));
-    res.setHeader("X-RateLimit-Remaining", String(limit.remaining));
     return true;
   } catch (error) {
     if ((error as Error).message === "KV_NOT_CONFIGURED") {
@@ -296,9 +307,9 @@ export default async function handler(req: any, res: any) {
       const submittedUrl = firstValue(req.query.url);
       if (!submittedUrl) return res.status(400).json({ error: "Missing url parameter." });
       const parsed = await queryFromSubmittedUrl(String(submittedUrl));
-      if (!(await guardGoogleCalls(req, res))) return;
       const apiKey = process.env.GOOGLE_PLACES_API_KEY;
       if (!apiKey) return res.status(500).json({ error: "Google Places API key is not configured." });
+      if (!(await guardGoogleCalls(req, res))) return;
 
       const found = await searchPlace(apiKey, parsed.name, parsed.lat, parsed.lng);
       const details = await getPlaceDetails(apiKey, found.place_id);
@@ -309,9 +320,9 @@ export default async function handler(req: any, res: any) {
       const submittedUrl = firstValue(req.query.url);
       if (!submittedUrl) return res.status(400).json({ error: "Missing url parameter." });
       const parsed = await queryFromSubmittedUrl(String(submittedUrl));
-      if (!(await guardGoogleCalls(req, res))) return;
       const apiKey = process.env.GOOGLE_PLACES_API_KEY;
       if (!apiKey) return res.status(500).json({ error: "Google Places API key is not configured." });
+      if (!(await guardGoogleCalls(req, res))) return;
 
       const found = await searchPlace(apiKey, parsed.name, parsed.lat, parsed.lng);
       return res.status(200).json(found);
@@ -320,9 +331,9 @@ export default async function handler(req: any, res: any) {
     if (action === "details") {
       const placeId = firstValue(req.query.place_id);
       if (!placeId) return res.status(400).json({ error: "Missing place_id parameter." });
-      if (!(await guardGoogleCalls(req, res))) return;
       const apiKey = process.env.GOOGLE_PLACES_API_KEY;
       if (!apiKey) return res.status(500).json({ error: "Google Places API key is not configured." });
+      if (!(await guardGoogleCalls(req, res))) return;
 
       const details = await getPlaceDetails(apiKey, String(placeId));
       return res.status(200).json(details);
