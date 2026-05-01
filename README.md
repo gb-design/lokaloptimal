@@ -45,3 +45,5 @@ PUBLIC_CAL_URL=https://cal.com/dein-name/gbp-audit
 ## Rechtliches
 
 `/impressum`, `/datenschutz` und `/agb` sind als Seiten angelegt, enthalten aber Platzhaltertexte. Vor Livegang muessen Unternehmensdaten und Rechtstexte final geprueft werden.
+
+Vor dem produktiven Einsatz sollte ausserdem ein DSGVO-konformer Cookie Consent Banner integriert werden, falls Tracking, Analytics, Marketing-Pixel, eingebettete Drittanbieter-Inhalte oder andere nicht technisch notwendige Cookies/Skripte genutzt werden. Eine moegliche Loesung ist CookieYes: https://www.cookieyes.com/de/

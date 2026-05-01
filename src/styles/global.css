@@ -38,6 +38,12 @@ html {
   overflow-x: hidden;
 }
 
+@media (hover: hover) and (pointer: fine) {
+  html {
+    overscroll-behavior: none;
+  }
+}
+
 body {
   margin: 0;
   min-width: 320px;
@@ -365,28 +371,13 @@ svg {
   display: inline-flex;
   align-items: center;
   justify-self: start;
-  gap: 0.55rem;
-  font-size: 1.1rem;
-  font-weight: 820;
   line-height: 1;
 }
 
-.brand span span {
-  color: var(--blue);
-}
-
-.brand-mark {
-  display: grid;
-  width: 1.65rem;
-  height: 1.65rem;
-  place-items: center;
-  border-radius: 999px;
-  background: var(--blue);
-  color: white;
-  font-size: 0.58rem;
-  font-weight: 820;
-  letter-spacing: -0.03em;
-  text-transform: lowercase;
+.brand-logo {
+  display: block;
+  width: clamp(10.5rem, 14vw, 12.2rem);
+  height: auto;
 }
 
 .nav-links {
@@ -1502,6 +1493,7 @@ body[data-cal-modal-open] {
 .price-card {
   position: relative;
   min-width: 0;
+  box-shadow: none;
 }
 
 .recommended {
@@ -1542,6 +1534,14 @@ body[data-cal-modal-open] {
   height: 100%;
   min-height: 100%;
   padding: clamp(1.1rem, 2.4vw, 1.5rem);
+  box-shadow: var(--shadow-panel);
+  transition: transform 420ms var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .price-card:hover .price-core {
+    transform: translateY(-0.55rem);
+  }
 }
 
 .price-card.featured .price-core {
@@ -1603,6 +1603,11 @@ body[data-cal-modal-open] {
   font-weight: 740;
 }
 
+.price-core > .btn {
+  min-height: 3.1rem;
+  padding: 0.55rem 0.58rem 0.55rem 1.15rem;
+}
+
 .price-note {
   margin-block: 1.3rem clamp(2rem, 5vw, 3rem);
   color: var(--muted);
@@ -1618,18 +1623,35 @@ body[data-cal-modal-open] {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
+  overflow: visible;
+}
+
+.addon-price {
+  position: relative;
+}
+
+.addon-price summary {
+  list-style: none;
+  cursor: pointer;
+}
+
+.addon-price summary::-webkit-details-marker {
+  display: none;
 }
 
 .addon-price .panel-core {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
-  gap: 1rem;
+  gap: 0.85rem;
   min-height: 5.8rem;
   padding: 1rem 1.2rem;
+  transition:
+    background-color 260ms var(--ease),
+    box-shadow 260ms var(--ease);
 }
 
-.addon-price span:first-child {
+.addon-icon {
   display: grid;
   width: 3.5rem;
   height: 3.5rem;
@@ -1638,6 +1660,18 @@ body[data-cal-modal-open] {
   background: color-mix(in oklch, var(--blue), white 82%);
   color: var(--blue);
   font-size: 1.5rem;
+}
+
+.addon-toggle {
+  display: none;
+  width: 1.9rem;
+  height: 1.9rem;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--blue), white 90%);
+  color: var(--blue-deep);
+  font-size: 1.25rem;
+  transition: transform 260ms var(--ease);
 }
 
 .addon-price strong,
@@ -1658,6 +1692,94 @@ body[data-cal-modal-open] {
   font-size: 0.72rem;
   font-weight: 500;
   text-align: right;
+}
+
+.addon-tooltip {
+  display: none;
+  margin: 0;
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 620;
+  line-height: 1.42;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .addon-price {
+    z-index: 0;
+  }
+
+  .addon-price:hover,
+  .addon-price:focus-within {
+    z-index: 4;
+  }
+
+  .addon-price:hover .panel-core,
+  .addon-price:focus-within .panel-core {
+    background: color-mix(in oklch, white, var(--soft-blue) 22%);
+  }
+
+  .addon-tooltip {
+    display: block;
+    position: absolute;
+    top: calc(100% + 0.7rem);
+    left: 50%;
+    z-index: 5;
+    width: min(21rem, calc(100vw - 2rem));
+    padding: 0.85rem 1rem;
+    border-radius: 0.85rem;
+    background: color-mix(in oklch, var(--blue-deep), black 12%);
+    box-shadow: 0 18px 42px rgb(31 50 140 / 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -0.35rem);
+    transition:
+      opacity 220ms var(--ease),
+      transform 220ms var(--ease);
+  }
+
+  .addon-tooltip::before {
+    position: absolute;
+    top: -0.38rem;
+    left: 50%;
+    width: 0.75rem;
+    height: 0.75rem;
+    background: inherit;
+    content: "";
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .addon-price:hover .addon-tooltip,
+  .addon-price:focus-within .addon-tooltip {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  .addon-price .panel-core {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+
+  .addon-toggle {
+    display: grid;
+  }
+
+  .addon-price[open] .addon-toggle {
+    transform: rotate(180deg);
+  }
+
+  .addon-price[open] .panel-core {
+    background: color-mix(in oklch, white, var(--soft-blue) 18%);
+  }
+
+  .addon-price[open] .addon-tooltip {
+    display: block;
+    grid-column: 1 / -1;
+    padding-top: 0.85rem;
+    border-top: 1px solid color-mix(in oklch, var(--blue), white 78%);
+    color: color-mix(in oklch, var(--blue-deep), black 8%);
+    font-weight: 640;
+  }
 }
 
 .important-note {
@@ -1769,7 +1891,21 @@ textarea.field {
 }
 
 .footer-brand {
+  width: fit-content;
   margin-bottom: 1rem;
+}
+
+.footer-logo {
+  width: clamp(11.5rem, 18vw, 13.4rem);
+}
+
+.footer-logo-inline {
+  display: block;
+  line-height: 0;
+}
+
+.footer-logo-local {
+  fill: white;
 }
 
 .footer p {
@@ -1789,6 +1925,20 @@ textarea.field {
   display: block;
   padding-block: 0.35rem;
   color: oklch(0.86 0.02 274);
+  transition:
+    color 220ms var(--ease),
+    opacity 220ms var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer-grid:has(a:not(.brand):hover) a:not(.brand) {
+    opacity: 0.45;
+  }
+
+  .footer-grid:has(a:not(.brand):hover) a:not(.brand):hover {
+    color: white;
+    opacity: 1;
+  }
 }
 
 .footer-bottom {
@@ -2282,11 +2432,16 @@ textarea.field {
   }
 
   .addon-price .panel-core {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto minmax(0, 1fr) auto;
   }
 
   .addon-price b {
     grid-column: 2;
+  }
+
+  .addon-toggle {
+    grid-column: 3;
+    grid-row: 1 / 3;
   }
 
   .contact-cal {

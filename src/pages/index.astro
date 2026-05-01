@@ -9,6 +9,8 @@ import addonArticlesImage from "../../assets/avif/addon-articles.avif";
 import addonLandingpageImage from "../../assets/avif/addon-landingpage.avif";
 import addonQrImage from "../../assets/avif/addon-qr.avif";
 
+const calUrl = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
+
 const industries = [
   ["Notar", "business_center"],
   ["Hausarzt", "medical_services"],
@@ -104,12 +106,48 @@ const packages = [
 ];
 
 const addons = [
-  ["Extra Google Posts", "+4 / Monat", "€97", "/ Monat"],
-  ["Review-Response Service", "", "€127", "/ Monat"],
-  ["Landingpage", "1-Pager", "€797", "einmalig"],
-  ["Konkurrenzanalyse", "3 Mitbewerber", "€197", "einmalig"],
-  ["Foto-Briefing Dokument", "", "€97", "einmalig"],
-  ["Q&A Management", "monatlich", "€79", "/ Monat"],
+  {
+    name: "Extra Google Posts",
+    sub: "+4 / Monat",
+    price: "€97",
+    period: "/ Monat",
+    tooltip: "Hält Ihr Profil sichtbar aktiv und bringt aktuelle Angebote, News oder Aktionen direkt in die Google-Suche.",
+  },
+  {
+    name: "Review-Response Service",
+    sub: "",
+    price: "€127",
+    period: "/ Monat",
+    tooltip: "Zeigt Interessenten, dass Ihr Unternehmen auf Feedback reagiert und Kunden ernst nimmt.",
+  },
+  {
+    name: "Landingpage",
+    sub: "1-Pager",
+    price: "€797",
+    period: "einmalig",
+    tooltip: "Führt Besucher nach dem Google-Klick gezielt zur Anfrage statt sie auf einer unklaren Website zu verlieren.",
+  },
+  {
+    name: "Konkurrenzanalyse",
+    sub: "3 Mitbewerber",
+    price: "€197",
+    period: "einmalig",
+    tooltip: "Macht sichtbar, wo Mitbewerber stärker auftreten und welche Chancen Ihr Profil noch nutzen kann.",
+  },
+  {
+    name: "Foto-Briefing Dokument",
+    sub: "",
+    price: "€97",
+    period: "einmalig",
+    tooltip: "Hilft Ihnen, genau die Bilder zu erstellen, die Vertrauen aufbauen und Ihr Profil professioneller wirken lassen.",
+  },
+  {
+    name: "Q&A Management",
+    sub: "monatlich",
+    price: "€79",
+    period: "/ Monat",
+    tooltip: "Beantwortet typische Fragen direkt im Profil und reduziert Unsicherheit vor der Kontaktaufnahme.",
+  },
 ];
 ---
 
@@ -318,8 +356,12 @@ const addons = [
               <ul>
                 {pkg.items.map((item) => <li>{item}</li>)}
               </ul>
-              <a class={`btn ${pkg.featured ? "btn-primary" : "btn-secondary"}`} href="#kontakt">
-                Zum Paket <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
+              <a
+                class={`btn ${pkg.featured ? "btn-primary" : "btn-secondary"}`}
+                href="#kontakt"
+                aria-label={`${pkg.name} Paket anfragen`}
+              >
+                Anfragen <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
               </a>
             </div>
           </article>
@@ -333,14 +375,16 @@ const addons = [
         <h2 class="h3">Erweitern Sie Ihr Paket <span class="text-blue">nach Bedarf</span></h2>
       </div>
       <div class="container addon-price-grid">
-        {addons.map(([name, sub, price, period]) => (
-          <div class="addon-price panel-shell" data-gsap="reveal">
-            <div class="panel-core">
-              <span class="material-symbols-rounded" aria-hidden="true">auto_awesome</span>
+        {addons.map(({ name, sub, price, period, tooltip }) => (
+          <details class="addon-price panel-shell" data-gsap="reveal">
+            <summary class="panel-core">
+              <span class="material-symbols-rounded addon-icon" aria-hidden="true">auto_awesome</span>
               <div><strong>{name}</strong>{sub && <small>{sub}</small>}</div>
               <b>{price}<small>{period}</small></b>
-            </div>
-          </div>
+              <span class="material-symbols-rounded addon-toggle" aria-hidden="true">expand_more</span>
+              <span class="addon-tooltip">{tooltip}</span>
+            </summary>
+          </details>
         ))}
       </div>
       <div class="container important-note" data-gsap="reveal">
@@ -354,7 +398,7 @@ const addons = [
           <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">forum</span>Kontakt</span>
           <h2 class="h2">Lassen Sie uns Ihren lokalen Auftritt sauber einordnen.</h2>
           <p class="lead">Schicken Sie eine kurze Anfrage oder buchen Sie direkt einen Termin. Der erste Check ist kostenlos und unverbindlich.</p>
-          <a class="btn btn-secondary contact-cal" href={import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit"} target="_blank" rel="noreferrer">Termin über Cal.com buchen</a>
+          <a class="btn btn-secondary contact-cal" href={calUrl} target="_blank" rel="noreferrer" data-cal-open>Kostenloses Erstgespräch buchen</a>
         </div>
         <div class="panel-shell" data-gsap="reveal">
           <div class="panel-core contact-core">

@@ -1,4 +1,6 @@
 ---
+import logo from "../../assets/lo_logo.svg";
+
 const calUrl = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
 const calEmbedUrl = `${calUrl}${calUrl.includes("?") ? "&" : "?"}embed=true`;
 
@@ -14,8 +16,7 @@ const navItems = [
 <header class="site-header">
   <nav class="nav container-wide" aria-label="Hauptnavigation">
     <a class="brand" href="/" aria-label="LokalOptimal Startseite">
-      <span class="brand-mark">lo</span>
-      <span>Lokal<span>Optimal</span></span>
+      <img class="brand-logo" src={logo.src} alt="LokalOptimal" width="595" height="159" />
     </a>
 
     <div class="nav-links">

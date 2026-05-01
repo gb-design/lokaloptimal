@@ -1,13 +1,17 @@
 ---
+import logoRaw from "../../assets/lo_logo.svg?raw";
+
 const year = new Date().getFullYear();
+const footerLogo = logoRaw
+  .replace("<svg ", '<svg class="brand-logo footer-logo" aria-hidden="true" focusable="false" ')
+  .replace('<path d="M147.9', '<path class="footer-logo-local" d="M147.9');
 ---
 
 <footer class="footer">
-  <div class="container footer-grid">
+  <div class="container-wide footer-grid">
     <div>
-      <a class="brand footer-brand" href="/">
-        <span class="brand-mark">lo</span>
-        <span>Lokal<span>Optimal</span></span>
+      <a class="brand footer-brand" href="/" aria-label="LokalOptimal Startseite">
+        <span class="footer-logo-inline" set:html={footerLogo} />
       </a>
       <p>Google Business Profil Optimierung für lokale Unternehmen, die genau dort sichtbar werden wollen, wo Kund:innen suchen.</p>
     </div>
@@ -27,7 +31,7 @@ const year = new Date().getFullYear();
     </div>
   </div>
 
-  <div class="container footer-bottom">
+  <div class="container-wide footer-bottom">
     <span>© {year} LokalOptimal</span>
     <span>Keine Ranking-Garantien. Saubere Optimierung nach aktuellen Best Practices.</span>
   </div>
