@@ -319,7 +319,7 @@ export default function GBPAuditWidget() {
               Ihr Profil sinnvoll sind.
             </p>
           </div>
-          <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} target="_blank" rel="noreferrer">
+          <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} rel="noreferrer" data-cal-open>
             Jetzt handeln und Termin vereinbaren
             <span className="btn-icon">
               <ArrowRight size={18} />
@@ -406,7 +406,7 @@ export default function GBPAuditWidget() {
             })}
           </div>
 
-          <a className="btn btn-primary widget-button" href={CAL_URL} target="_blank" rel="noreferrer">
+          <a className="btn btn-primary widget-button" href={CAL_URL} rel="noreferrer" data-cal-open>
             Jetzt handeln und Termin vereinbaren
             <span className="btn-icon">
               <ArrowRight size={18} />

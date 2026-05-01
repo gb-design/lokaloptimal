@@ -71,7 +71,6 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
   const modal = document.querySelector("[data-cal-modal]");
   const dialog = modal?.querySelector(".cal-dialog");
   const calFrame = modal?.querySelector(".cal-frame");
-  const modalOpeners = document.querySelectorAll("[data-cal-open]");
   const modalClose = modal?.querySelector("[data-cal-close]");
   let lastFocusedElement = null;
 
@@ -128,8 +127,9 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
     }, 260);
   };
 
-  modalOpeners.forEach((opener) => {
-    opener.addEventListener("click", openModal);
+  document.addEventListener("click", (event) => {
+    const opener = event.target instanceof Element ? event.target.closest("[data-cal-open]") : null;
+    if (opener) openModal(event);
   });
 
   modalClose?.addEventListener("click", closeModal);
