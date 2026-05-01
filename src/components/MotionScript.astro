@@ -66,13 +66,82 @@
     window.addEventListener("resize", setActiveLink);
   }
 
+  const countUpElements = Array.from(document.querySelectorAll<HTMLElement>("[data-count-up]"));
+  const numberFormatter = (decimals: number) =>
+    new Intl.NumberFormat("de-DE", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+
+  const setCountValue = (element: HTMLElement, value: number, decimals: number) => {
+    element.textContent = numberFormatter(decimals).format(value);
+  };
+
+  const animateCount = (element: HTMLElement) => {
+    if (element.dataset.countStarted === "true") return;
+
+    const target = Number(element.dataset.countTarget ?? "0");
+    const decimals = Number(element.dataset.countDecimals ?? "0");
+    const duration = target < 10 ? 1200 : 1450;
+    const start = performance.now();
+
+    element.dataset.countStarted = "true";
+
+    const tick = (now: number) => {
+      const progress = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCountValue(element, target * eased, decimals);
+
+      if (progress < 1) {
+        window.requestAnimationFrame(tick);
+      } else {
+        setCountValue(element, target, decimals);
+      }
+    };
+
+    window.requestAnimationFrame(tick);
+  };
+
+  if (countUpElements.length > 0) {
+    if (reduceMotion) {
+      countUpElements.forEach((element) => {
+        setCountValue(element, Number(element.dataset.countTarget ?? "0"), Number(element.dataset.countDecimals ?? "0"));
+      });
+    } else {
+      const shouldCountPerCard = window.matchMedia("(max-width: 860px)").matches;
+      const countAll = () => countUpElements.forEach((element) => animateCount(element));
+      const countObserver = new IntersectionObserver(
+        (entries, observer) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            if (shouldCountPerCard) {
+              entry.target.querySelectorAll<HTMLElement>("[data-count-up]").forEach((element) => animateCount(element));
+            } else {
+              countAll();
+            }
+            observer.unobserve(entry.target);
+          });
+        },
+        { rootMargin: "0px 0px -18% 0px", threshold: 0.18 },
+      );
+
+      if (shouldCountPerCard) {
+        document.querySelectorAll<HTMLElement>("#vorteile .benefit-stat-card").forEach((card) => countObserver.observe(card));
+      } else {
+        countObserver.observe(document.querySelector("#vorteile .benefit-bento") ?? countUpElements[0]);
+      }
+    }
+  }
+
   if (!reduceMotion) {
     gsap.registerPlugin(ScrollTrigger);
 
     gsap.utils.toArray<HTMLElement>("[data-gsap='reveal']").forEach((element, index) => {
+      const revealOffset = element.closest(".check-section") ? 16 : 42;
+
       gsap.fromTo(
         element,
-        { autoAlpha: 0, y: 42 },
+        { autoAlpha: 0, y: revealOffset },
         {
           autoAlpha: 1,
           y: 0,

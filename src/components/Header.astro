@@ -11,17 +11,20 @@ const navItems = [
   { href: "#preise", label: "Preise" },
   { href: "#kontakt", label: "Kontakt" },
 ];
+
+const isHomePage = Astro.url.pathname === "/";
+const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
 ---
 
 <header class="site-header">
   <nav class="nav container-wide" aria-label="Hauptnavigation">
     <a class="brand" href="/" aria-label="LokalOptimal Startseite">
-      <img class="brand-logo" src={logo.src} alt="LokalOptimal" width="595" height="159" />
+      <img class="brand-logo" src={logo.src} alt="LokalOptimal Logo" width="595" height="159" />
     </a>
 
     <div class="nav-links">
       {navItems.map((item) => (
-        <a href={item.href}>{item.label}</a>
+        <a href={getNavHref(item.href)}>{item.label}</a>
       ))}
     </div>
 
@@ -37,7 +40,7 @@ const navItems = [
   </nav>
 
   <div class="mobile-menu" data-mobile-menu>
-    {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+    {navItems.map((item) => <a href={getNavHref(item.href)}>{item.label}</a>)}
     <button class="mobile-cal-cta" type="button" data-cal-open>Termin vereinbaren</button>
   </div>
 </header>

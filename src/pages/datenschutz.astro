@@ -2,24 +2,186 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
+import MotionScript from "@/components/MotionScript.astro";
+
+const rights = [
+  "Recht auf Auskunft",
+  "Recht auf Berichtigung",
+  "Recht auf Löschung",
+  "Recht auf Einschränkung der Verarbeitung",
+  "Recht auf Datenübertragbarkeit",
+  "Recht auf Widerspruch",
+  "Recht auf Widerruf einer Einwilligung",
+  "Recht auf Beschwerde bei einer Datenschutzbehörde",
+];
 ---
 
-<BaseLayout title="Datenschutz - LokalOptimal">
+<BaseLayout
+  title="Datenschutz - LokalOptimal"
+  description="Datenschutzerklärung von LokalOptimal zur Verarbeitung personenbezogener Daten auf der Website und bei der Nutzung der Leistungen."
+>
   <Header />
   <main class="legal-page">
     <article class="container panel-shell">
       <div class="panel-core legal-core">
-        <h1 class="h2">Datenschutz</h1>
-        <p>Diese Seite informiert über die Verarbeitung personenbezogener Daten auf lokalOptimal.</p>
-        <h2>Kontaktformular</h2>
-        <p>Übermittelte Angaben werden zur Bearbeitung der Anfrage verarbeitet und per E-Mail zugestellt.</p>
-        <h2>Google Places API</h2>
-        <p>Beim GBP-Check werden eingegebene Profil- oder Unternehmensdaten an die Google Places API übertragen, um öffentlich verfügbare Profilinformationen abzurufen.</p>
-        <h2>Cal.com</h2>
-        <p>Für Terminbuchungen wird auf Cal.com verlinkt. Dort gelten die Datenschutzbestimmungen des Anbieters.</p>
-        <p><strong>Hinweis:</strong> Dieser Text ist ein technischer Platzhalter und sollte juristisch geprüft werden.</p>
+        <p class="eyebrow">Rechtliches</p>
+        <h1 class="h2">Datenschutzerklärung</h1>
+
+        <section>
+          <h2>1. Allgemeines</h2>
+          <p>Der Schutz Ihrer personenbezogenen Daten ist uns wichtig. Diese Datenschutzerklärung informiert darüber, welche personenbezogenen Daten beim Besuch dieser Website und bei der Nutzung unserer Leistungen verarbeitet werden.</p>
+          <p>Verantwortlicher im Sinne der Datenschutz-Grundverordnung ist:</p>
+          <p><strong>LokalOptimal</strong><br />Ein Produkt von george&amp;burn design co.<br />Inhaber: Georg Redl-Fortelny<br />Lorenz-Mandl-Gasse 16<br />1160 Wien<br />Österreich<br />E-Mail: <a href="mailto:lokaloptimal@gmail.com">lokaloptimal@gmail.com</a><br />Telefon: <a href="tel:+436606191986">+43 660 619 19 86</a></p>
+        </section>
+
+        <section>
+          <h2>2. Welche Daten wir verarbeiten</h2>
+          <p>Je nach Nutzung der Website können folgende Daten verarbeitet werden:</p>
+          <h3>Bei Besuch der Website</h3>
+          <p>IP-Adresse, Datum und Uhrzeit des Zugriffs, Browsertyp, Betriebssystem, Referrer-URL, aufgerufene Seiten und technische Zugriffsdaten.</p>
+          <h3>Bei Nutzung des Kontaktformulars</h3>
+          <p>Vorname, Nachname, Firma, E-Mail-Adresse und Nachricht.</p>
+          <h3>Beim kostenlosen Google Business Profile Check</h3>
+          <p>Google-Maps-URL bzw. Google-Business-Profil-Link. Es wird nach aktuellem Stand nur die Anzahl der Scans erfasst. Es erfolgt keine Speicherung umfassender Check-Ergebnisse und keine Auswertung über OpenAI oder andere KI-Systeme.</p>
+          <h3>Bei Terminbuchungen über Cal.com</h3>
+          <p>Name, E-Mail-Adresse, Terminzeitpunkt, gegebenenfalls Nachricht, Meetingdaten und technische Buchungsdaten.</p>
+          <h3>Bei Nutzung von Google Analytics 4</h3>
+          <p>Nutzungsdaten, Seitenaufrufe, Interaktionen, technische Geräteinformationen und gegebenenfalls gekürzte oder pseudonymisierte Kennungen, soweit eine Einwilligung über das Cookie-Consent-Tool erteilt wurde.</p>
+        </section>
+
+        <section>
+          <h2>3. Zwecke der Datenverarbeitung</h2>
+          <p>Wir verarbeiten personenbezogene Daten zu folgenden Zwecken:</p>
+          <ul>
+            <li>Zur Bereitstellung und technischen Absicherung der Website.</li>
+            <li>Zur Bearbeitung von Anfragen über das Kontaktformular.</li>
+            <li>Zur Durchführung kostenloser Checks.</li>
+            <li>Zur Terminvereinbarung über Cal.com.</li>
+            <li>Zur Analyse der Website-Nutzung mit Google Analytics 4, sofern eine Einwilligung erteilt wurde.</li>
+            <li>Zur Vertragsanbahnung, Angebotserstellung und Projektabwicklung.</li>
+            <li>Zur Erfüllung gesetzlicher Aufbewahrungs- und Dokumentationspflichten.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>4. Rechtsgrundlagen der Verarbeitung</h2>
+          <p>Die Verarbeitung erfolgt auf folgenden Rechtsgrundlagen:</p>
+          <ul>
+            <li>Art. 6 Abs. 1 lit. b DSGVO, sofern die Verarbeitung zur Vertragsanbahnung oder Vertragserfüllung erforderlich ist.</li>
+            <li>Art. 6 Abs. 1 lit. f DSGVO, sofern ein berechtigtes Interesse an einer sicheren, funktionierenden und professionellen Website besteht.</li>
+            <li>Art. 6 Abs. 1 lit. c DSGVO, sofern gesetzliche Pflichten bestehen.</li>
+            <li>Art. 6 Abs. 1 lit. a DSGVO, sofern eine Einwilligung erteilt wurde, insbesondere für Google Analytics und nicht notwendige Cookies.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>5. Kontaktformular</h2>
+          <p>Wenn Sie das Kontaktformular nutzen, verarbeiten wir die von Ihnen eingegebenen Daten: Vorname, Nachname, Firma, E-Mail-Adresse und Nachricht.</p>
+          <p>Diese Daten werden verwendet, um Ihre Anfrage zu beantworten, ein Angebot zu erstellen oder eine mögliche Zusammenarbeit vorzubereiten.</p>
+          <p>Die Daten werden zu Beginn in Google Sheets gespeichert. Anfragen, aus denen kein Auftrag entsteht, werden grundsätzlich nach spätestens 3 Monaten gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten oder berechtigten Interessen entgegenstehen.</p>
+        </section>
+
+        <section>
+          <h2>6. Kostenloser Google Business Profile Check</h2>
+          <p>Auf der Website kann ein kostenloser Check angeboten werden. Dabei wird nach aktuellem Stand ausschließlich eine Google-Maps-URL bzw. ein Link zum Google Business Profile verarbeitet.</p>
+          <p>Es werden keine Namen, E-Mail-Adressen oder sonstigen Kontaktdaten für den Check selbst benötigt, sofern diese nicht zusätzlich über ein Formular angegeben werden.</p>
+          <p>Nach aktuellem Stand wird nur die Anzahl der durchgeführten Scans getrackt. Es erfolgt keine Speicherung detaillierter Check-Ergebnisse. Es wird kein OpenAI-System oder anderes KI-System für den Check verwendet.</p>
+        </section>
+
+        <section>
+          <h2>7. Terminbuchung über Cal.com</h2>
+          <p>Für Terminbuchungen nutzen wir Cal.com. Wenn Sie einen Termin buchen, werden die dafür notwendigen Daten an Cal.com übermittelt und dort verarbeitet.</p>
+          <p>Dazu können insbesondere Name, E-Mail-Adresse, Terminzeitpunkt, Nachrichteninhalte, technische Daten und gegebenenfalls Kalenderinformationen gehören. Cal.com beschreibt in seiner Datenschutzerklärung die Verarbeitung personenbezogener Daten, unter anderem auch im Zusammenhang mit Buchungen, Benachrichtigungen und eingesetzten Drittanbietern.</p>
+          <p>Die Nutzung von Cal.com erfolgt zur einfachen und effizienten Terminvereinbarung auf Grundlage von Art. 6 Abs. 1 lit. b DSGVO, soweit die Terminbuchung zur Vertragsanbahnung dient, sowie auf Grundlage berechtigter Interessen gemäß Art. 6 Abs. 1 lit. f DSGVO.</p>
+        </section>
+
+        <section>
+          <h2>8. Hosting</h2>
+          <p>Die Website wird zu Beginn über Vercel gehostet. Später kann ein Betrieb über Hostinger erfolgen.</p>
+          <p>Beim Aufruf der Website verarbeitet der Hostinganbieter technische Zugriffsdaten, die für den Betrieb, die Sicherheit und die Auslieferung der Website erforderlich sind. Dazu können IP-Adresse, Datum und Uhrzeit des Zugriffs, Browserinformationen, Betriebssystem und aufgerufene Seiten gehören.</p>
+          <p>Die Verarbeitung erfolgt auf Grundlage unseres berechtigten Interesses an einer sicheren und zuverlässigen Website gemäß Art. 6 Abs. 1 lit. f DSGVO.</p>
+        </section>
+
+        <section>
+          <h2>9. Google Analytics 4</h2>
+          <p>Diese Website verwendet Google Analytics 4, einen Webanalysedienst von Google, sofern Sie der Nutzung über das Cookie-Consent-Tool zustimmen.</p>
+          <p>Google Analytics hilft uns zu verstehen, wie die Website genutzt wird, welche Seiten besucht werden und wie oft bestimmte Funktionen, etwa der kostenlose Check, verwendet werden.</p>
+          <p>Google Analytics wird erst aktiviert, wenn Sie Ihre Einwilligung erteilt haben. Ohne Einwilligung werden keine Analytics-Cookies gesetzt und kein Analytics-Tracking aktiviert.</p>
+          <p>Rechtsgrundlage ist Ihre Einwilligung gemäß Art. 6 Abs. 1 lit. a DSGVO. Sie können Ihre Einwilligung jederzeit über die Cookie-Einstellungen widerrufen.</p>
+        </section>
+
+        <section>
+          <h2>10. Cookies und CookieYes</h2>
+          <p>Diese Website verwendet Cookies und vergleichbare Technologien. Technisch notwendige Cookies sind erforderlich, damit die Website funktioniert. Andere Cookies, insbesondere Analyse-Cookies, werden nur mit Ihrer vorherigen Einwilligung gesetzt.</p>
+          <p>Zur Verwaltung der Einwilligungen verwenden wir CookieYes. Über das Cookie-Banner können Sie auswählen, welchen Kategorien Sie zustimmen möchten. Sie können Ihre Auswahl jederzeit ändern oder widerrufen.</p>
+          <p>CookieYes kann technische Informationen speichern, um Ihre Einwilligung zu dokumentieren und die Cookie-Auswahl umzusetzen.</p>
+        </section>
+
+        <section>
+          <h2>11. Google Sheets</h2>
+          <p>Zur anfänglichen Verwaltung von Anfragen und Leads können Daten in Google Sheets gespeichert werden. Dies betrifft insbesondere Kontaktdaten aus dem Kontaktformular.</p>
+          <p>Der Zugriff auf diese Daten wird auf die erforderlichen Personen beschränkt. Die Daten werden nur für die Bearbeitung von Anfragen, Angebotserstellung und Projektabwicklung verwendet.</p>
+          <p>Anfragen ohne Auftrag werden grundsätzlich nach spätestens 3 Monaten gelöscht.</p>
+        </section>
+
+        <section>
+          <h2>12. Keine Newsletter</h2>
+          <p>Es wird derzeit kein Newsletter angeboten. Es erfolgt daher keine Verarbeitung personenbezogener Daten zu Newsletter-Zwecken.</p>
+        </section>
+
+        <section>
+          <h2>13. Keine automatisierte Entscheidungsfindung</h2>
+          <p>Es findet keine automatisierte Entscheidungsfindung einschließlich Profiling im Sinne von Art. 22 DSGVO statt.</p>
+        </section>
+
+        <section>
+          <h2>14. Speicherdauer</h2>
+          <p>Personenbezogene Daten werden nur so lange gespeichert, wie dies für die jeweiligen Zwecke erforderlich ist.</p>
+          <ul>
+            <li>Anfragen ohne Auftrag: grundsätzlich bis zu 3 Monate.</li>
+            <li>Vertrags- und Rechnungsdaten: entsprechend gesetzlicher Aufbewahrungspflichten.</li>
+            <li>Technische Serverdaten: abhängig vom Hostinganbieter und Sicherheitsbedarf.</li>
+            <li>Cookie-Einwilligungen: entsprechend der Konfiguration des Consent-Tools.</li>
+            <li>Analytics-Daten: entsprechend der in Google Analytics gewählten Aufbewahrungsdauer.</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>15. Empfänger von Daten</h2>
+          <p>Je nach Nutzung können Daten an folgende Dienstleister übermittelt werden:</p>
+          <ul>
+            <li>Hostinganbieter: Vercel, gegebenenfalls Hostinger</li>
+            <li>Terminbuchung: Cal.com</li>
+            <li>Analyse: Google Analytics 4 / Google</li>
+            <li>Lead-Verwaltung: Google Sheets / Google</li>
+            <li>Cookie-Consent: CookieYes</li>
+          </ul>
+          <p>Diese Dienstleister verarbeiten Daten entweder als eigene Verantwortliche oder als Auftragsverarbeiter. Soweit erforderlich, werden entsprechende Vereinbarungen zur Auftragsverarbeitung abgeschlossen.</p>
+        </section>
+
+        <section>
+          <h2>16. Ihre Rechte</h2>
+          <p>Sie haben nach der DSGVO insbesondere folgende Rechte:</p>
+          <ul>
+            {rights.map((right) => <li>{right}</li>)}
+          </ul>
+          <p>In Österreich ist die zuständige Aufsichtsbehörde:</p>
+          <p><strong>Österreichische Datenschutzbehörde</strong><br />Barichgasse 40-42<br />1030 Wien<br />Website: <a href="https://www.dsb.gv.at">https://www.dsb.gv.at</a></p>
+        </section>
+
+        <section>
+          <h2>17. Widerruf von Einwilligungen</h2>
+          <p>Wenn eine Verarbeitung auf Ihrer Einwilligung beruht, können Sie diese jederzeit mit Wirkung für die Zukunft widerrufen. Die Rechtmäßigkeit der Verarbeitung bis zum Widerruf bleibt davon unberührt.</p>
+        </section>
+
+        <section>
+          <h2>18. Änderungen dieser Datenschutzerklärung</h2>
+          <p>Wir behalten uns vor, diese Datenschutzerklärung anzupassen, wenn sich rechtliche, technische oder organisatorische Änderungen ergeben.</p>
+          <p><strong>Stand:</strong> Mai 2026</p>
+        </section>
       </div>
     </article>
   </main>
   <Footer />
+  <MotionScript />
 </BaseLayout>

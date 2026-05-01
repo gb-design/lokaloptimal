@@ -2,20 +2,105 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
+import MotionScript from "@/components/MotionScript.astro";
 ---
 
-<BaseLayout title="Impressum - LokalOptimal">
+<BaseLayout
+  title="Impressum - LokalOptimal"
+  description="Impressum und Anbieterkennzeichnung von LokalOptimal, einem Produkt von george&burn design co."
+>
   <Header />
   <main class="legal-page">
     <article class="container panel-shell">
       <div class="panel-core legal-core">
+        <p class="eyebrow">Rechtliches</p>
         <h1 class="h2">Impressum</h1>
-        <p>Angaben gemäß § 5 ECG und § 14 UGB.</p>
-        <p><strong>LokalOptimal</strong><br />Bitte Unternehmensdaten, Adresse, UID und vertretungsberechtigte Person ergänzen.</p>
-        <p><strong>Kontakt</strong><br />E-Mail: bitte-ergaenzen@example.com</p>
-        <p><strong>Hinweis</strong><br />Dieser Platzhalter ersetzt keine Rechtsberatung und muss vor Veröffentlichung geprüft werden.</p>
+        <p class="legal-intro">Angaben gemäß § 5 E-Commerce-Gesetz, § 14 Unternehmensgesetzbuch, § 63 Gewerbeordnung und § 25 Mediengesetz.</p>
+
+        <section>
+          <h2>LokalOptimal</h2>
+          <p>Ein Produkt von george&amp;burn design co.</p>
+          <dl class="legal-facts">
+            <div>
+              <dt>Inhaber</dt>
+              <dd>Georg Redl-Fortelny</dd>
+            </div>
+            <div>
+              <dt>Rechtsform</dt>
+              <dd>Einzelunternehmen / EPU</dd>
+            </div>
+            <div>
+              <dt>Geschäftsanschrift</dt>
+              <dd>Lorenz-Mandl-Gasse 16<br />1160 Wien<br />Österreich</dd>
+            </div>
+            <div>
+              <dt>Kontakt</dt>
+              <dd>Telefon: <a href="tel:+436606191986">+43 660 619 19 86</a><br />E-Mail: <a href="mailto:lokaloptimal@gmail.com">lokaloptimal@gmail.com</a><br />Website: <a href="https://www.lokaloptimal.at">https://www.lokaloptimal.at</a></dd>
+            </div>
+            <div>
+              <dt>Unternehmensgegenstand / Tätigkeit</dt>
+              <dd>Digital Marketing / Online Marketing<br />Google Business Profile Optimierung, Local Visibility, digitale Erstauftritte und Landingpages</dd>
+            </div>
+            <div>
+              <dt>UID-Nummer</dt>
+              <dd>Wird ergänzt, sobald vorhanden.</dd>
+            </div>
+            <div>
+              <dt>GISA-Zahl</dt>
+              <dd>Nicht vorhanden / wird ergänzt, falls erforderlich.</dd>
+            </div>
+            <div>
+              <dt>Gewerbebehörde</dt>
+              <dd>Magistratisches Bezirksamt Wien / zuständige Gewerbebehörde Wien</dd>
+            </div>
+            <div>
+              <dt>Mitgliedschaft</dt>
+              <dd>Mitglied der Wirtschaftskammer Österreich / Wirtschaftskammer Wien</dd>
+            </div>
+            <div>
+              <dt>Firmenbuch</dt>
+              <dd>Nicht im Firmenbuch eingetragen.</dd>
+            </div>
+            <div>
+              <dt>Anwendbare Rechtsvorschriften</dt>
+              <dd>Gewerbeordnung, abrufbar unter: <a href="https://www.ris.bka.gv.at">https://www.ris.bka.gv.at</a></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section>
+          <h2>Online-Streitbeilegung</h2>
+          <p>Die frühere EU-Plattform zur Online-Streitbeilegung ist seit 2025 nicht mehr aktiv. Eine Verpflichtung zur Verlinkung besteht nicht mehr. Bei Fragen oder Beschwerden kontaktieren Sie uns bitte direkt unter <a href="mailto:lokaloptimal@gmail.com">lokaloptimal@gmail.com</a>.</p>
+        </section>
+
+        <section>
+          <h2>Verantwortlich für den Inhalt</h2>
+          <p>Georg Redl-Fortelny<br />Lorenz-Mandl-Gasse 16<br />1160 Wien<br />Österreich</p>
+        </section>
+
+        <section>
+          <h2>Unternehmenszweck der Website</h2>
+          <p>Diese Website informiert über Leistungen von LokalOptimal im Bereich Google Business Profile Einrichtung, Optimierung und Betreuung, Local Visibility, Review-Management, Google-Posts, digitale Erstauftritte und ergänzende Landingpages für Unternehmen.</p>
+        </section>
+
+        <section>
+          <h2>Haftung für Inhalte</h2>
+          <p>Die Inhalte dieser Website wurden mit größtmöglicher Sorgfalt erstellt. Dennoch übernehmen wir keine Gewähr für die Richtigkeit, Vollständigkeit und Aktualität der bereitgestellten Informationen.</p>
+          <p>Die angebotenen Leistungen dienen der professionellen Einrichtung, Optimierung und Betreuung digitaler Unternehmensauftritte. Es wird keine Garantie für bestimmte Platzierungen, Rankings, Sichtbarkeitswerte, Anfragen, Umsätze oder sonstige wirtschaftliche Ergebnisse übernommen.</p>
+        </section>
+
+        <section>
+          <h2>Haftung für externe Links</h2>
+          <p>Diese Website kann Links zu externen Websites Dritter enthalten. Auf deren Inhalte haben wir keinen Einfluss. Für diese fremden Inhalte übernehmen wir keine Haftung. Zum Zeitpunkt der Verlinkung wurden die verlinkten Seiten auf offensichtliche Rechtsverstöße geprüft. Sollten uns Rechtsverletzungen bekannt werden, entfernen wir entsprechende Links umgehend.</p>
+        </section>
+
+        <section>
+          <h2>Urheberrecht</h2>
+          <p>Die auf dieser Website erstellten Inhalte, Texte, Designs, Grafiken, Logos und sonstigen Werke unterliegen dem Urheberrecht. Eine Verwendung, Vervielfältigung, Bearbeitung oder Weitergabe ist ohne ausdrückliche schriftliche Zustimmung nicht gestattet, sofern dies nicht gesetzlich erlaubt ist.</p>
+        </section>
       </div>
     </article>
   </main>
   <Footer />
+  <MotionScript />
 </BaseLayout>

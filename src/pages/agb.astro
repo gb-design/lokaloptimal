@@ -2,24 +2,185 @@
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
+import MotionScript from "@/components/MotionScript.astro";
 ---
 
-<BaseLayout title="AGB - LokalOptimal">
+<BaseLayout
+  title="AGB - LokalOptimal"
+  description="Allgemeine Geschäftsbedingungen von LokalOptimal für Leistungen im Bereich Google Business Profile Optimierung, Local Visibility und Landingpages."
+>
   <Header />
   <main class="legal-page">
     <article class="container panel-shell">
       <div class="panel-core legal-core">
+        <p class="eyebrow">Rechtliches</p>
         <h1 class="h2">Allgemeine Geschäftsbedingungen</h1>
-        <p>Die folgenden Inhalte sind Platzhalter für die späteren AGB von LokalOptimal.</p>
-        <h2>Leistungsumfang</h2>
-        <p>LokalOptimal erbringt Optimierungs- und Pflegeleistungen für Google Business Profile nach vereinbartem Paketumfang.</p>
-        <h2>Keine Ranking-Garantien</h2>
-        <p>Konkrete Rankingpositionen werden nicht garantiert, da lokale Suchergebnisse von externen Faktoren abhängig sind.</p>
-        <h2>Zahlung</h2>
-        <p>Sofern nicht anders vereinbart: 50 % Anzahlung bei Auftragserteilung, 50 % nach Abschluss.</p>
-        <p><strong>Hinweis:</strong> Dieser Text ist ein Platzhalter und sollte vor Veröffentlichung rechtlich geprüft werden.</p>
+
+        <section>
+          <h2>1. Geltungsbereich</h2>
+          <p>Diese Allgemeinen Geschäftsbedingungen gelten für alle Leistungen von LokalOptimal, einem Produkt von george&amp;burn design co., Inhaber Georg Redl-Fortelny.</p>
+          <p>LokalOptimal bietet Leistungen im Bereich Google Business Profile Einrichtung, Optimierung und Betreuung, Local Visibility, digitale Erstauftritte, Google-Posts, Review-Management, Q&amp;A-Management, Konkurrenzanalysen, Foto-Briefings und ergänzende Landingpages an.</p>
+          <p>Diese AGB gelten ausschließlich gegenüber Unternehmern im Sinne des UGB. Ein Vertragsabschluss mit Verbrauchern im Sinne des KSchG ist nicht vorgesehen.</p>
+          <p>Abweichende Bedingungen des Kunden gelten nur, wenn sie ausdrücklich schriftlich vereinbart wurden.</p>
+        </section>
+
+        <section>
+          <h2>2. Leistungen von LokalOptimal</h2>
+          <p>Der konkrete Leistungsumfang ergibt sich aus dem jeweiligen Angebot, der Leistungsbeschreibung oder der individuellen Vereinbarung.</p>
+          <p>Mögliche Leistungen sind insbesondere:</p>
+          <ul>
+            <li>Einrichtung oder Optimierung eines Google Business Profiles.</li>
+            <li>Analyse bestehender Google Business Profiles.</li>
+            <li>Optimierung von Kategorien, Leistungen, Texten, Öffnungszeiten und Profilinformationen.</li>
+            <li>Erstellung von Google-Posts nach Absprache.</li>
+            <li>Unterstützung beim Umgang mit Bewertungen.</li>
+            <li>Review-Monitoring und Review-Response nach Freigabe oder Tonalitätsvorgabe.</li>
+            <li>Q&amp;A-Management nach Absprache.</li>
+            <li>Konkurrenzanalysen.</li>
+            <li>Foto-Briefings und Empfehlungen für Profilbilder.</li>
+            <li>Erstellung von Landingpages nach individueller Vereinbarung.</li>
+          </ul>
+          <p>LokalOptimal schuldet eine fachgerechte Leistungserbringung, jedoch keinen bestimmten wirtschaftlichen Erfolg.</p>
+        </section>
+
+        <section>
+          <h2>3. Kein Erfolg, keine Ranking-Garantie</h2>
+          <p>LokalOptimal übernimmt keine Garantie für bestimmte Google-Rankings, Sichtbarkeitswerte, Platzierungen, Profilaufrufe, Anrufe, Website-Klicks, Routenanfragen, Bewertungen, Leads, Umsätze oder sonstige wirtschaftliche Ergebnisse.</p>
+          <p>Google Business Profile, Google Suche und Google Maps unterliegen Regeln, Algorithmen, Prüfprozessen und Entscheidungen von Google, auf die LokalOptimal keinen vollständigen Einfluss hat.</p>
+          <p>LokalOptimal kann Maßnahmen zur Verbesserung von Vollständigkeit, Qualität, Aktualität und professioneller Darstellung eines Profils setzen. Eine bestimmte Platzierung oder Freischaltung kann jedoch nicht zugesagt werden.</p>
+        </section>
+
+        <section>
+          <h2>4. Angebot und Vertragsschluss</h2>
+          <p>Alle Leistungen werden nur auf Anfrage angeboten. Die Darstellung von Leistungen auf der Website stellt kein verbindliches Angebot dar.</p>
+          <p>Ein Vertrag kommt zustande, wenn der Kunde ein schriftliches Angebot annimmt oder eine Leistung ausdrücklich beauftragt.</p>
+          <p>Angebote sind, sofern nicht anders angegeben, 14 Tage gültig.</p>
+        </section>
+
+        <section>
+          <h2>5. Preise und Zahlung</h2>
+          <p>Alle Preise verstehen sich, sofern nicht anders angegeben, netto zuzüglich gesetzlicher Umsatzsteuer.</p>
+          <p>Bei Setup- und Projektleistungen gelten grundsätzlich folgende Zahlungsbedingungen:</p>
+          <ul>
+            <li>50 % Anzahlung bei Auftragserteilung.</li>
+            <li>50 % nach Abschluss des Setups bzw. nach Fertigstellung der vereinbarten Projektleistung.</li>
+          </ul>
+          <p>Bei laufenden Betreuungspaketen erfolgt die Abrechnung monatlich oder gemäß Angebot.</p>
+          <p>Die Zahlungsfrist beträgt 7 Tage ab Rechnungsdatum.</p>
+          <p>Bei Zahlungsverzug ist LokalOptimal berechtigt, laufende Leistungen bis zum Zahlungseingang auszusetzen.</p>
+        </section>
+
+        <section>
+          <h2>6. Laufzeiten und Kündigung</h2>
+          <p>Das Paket Growth hat eine feste Laufzeit von 3 Monaten und kann nach Absprache verlängert werden.</p>
+          <p>Das Paket Local Pro hat eine feste Laufzeit von 6 Monaten und kann nach Absprache verlängert werden.</p>
+          <p>Eine ordentliche Kündigung ist mit einer Frist von 30 Tagen zum Ende der vereinbarten Laufzeit möglich, sofern nichts anderes vereinbart wurde.</p>
+          <p>Das Recht zur außerordentlichen Kündigung aus wichtigem Grund bleibt unberührt.</p>
+        </section>
+
+        <section>
+          <h2>7. Mitwirkungspflichten des Kunden</h2>
+          <p>Der Kunde verpflichtet sich, alle für die Leistungserbringung erforderlichen Informationen, Zugänge, Inhalte und Freigaben rechtzeitig bereitzustellen.</p>
+          <p>Dazu zählen insbesondere:</p>
+          <ul>
+            <li>korrekter Unternehmensname</li>
+            <li>Adresse</li>
+            <li>Telefonnummer</li>
+            <li>Website-URL</li>
+            <li>Öffnungszeiten</li>
+            <li>Leistungsinformationen</li>
+            <li>Fotos</li>
+            <li>Logos</li>
+            <li>Google-Zugänge oder Einladungen</li>
+            <li>Freigaben für Texte, Beiträge und Profiländerungen</li>
+            <li>rechtliche Inhalte für Landingpages</li>
+            <li>Bildrechte und Nutzungsrechte</li>
+          </ul>
+          <p>Der Kunde ist für die Richtigkeit, Rechtmäßigkeit und Vollständigkeit der bereitgestellten Inhalte verantwortlich.</p>
+        </section>
+
+        <section>
+          <h2>8. Verzögerung durch fehlende Mitwirkung</h2>
+          <p>Kommt der Kunde seinen Mitwirkungspflichten nicht nach, verlängern sich vereinbarte Fristen entsprechend.</p>
+          <p>LokalOptimal wird den Kunden bei fehlender Mitwirkung bis zu dreimal zur Bereitstellung der erforderlichen Informationen oder Freigaben auffordern.</p>
+          <p>Reagiert der Kunde trotz dreimaliger Aufforderung nicht oder stellt er wesentliche Inhalte nicht bereit, ist LokalOptimal berechtigt, den Vertrag aus wichtigem Grund zu beenden.</p>
+          <p>Bereits erbrachte Leistungen, reservierte Projektkapazitäten und angefallene Aufwände werden mit der geleisteten Anzahlung verrechnet. Eine Rückerstattung der Anzahlung ist in diesem Fall ausgeschlossen, soweit die Anzahlung durch bereits erbrachte Leistungen oder reservierte Kapazitäten gedeckt ist.</p>
+        </section>
+
+        <section>
+          <h2>9. Freigaben</h2>
+          <p>Google-Posts, Bewertungsantworten und wesentliche Profiländerungen erfolgen nur nach Absprache mit dem Kunden.</p>
+          <p>Bewertungsantworten werden entweder einzeln freigegeben oder auf Basis einer zuvor abgestimmten Tonalitätsvorgabe erstellt, sofern dies ausdrücklich vereinbart wurde.</p>
+          <p>Der Kunde ist verpflichtet, Freigaben zeitnah zu erteilen. Verzögerungen durch ausbleibende Freigaben gehen nicht zulasten von LokalOptimal.</p>
+        </section>
+
+        <section>
+          <h2>10. Änderungen nach Projektabschluss</h2>
+          <p>Nach Abschluss eines Setups oder Projekts sind Änderungen nicht automatisch inkludiert, sofern sie nicht ausdrücklich vereinbart wurden.</p>
+          <p>Zusätzliche Änderungen, Erweiterungen oder Anpassungen werden gesondert angeboten und verrechnet.</p>
+          <p>Bei Landingpages ist, sofern nicht anders vereinbart, eine Korrekturrunde inkludiert.</p>
+        </section>
+
+        <section>
+          <h2>11. Google Business Profile und Drittplattformen</h2>
+          <p>Die Leistungen von LokalOptimal können von Drittplattformen abhängig sein, insbesondere von Google Business Profile, Google Suche, Google Maps, Cal.com, Hostinganbietern oder Website-Systemen.</p>
+          <p>LokalOptimal übernimmt keine Haftung für Änderungen, Einschränkungen, Sperren, Ablehnungen, Verifikationsprobleme, technische Störungen oder Richtlinienänderungen dieser Drittanbieter.</p>
+          <p>Bei Sperren, Verifikationsproblemen oder sonstigen Problemen unterstützt LokalOptimal den Kunden nach Möglichkeit bei der Klärung. Eine erfolgreiche Lösung kann jedoch nicht garantiert werden.</p>
+        </section>
+
+        <section>
+          <h2>12. Landingpages</h2>
+          <p>Landingpages werden je nach Kundenwunsch, Projektanforderung und technischer Eignung mit einem passenden System, Framework oder Techstack umgesetzt.</p>
+          <p>Domain, Hosting, laufende technische Kosten, Lizenzkosten, Texte, Bilder, Rechtstexte, Cookie-Setup und Datenschutztexte sind nicht automatisch inkludiert, sofern sie nicht ausdrücklich im Angebot enthalten sind.</p>
+          <p>Der Kunde stellt Texte, Bilder, Logos, rechtliche Inhalte und sonstige Materialien bereit, sofern nichts anderes vereinbart wurde.</p>
+          <p>Rechtstexte wie Impressum, Datenschutzerklärung, AGB oder Cookie-Hinweise für Kunden-Landingpages werden vom Kunden bereitgestellt und verantwortet. LokalOptimal integriert diese Inhalte lediglich technisch, sofern dies vereinbart wurde.</p>
+          <p>Der Kunde ist für Bildrechte, Markenrechte, Urheberrechte und rechtliche Zulässigkeit der bereitgestellten Inhalte verantwortlich.</p>
+        </section>
+
+        <section>
+          <h2>13. Nutzungsrechte</h2>
+          <p>Nach vollständiger Bezahlung erhält der Kunde die vereinbarten Nutzungsrechte an den individuell für ihn erstellten Arbeitsergebnissen.</p>
+          <p>Bis zur vollständigen Zahlung verbleiben sämtliche Nutzungsrechte bei LokalOptimal.</p>
+          <p>Nicht umfasst sind Rechte an Drittanbieter-Tools, Templates, Fonts, Stockmaterialien, Plugins, Frameworks oder sonstigen externen Ressourcen, sofern diese gesonderten Lizenzbedingungen unterliegen.</p>
+        </section>
+
+        <section>
+          <h2>14. Referenznennung</h2>
+          <p>LokalOptimal ist berechtigt, abgeschlossene Projekte als Referenz zu nennen, sofern der Kunde dem nicht ausdrücklich widerspricht.</p>
+          <p>Dabei können Name, Logo, Screenshots und eine kurze Projektbeschreibung verwendet werden. Vertrauliche Informationen werden nicht veröffentlicht.</p>
+        </section>
+
+        <section>
+          <h2>15. Vertraulichkeit</h2>
+          <p>Beide Parteien verpflichten sich, vertrauliche Informationen, Geschäftsunterlagen, Zugangsdaten und interne Informationen der jeweils anderen Partei vertraulich zu behandeln und nicht an unbefugte Dritte weiterzugeben.</p>
+          <p>Diese Verpflichtung gilt auch nach Vertragsende.</p>
+        </section>
+
+        <section>
+          <h2>16. Haftung</h2>
+          <p>LokalOptimal haftet nur für Schäden, die vorsätzlich oder grob fahrlässig verursacht wurden.</p>
+          <p>Bei leichter Fahrlässigkeit haftet LokalOptimal nur bei Verletzung wesentlicher Vertragspflichten und begrenzt auf den vertragstypischen, vorhersehbaren Schaden.</p>
+          <p>Eine Haftung für entgangenen Gewinn, ausgebliebene Einsparungen, Datenverluste, mittelbare Schäden, Folgeschäden oder wirtschaftliche Erwartungen ist ausgeschlossen, soweit gesetzlich zulässig.</p>
+          <p>Die Haftung für Drittplattformen, insbesondere Google-Dienste, Hostinganbieter, Terminbuchungssysteme oder Analyse-Tools, ist ausgeschlossen, soweit LokalOptimal keinen Einfluss auf deren Betrieb, Richtlinien oder Entscheidungen hat.</p>
+        </section>
+
+        <section>
+          <h2>17. Datenschutz</h2>
+          <p>LokalOptimal verarbeitet personenbezogene Daten des Kunden ausschließlich im Rahmen der geltenden Datenschutzbestimmungen.</p>
+          <p>Details ergeben sich aus der Datenschutzerklärung auf der Website.</p>
+          <p>Soweit LokalOptimal im Auftrag des Kunden personenbezogene Daten verarbeitet, insbesondere bei Zugriffen auf Google Business Profiles oder Landingpage-Systeme, schließen die Parteien bei Bedarf eine gesonderte Vereinbarung zur Auftragsverarbeitung ab.</p>
+        </section>
+
+        <section>
+          <h2>18. Schlussbestimmungen</h2>
+          <p>Es gilt österreichisches Recht unter Ausschluss der Kollisionsnormen und des UN-Kaufrechts.</p>
+          <p>Gerichtsstand ist, soweit gesetzlich zulässig, Wien.</p>
+          <p>Sollte eine Bestimmung dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.</p>
+          <p><strong>Stand:</strong> Mai 2026</p>
+        </section>
       </div>
     </article>
   </main>
   <Footer />
+  <MotionScript />
 </BaseLayout>

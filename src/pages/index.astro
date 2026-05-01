@@ -8,6 +8,10 @@ import ContactForm from "@/components/ContactForm";
 import addonArticlesImage from "../../assets/avif/addon-articles.avif";
 import addonLandingpageImage from "../../assets/avif/addon-landingpage.avif";
 import addonQrImage from "../../assets/avif/addon-qr.avif";
+import heroBrowserImage from "../../assets/avif/hero-visual/chrome-browser.avif";
+import heroPinImage from "../../assets/avif/hero-visual/pin-marker.avif";
+import heroProfileCardImage from "../../assets/avif/hero-visual/profile-card.avif";
+import heroScoreCardImage from "../../assets/avif/hero-visual/score-card.avif";
 
 const calUrl = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
 
@@ -44,24 +48,40 @@ const industryColumns = [
 
 const benefits = [
   {
-    icon: "travel_explore",
-    title: "Sichtbar, wenn aktiv gesucht wird",
-    text: "Menschen suchen nicht irgendwann. Sie suchen jetzt. Ein vollständiges Google Business Profile hilft Ihrem Unternehmen, bei lokalen Suchanfragen in Google Suche und Maps klarer und professioneller aufzutreten.",
+    icon: "search",
+    value: 76,
+    decimals: 0,
+    suffix: "%",
+    color: "green",
+    layout: "tall",
+    text: "Besuchen nach lokaler Suche innerhalb von 24 Stunden ein Unternehmen.",
   },
   {
-    icon: "trending_up",
-    title: "Besser wirken als nahe Mitbewerber",
-    text: "Viele lokale Profile sind unvollständig, veraltet oder lieblos gepflegt. Genau dort entsteht Ihr Vorteil: ein sauberer Auftritt, stärkere Signale und mehr Vertrauen auf den ersten Blick.",
+    icon: "star",
+    value: 88,
+    decimals: 0,
+    suffix: "%",
+    color: "amber",
+    layout: "wide",
+    text: "Vertrauen Online-Bewertungen fast wie persönlichen Empfehlungen.",
   },
   {
-    icon: "route",
-    title: "Den Weg zur Anfrage verkürzen",
-    text: "Anrufen, Route starten, Website öffnen oder Termin buchen: Ein gutes Profil reduziert Reibung genau dort, wo Interessenten entscheiden, ob sie handeln oder weitersuchen.",
+    icon: "equalizer",
+    value: 50,
+    decimals: 0,
+    suffix: "%",
+    color: "red",
+    layout: "compact",
+    text: "Mehr Kaufbereitschaft bei einem vollständigen Profil.",
   },
   {
-    icon: "verified",
-    title: "Vertrauen vor dem Website-Besuch schaffen",
-    text: "Aktuelle Fotos, klare Leistungen, korrekte Öffnungszeiten und gepflegte Bewertungen zeigen sofort: Dieses Unternehmen ist aktiv, erreichbar und wirkt seriös.",
+    icon: "verified_user",
+    value: 2.7,
+    decimals: 1,
+    suffix: "x",
+    color: "blue",
+    layout: "compact",
+    text: "Mehr Vertrauen durch klare Infos, Fotos und Bewertungen.",
   },
 ];
 
@@ -72,7 +92,7 @@ const tabs = [
     subtitle: "Mehr Bewertungen. Weniger Reibung. Mehr Vertrauen.",
     icon: "qr_code_2",
     image: addonQrImage.src,
-    imageAlt: "QR Review Trigger Add-on Vorschau",
+    imageAlt: "Vorschau eines QR-Code-Aufstellers, der Kunden direkt zur Google-Bewertung führt.",
     points: ["Kundinnen und Kunden direkt vor Ort zur Bewertung führen.", "Der QR-Code öffnet den Bewertungsprozess ohne Umwege.", "Individuell mit Logo, Text und klarer Handlungsaufforderung gestaltet."],
     closingText: "Optimal für Betriebe, die zufriedene Kunden nicht dem Zufall überlassen möchten.",
   },
@@ -82,7 +102,7 @@ const tabs = [
     subtitle: "Aktuell bleiben. Sichtbar wirken. Vertrauen stärken.",
     icon: "article",
     image: addonArticlesImage.src,
-    imageAlt: "Google Beiträge Add-on Vorschau",
+    imageAlt: "Vorschau geplanter Google-Beiträge mit aktuellen Angeboten und Profil-Updates.",
     points: ["Regelmäßige Updates direkt im Google Business Profil veröffentlichen.", "Angebote, News oder saisonale Aktionen sichtbar platzieren.", "Ein aktives Profil wirkt gepflegter und professioneller."],
     closingText: "Ideal für Unternehmen, die regelmäßig sichtbar bleiben möchten.",
   },
@@ -92,7 +112,7 @@ const tabs = [
     subtitle: "Wenn der Klick nicht ins Leere laufen soll.",
     icon: "wysiwyg",
     image: addonLandingpageImage.src,
-    imageAlt: "Landingpage Add-on Vorschau",
+    imageAlt: "Vorschau einer kompakten Landingpage als Anschlussstrecke vom Google-Profil zur Anfrage.",
     points: ["Kompakte Seite für Unternehmen ohne starke Website.", "Klarer Aufbau mit Leistungen, Vertrauen und Kontaktmöglichkeit.", "Optimiert als Anschlussstrecke von Google Profil zur Anfrage."],
     closingText: "Perfekt, wenn das Google Profil mehr leisten soll als nur gefunden werden.",
   },
@@ -149,6 +169,44 @@ const addons = [
     tooltip: "Beantwortet typische Fragen direkt im Profil und reduziert Unsicherheit vor der Kontaktaufnahme.",
   },
 ];
+
+const testimonials = [
+  {
+    quote: "Das Profil wirkt endlich aufgeräumt und professionell. Besonders hilfreich war, dass wir jetzt klar sehen, welche Inhalte im Google-Profil wirklich zählen.",
+    name: "Martin H.",
+    company: "Steuerkanzlei Huber",
+    location: "Wien",
+    rating: 5,
+  },
+  {
+    quote: "Die Optimierung hat uns geholfen, bei lokalen Suchanfragen seriöser aufzutreten. Der Ablauf war verständlich und ohne unnötigen Fachjargon.",
+    name: "Sabine K.",
+    company: "Praxis am Stadtpark",
+    location: "Klosterneuburg",
+    rating: 4,
+  },
+  {
+    quote: "Unsere Öffnungszeiten, Leistungen und Fotos sind jetzt konsistent. Genau diese saubere Basis hat uns vorher gefehlt.",
+    name: "Daniel R.",
+    company: "R&R Installationen",
+    location: "Wien-Umgebung",
+    rating: 4,
+  },
+  {
+    quote: "Gute Struktur und schnelle Umsetzung. Bei den laufenden Beiträgen hätten wir uns anfangs noch mehr Beispiele gewünscht, inzwischen passt es sehr gut.",
+    name: "Nina F.",
+    company: "Salon Frey",
+    location: "Wien",
+    rating: 3,
+  },
+  {
+    quote: "Die Pflege der Bewertungen und die klareren Profilinfos machen einen spürbar besseren ersten Eindruck bei neuen Kundinnen und Kunden.",
+    name: "Thomas M.",
+    company: "Autohaus Mayer",
+    location: "Wien-Umgebung",
+    rating: 5,
+  },
+];
 ---
 
 <BaseLayout>
@@ -159,7 +217,11 @@ const addons = [
       <div class="container-wide hero-grid">
         <div class="hero-copy reveal is-visible">
           <p class="hero-kicker"><span aria-hidden="true">🚀</span> Boosten Sie Ihr Google Business Profil - <strong>noch heute!</strong></p>
-          <h1 class="h1">Weil der erste Eindruck zählt. <span class="text-blue">Auf Google.</span></h1>
+          <h1 class="h1">
+            <span>Weil der erste</span>
+            <span>Eindruck zählt.</span>
+            <span class="text-blue">Auf Google.</span>
+          </h1>
           <div class="hero-actions">
             <a class="btn btn-primary" href={import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit"} target="_blank" rel="noreferrer">
               Kostenloses Erstgespräch
@@ -169,28 +231,44 @@ const addons = [
           </div>
         </div>
 
-        <div class="hero-visual" data-gsap="parallax" aria-hidden="true">
-          <div class="browser-shell">
-            <div class="browser-bar"><span></span><span></span><span></span><i></i></div>
-            <div class="map-canvas">
-              <div class="profile-card">
-                <div class="profile-photo"></div>
-                <strong>Wendy Coiffeur & Saloon</strong>
-                <small>4,8 ★★★★★ (102)</small>
-                <div class="profile-actions">
-                  <span></span><span></span><span></span><span></span>
-                </div>
-                <div class="profile-lines">
-                  <i></i><i></i><i></i>
-                </div>
-              </div>
-              <div class="score-card">
-                <strong>Profilstärke</strong>
-                <div class="score">82<small>/100</small></div>
-                <span>Sehr Gut</span>
-              </div>
-              <div class="pin"></div>
-            </div>
+        <div class="hero-visual" data-gsap="parallax">
+          <div class="hero-visual-stack">
+            <img
+              class="hero-browser-image"
+              src={heroBrowserImage.src}
+              width={heroBrowserImage.width}
+              height={heroBrowserImage.height}
+              alt="Google-Business-Profil in einer Kartenansicht mit Profilstärke und Standortmarker."
+              loading="eager"
+              decoding="async"
+            />
+            <img
+              class="hero-profile-card-image"
+              src={heroProfileCardImage.src}
+              width={heroProfileCardImage.width}
+              height={heroProfileCardImage.height}
+              alt=""
+              loading="eager"
+              decoding="async"
+            />
+            <img
+              class="hero-score-card-image"
+              src={heroScoreCardImage.src}
+              width={heroScoreCardImage.width}
+              height={heroScoreCardImage.height}
+              alt=""
+              loading="eager"
+              decoding="async"
+            />
+            <img
+              class="hero-pin-image"
+              src={heroPinImage.src}
+              width={heroPinImage.width}
+              height={heroPinImage.height}
+              alt=""
+              loading="eager"
+              decoding="async"
+            />
           </div>
         </div>
       </div>
@@ -213,7 +291,7 @@ const addons = [
       </div>
       <div class="panel-shell widget-shell" data-gsap="reveal">
         <div class="panel-core widget-core">
-          <GBPAuditWidget client:visible />
+          <GBPAuditWidget client:load />
         </div>
       </div>
     </section>
@@ -252,16 +330,22 @@ const addons = [
         </span>
         <h2 class="h2">Warum ein gepflegtes Google-Profil mehr ist, als ein Brancheneintrag</h2>
       </div>
-      <div class="container benefit-grid">
+      <div class="container benefit-bento" aria-label="Vorteile in Zahlen">
         {benefits.map((benefit) => (
-          <article class="panel-shell benefit-card" data-gsap="reveal">
-            <div class="panel-core benefit-core">
-              <span class="benefit-icon material-symbols-rounded" aria-hidden="true">{benefit.icon}</span>
-              <div>
-                <h3 class="h3">{benefit.title}</h3>
-                <p>{benefit.text}</p>
-              </div>
+          <article class={`benefit-stat-card is-${benefit.layout} tone-${benefit.color}`} data-gsap="reveal">
+            <div class="benefit-shape" aria-hidden="true"></div>
+            <div class="benefit-stat-head">
+              <span class="benefit-stat-icon material-symbols-rounded" aria-hidden="true">{benefit.icon}</span>
+              <strong class="benefit-stat-value">
+                <span
+                  data-count-up
+                  data-count-target={benefit.value}
+                  data-count-decimals={benefit.decimals}
+                >0</span>
+                <small>{benefit.suffix}</small>
+              </strong>
             </div>
+            <p>{benefit.text}</p>
           </article>
         ))}
       </div>
@@ -392,6 +476,53 @@ const addons = [
       </div>
     </section>
 
+    <section class="section testimonials-section" id="kundenstimmen">
+      <div class="container section-heading" data-gsap="reveal">
+        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">reviews</span>Kundenstimmen</span>
+        <h2 class="h2">Was lokale Unternehmen über <span class="text-blue">LokalOptimal</span> sagen</h2>
+        <p class="lead">Platzhalterstimmen aus typischen lokalen Betrieben - als Vorschau für echte Referenzen.</p>
+      </div>
+
+      <div
+        class="container-wide testimonial-slider"
+        data-gsap="reveal"
+        tabindex="0"
+        role="region"
+        aria-roledescription="Karussell"
+        aria-label="Testimonials Slider. Mit Pfeiltasten links und rechts navigieren."
+      >
+        <div class="testimonial-viewport">
+          <div class="testimonial-track">
+            {testimonials.map((testimonial) => (
+              <article class="testimonial-card" aria-label={`${testimonial.rating} von 5 Sternen`}>
+                <div class="testimonial-stars" aria-hidden="true">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <span class={`material-symbols-rounded ${index >= testimonial.rating ? "inactive" : ""}`}>star</span>
+                  ))}
+                </div>
+                <blockquote>{testimonial.quote}</blockquote>
+                <div class="testimonial-author">
+                  <strong>{testimonial.name}</strong>
+                  <span>{testimonial.company}</span>
+                  <small><span class="material-symbols-rounded" aria-hidden="true">location_on</span>{testimonial.location}</small>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+
+        <div class="testimonial-controls" aria-label="Testimonials Navigation">
+          <button class="testimonial-arrow" type="button" data-testimonial-prev aria-label="Vorheriges Testimonial">
+            <span class="material-symbols-rounded" aria-hidden="true">chevron_left</span>
+          </button>
+          <div class="testimonial-dots" aria-label="Testimonial Position"></div>
+          <button class="testimonial-arrow" type="button" data-testimonial-next aria-label="Nächstes Testimonial">
+            <span class="material-symbols-rounded" aria-hidden="true">chevron_right</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
     <section class="section contact-section" id="kontakt">
       <div class="container contact-grid">
         <div data-gsap="reveal">
@@ -452,6 +583,127 @@ const addons = [
           activateTab(nextIndex, true);
         });
       });
+    });
+
+    document.querySelectorAll<HTMLElement>(".testimonial-slider").forEach((slider) => {
+      const track = slider.querySelector<HTMLElement>(".testimonial-track");
+      const viewport = slider.querySelector<HTMLElement>(".testimonial-viewport");
+      const cards = Array.from(slider.querySelectorAll<HTMLElement>(".testimonial-card"));
+      const previousButton = slider.querySelector<HTMLButtonElement>("[data-testimonial-prev]");
+      const nextButton = slider.querySelector<HTMLButtonElement>("[data-testimonial-next]");
+      const dotsRoot = slider.querySelector<HTMLElement>(".testimonial-dots");
+      let activeIndex = 0;
+      let maxIndex = 0;
+      let dragStartX = 0;
+      let dragDeltaX = 0;
+      let isDragging = false;
+
+      if (!track || !viewport || cards.length === 0 || !previousButton || !nextButton || !dotsRoot) return;
+
+      const getVisibleCount = () => {
+        if (window.matchMedia("(max-width: 700px)").matches) return 1;
+        if (window.matchMedia("(max-width: 1080px)").matches) return 2;
+        return 3;
+      };
+
+      const getStep = () => {
+        if (cards.length < 2) return cards[0]?.offsetWidth ?? 0;
+        return cards[1].offsetLeft - cards[0].offsetLeft;
+      };
+
+      const renderDots = () => {
+        dotsRoot.replaceChildren();
+        Array.from({ length: maxIndex + 1 }).forEach((_, index) => {
+          const dot = document.createElement("button");
+          dot.className = "testimonial-dot";
+          dot.type = "button";
+          dot.setAttribute("aria-label", `Testimonial Gruppe ${index + 1} anzeigen`);
+          dot.addEventListener("click", () => setIndex(index));
+          dotsRoot.append(dot);
+        });
+      };
+
+      const update = () => {
+        const step = getStep();
+        track.style.transform = `translate3d(${-activeIndex * step}px, 0, 0)`;
+        previousButton.disabled = activeIndex === 0;
+        nextButton.disabled = activeIndex === maxIndex;
+
+        Array.from(dotsRoot.querySelectorAll<HTMLButtonElement>(".testimonial-dot")).forEach((dot, index) => {
+          const isActive = index === activeIndex;
+          dot.classList.toggle("active", isActive);
+          dot.toggleAttribute("aria-current", isActive);
+        });
+      };
+
+      const updateDrag = () => {
+        const step = getStep();
+        const baseX = -activeIndex * step;
+        const isAtStart = activeIndex === 0 && dragDeltaX > 0;
+        const isAtEnd = activeIndex === maxIndex && dragDeltaX < 0;
+        const resistance = isAtStart || isAtEnd ? 0.28 : 1;
+        track.style.transform = `translate3d(${baseX + dragDeltaX * resistance}px, 0, 0)`;
+      };
+
+      function setIndex(nextIndex: number) {
+        activeIndex = Math.max(0, Math.min(nextIndex, maxIndex));
+        update();
+      }
+
+      const endDrag = () => {
+        if (!isDragging) return;
+
+        const step = getStep();
+        const threshold = Math.min(step * 0.2, 90);
+        const nextIndex = Math.abs(dragDeltaX) > threshold
+          ? activeIndex + (dragDeltaX < 0 ? 1 : -1)
+          : activeIndex;
+
+        isDragging = false;
+        slider.classList.remove("is-dragging");
+        dragDeltaX = 0;
+        setIndex(nextIndex);
+      };
+
+      const refresh = () => {
+        maxIndex = Math.max(cards.length - getVisibleCount(), 0);
+        activeIndex = Math.min(activeIndex, maxIndex);
+        renderDots();
+        update();
+      };
+
+      previousButton.addEventListener("click", () => setIndex(activeIndex - 1));
+      nextButton.addEventListener("click", () => setIndex(activeIndex + 1));
+      viewport.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0 && event.pointerType === "mouse") return;
+
+        isDragging = true;
+        dragStartX = event.clientX;
+        dragDeltaX = 0;
+        slider.classList.add("is-dragging");
+        viewport.setPointerCapture(event.pointerId);
+      });
+      viewport.addEventListener("pointermove", (event) => {
+        if (!isDragging) return;
+
+        dragDeltaX = event.clientX - dragStartX;
+        updateDrag();
+      });
+      viewport.addEventListener("pointerup", endDrag);
+      viewport.addEventListener("pointercancel", endDrag);
+      viewport.addEventListener("lostpointercapture", endDrag);
+      slider.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowLeft") {
+          event.preventDefault();
+          setIndex(activeIndex - 1);
+        } else if (event.key === "ArrowRight") {
+          event.preventDefault();
+          setIndex(activeIndex + 1);
+        }
+      });
+
+      refresh();
+      window.addEventListener("resize", refresh);
     });
   </script>
 </BaseLayout>
