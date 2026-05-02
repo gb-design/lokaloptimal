@@ -1,4 +1,16 @@
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const fallbackFrom = "LokalOptimal <onboarding@resend.dev>";
+
+async function readResendError(response: Response) {
+  const text = await response.text();
+
+  try {
+    const payload = JSON.parse(text);
+    return payload?.message || payload?.error?.message || text;
+  } catch {
+    return text;
+  }
+}
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
@@ -18,7 +30,7 @@ export default async function handler(req: any, res: any) {
 
   const apiKey = process.env.RESEND_API_KEY;
   const to = process.env.CONTACT_TO_EMAIL;
-  const from = process.env.CONTACT_FROM_EMAIL || "LokalOptimal <onboarding@resend.dev>";
+  const from = process.env.CONTACT_FROM_EMAIL || fallbackFrom;
 
   if (!apiKey || !to) {
     return res.status(500).json({ error: "Kontaktformular ist noch nicht konfiguriert." });
@@ -47,7 +59,15 @@ export default async function handler(req: any, res: any) {
   });
 
   if (!response.ok) {
-    console.error("[contact]", await response.text());
+    const resendError = await readResendError(response);
+    console.error("[contact]", resendError);
+
+    if (from === fallbackFrom && response.status === 403) {
+      return res.status(502).json({
+        error: "Der Resend-Testabsender ist eingeschränkt. Bitte CONTACT_FROM_EMAIL mit einer verifizierten Resend-Domain setzen.",
+      });
+    }
+
     return res.status(502).json({ error: "Nachricht konnte nicht gesendet werden." });
   }
 
