@@ -12,6 +12,40 @@ async function readResendError(response: Response) {
   }
 }
 
+function isUnverifiedDomainError(message: string) {
+  return message.toLowerCase().includes("domain is not verified");
+}
+
+function getEmailPayload(from: string, body: Record<string, string>) {
+  const { name, email, company, topic, message } = body;
+
+  return {
+    from,
+    to: process.env.CONTACT_TO_EMAIL,
+    reply_to: email,
+    subject: `Neue LokalOptimal Anfrage: ${topic || "Kontakt"}`,
+    text: [
+      `Name: ${name}`,
+      `E-Mail: ${email}`,
+      `Unternehmen: ${company || "-"}`,
+      `Thema: ${topic || "-"}`,
+      "",
+      message,
+    ].join("\n"),
+  };
+}
+
+async function sendEmail(apiKey: string, from: string, body: Record<string, string>) {
+  return fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(getEmailPayload(from, body)),
+  });
+}
+
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -36,31 +70,29 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ error: "Kontaktformular ist noch nicht konfiguriert." });
   }
 
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to,
-      reply_to: email,
-      subject: `Neue LokalOptimal Anfrage: ${topic || "Kontakt"}`,
-      text: [
-        `Name: ${name}`,
-        `E-Mail: ${email}`,
-        `Unternehmen: ${company || "-"}`,
-        `Thema: ${topic || "-"}`,
-        "",
-        message,
-      ].join("\n"),
-    }),
-  });
+  let response = await sendEmail(apiKey, from, { name, email, company, topic, message });
 
   if (!response.ok) {
     const resendError = await readResendError(response);
     console.error("[contact]", resendError);
+
+    if (from !== fallbackFrom && isUnverifiedDomainError(resendError)) {
+      response = await sendEmail(apiKey, fallbackFrom, { name, email, company, topic, message });
+
+      if (response.ok) {
+        return res.status(200).json({ ok: true });
+      }
+
+      const fallbackError = await readResendError(response);
+      console.error("[contact fallback]", fallbackError);
+
+      if (response.status === 403) {
+        return res.status(502).json({
+          error:
+            "Die Absender-Domain ist in Resend noch nicht verifiziert. Bitte lokaloptimal.at in Resend verifizieren oder CONTACT_FROM_EMAIL vorerst entfernen.",
+        });
+      }
+    }
 
     if (from === fallbackFrom && response.status === 403) {
       return res.status(502).json({
