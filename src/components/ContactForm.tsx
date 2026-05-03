@@ -6,6 +6,7 @@ type Status = "idle" | "sending" | "success" | "error";
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
+  const [privacyConsent, setPrivacyConsent] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,6 +32,7 @@ export default function ContactForm() {
       }
 
       form.reset();
+      setPrivacyConsent(false);
       setStatus("success");
       setMessage("Danke. Ihre Anfrage ist angekommen.");
     } catch (error) {
@@ -84,13 +86,31 @@ export default function ContactForm() {
         />
       </label>
 
-      <button className="btn btn-primary full" disabled={status === "sending"} type="submit" aria-busy={status === "sending"}>
+      <button className="btn btn-primary full" disabled={status === "sending" || !privacyConsent} type="submit" aria-busy={status === "sending"}>
         {status === "sending" && <span className="button-spinner" aria-hidden="true" />}
         <span>{status === "sending" ? "Wird gesendet..." : "Anfrage senden"}</span>
         <span className="btn-icon">
           <ArrowRight size={18} />
         </span>
       </button>
+
+      <label className="privacy-consent full" htmlFor="contact-privacy-consent">
+        <input
+          id="contact-privacy-consent"
+          name="privacy_consent"
+          type="checkbox"
+          required
+          checked={privacyConsent}
+          onChange={(event) => setPrivacyConsent(event.target.checked)}
+        />
+        <span>
+          Ich habe die{" "}
+          <a href="/datenschutz" target="_blank" rel="noopener noreferrer">
+            Datenschutzerklärung
+          </a>{" "}
+          gelesen und stimme zu, dass meine Angaben zur Bearbeitung der Anfrage verarbeitet werden.
+        </span>
+      </label>
 
       {message && (
         <p

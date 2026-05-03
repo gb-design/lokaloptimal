@@ -77,6 +77,7 @@ export default async function handler(req: any, res: any) {
   const topic = field(body.topic);
   const message = field(body.message, MAX_MESSAGE_LENGTH);
   const companyUrl = field(body.company_url, 120);
+  const privacyConsent = body.privacy_consent === "on" || body.privacy_consent === true || body.privacy_consent === "true";
 
   if (companyUrl) {
     return res.status(200).json({ ok: true });
@@ -84,6 +85,10 @@ export default async function handler(req: any, res: any) {
 
   if (!name?.trim() || !emailPattern.test(email || "") || !message?.trim()) {
     return res.status(400).json({ error: "Bitte Name, gültige E-Mail und Nachricht ausfüllen." });
+  }
+
+  if (!privacyConsent) {
+    return res.status(400).json({ error: "Bitte stimmen Sie der Datenschutzerklärung zu." });
   }
 
   const apiKey = process.env.RESEND_API_KEY;

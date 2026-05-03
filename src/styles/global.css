@@ -1383,10 +1383,16 @@ body[data-cal-modal-open] {
 }
 
 .addon-grid {
+  --addon-card-height: clamp(31.5rem, 41vw, 33.5rem);
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.95fr);
   gap: clamp(1.25rem, 3vw, 2rem);
-  align-items: start;
+  align-items: stretch;
+}
+
+.addon-tabs.panel-shell,
+.addon-visual.panel-shell {
+  height: var(--addon-card-height);
 }
 
 .addon-tabs .panel-core,
@@ -1533,6 +1539,7 @@ body[data-cal-modal-open] {
 .addon-visual-core {
   display: grid;
   min-height: 100%;
+  height: 100%;
   place-items: center;
   padding: clamp(0.75rem, 2vw, 1rem);
   overflow: hidden;
@@ -1660,8 +1667,8 @@ body[data-cal-modal-open] {
 
 .price-core {
   display: grid;
-  grid-template-rows: auto auto minmax(4.7rem, auto) auto auto 1fr auto;
-  gap: 0.95rem;
+  grid-template-rows: auto auto auto auto auto 1fr auto;
+  gap: 0.82rem;
   height: 100%;
   min-height: 100%;
   padding: clamp(1.1rem, 2.4vw, 1.5rem);
@@ -1728,6 +1735,7 @@ body[data-cal-modal-open] {
 }
 
 .price {
+  margin-top: 0.15rem;
   font-size: clamp(2.15rem, 4vw, 2.65rem);
   line-height: 1;
 }
@@ -1818,14 +1826,24 @@ body[data-cal-modal-open] {
   color: var(--muted);
 }
 
-.addon-price b {
-  font-size: 1.35rem;
+.addon-price-value {
+  display: grid;
+  justify-items: end;
+  gap: 0.12rem;
+  line-height: 1;
   white-space: nowrap;
 }
 
-.addon-price b small {
-  font-size: 0.72rem;
-  font-weight: 500;
+.addon-price-value span {
+  font-size: 1.45rem;
+  font-weight: 820;
+  letter-spacing: 0;
+}
+
+.addon-price-value small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 650;
   text-align: right;
 }
 
@@ -2179,6 +2197,36 @@ body[data-cal-modal-open] {
   gap: 0.45rem;
   color: var(--ink);
   font-weight: 720;
+}
+
+.contact-form .privacy-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-top: -0.25rem;
+  padding: 0.95rem 1rem;
+  border: 1px solid color-mix(in oklch, var(--blue), white 78%);
+  border-radius: 0.85rem;
+  background: color-mix(in oklch, white, var(--soft-blue) 24%);
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 560;
+  line-height: 1.45;
+}
+
+.privacy-consent input {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.12rem;
+  accent-color: var(--blue);
+}
+
+.privacy-consent a {
+  color: var(--blue-deep);
+  font-weight: 760;
+  text-decoration: underline;
+  text-underline-offset: 0.18rem;
 }
 
 .contact-form .full {
@@ -2961,7 +3009,14 @@ textarea.field {
 
   .addon-tabs.panel-shell,
   .addon-visual.panel-shell {
+    height: auto;
     margin-top: 0;
+  }
+
+  .addon-tabs .panel-core,
+  .addon-visual,
+  .addon-visual-core {
+    height: auto;
   }
 
   .tab-content {
