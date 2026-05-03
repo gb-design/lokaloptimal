@@ -1918,6 +1918,10 @@ body[data-cal-modal-open] {
     grid-template-columns: auto minmax(0, 1fr) auto;
   }
 
+  .addon-price-value {
+    justify-items: start;
+  }
+
   .addon-toggle {
     display: grid;
   }
@@ -3291,8 +3295,12 @@ textarea.field {
     padding-bottom: clamp(1rem, 5vw, 2rem);
   }
 
+  .hero-kicker {
+    font-size: 0.82rem;
+  }
+
   .hero-grid {
-    gap: clamp(2.35rem, 9vw, 3.25rem);
+    gap: clamp(2.75rem, 10vw, 3.75rem);
   }
 
   .hero-visual {
@@ -3325,7 +3333,7 @@ textarea.field {
   .hero-profile-card-image {
     left: clamp(2.75rem, 18%, 5rem);
     bottom: -0.45rem;
-    width: min(11.75rem, 50%);
+    width: min(9.5rem, 42%);
   }
 
   .hero-score-card-image {
