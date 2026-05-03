@@ -244,6 +244,8 @@ export default function GBPAuditWidget() {
     setMessage("");
     setFound(null);
     setOpenCategory("activity");
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 9000);
 
     try {
       if (import.meta.env.DEV) {
@@ -256,7 +258,7 @@ export default function GBPAuditWidget() {
       }
 
       const params = new URLSearchParams({ action: "check", url: url.trim() });
-      const response = await fetch(`/api/places?${params}`);
+      const response = await fetch(`/api/places?${params}`, { signal: controller.signal });
       const contentType = response.headers.get("content-type") || "";
       const payload = contentType.includes("application/json") ? await response.json() : null;
 
@@ -269,7 +271,11 @@ export default function GBPAuditWidget() {
       }
 
       if (response.status === 429) {
-        window.localStorage.setItem("gbp-audit-rate-limited", String(Date.now()));
+        try {
+          window.localStorage.setItem("gbp-audit-rate-limited", String(Date.now()));
+        } catch {
+          // Storage can be unavailable in hardened/private browser contexts.
+        }
         setPhase("limit");
         return;
       }
@@ -281,6 +287,8 @@ export default function GBPAuditWidget() {
       setMessage("Der Check konnte gerade nicht abgeschlossen werden. Bitte versuchen Sie es später erneut oder buchen Sie direkt einen Termin.");
       setPhase("input");
       return;
+    } finally {
+      window.clearTimeout(timeout);
     }
     await new Promise((resolve) => window.setTimeout(resolve, 650));
     setPhase("results");
@@ -335,8 +343,12 @@ export default function GBPAuditWidget() {
 
           <input
             className="widget-input"
-            type="text"
+            type="url"
             value={url}
+            inputMode="url"
+            maxLength={900}
+            aria-invalid={Boolean(url.trim() && !hasValidUrl)}
+            aria-describedby={message ? "audit-widget-message" : undefined}
             onChange={(event) => {
               setUrl(event.target.value);
               setMessage("");
@@ -348,7 +360,7 @@ export default function GBPAuditWidget() {
             placeholder="Google Maps Teilen-Link"
           />
 
-          {message && <p className="form-message error">{message}</p>}
+          {message && <p id="audit-widget-message" className="form-message error" role="alert">{message}</p>}
 
           <label className="check-line consent">
             <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />

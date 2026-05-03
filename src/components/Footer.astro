@@ -1,17 +1,14 @@
 ---
-import logoRaw from "../../assets/lo_logo.svg?raw";
+import logo from "../../assets/lo_logo.svg";
 
 const year = new Date().getFullYear();
-const footerLogo = logoRaw
-  .replace("<svg ", '<svg class="brand-logo footer-logo" aria-hidden="true" focusable="false" ')
-  .replace('<path d="M147.9', '<path class="footer-logo-local" d="M147.9');
 ---
 
 <footer class="footer">
   <div class="container-wide footer-grid">
     <div>
       <a class="brand footer-brand" href="/" aria-label="LokalOptimal Startseite">
-        <span class="footer-logo-inline" set:html={footerLogo} />
+        <img class="brand-logo footer-logo" src={logo.src} alt="" width="595" height="159" loading="lazy" decoding="async" />
       </a>
       <p>Google Business Profil Optimierung für lokale Unternehmen, die genau dort sichtbar werden wollen, wo Kund:innen suchen.</p>
     </div>

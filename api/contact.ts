@@ -1,5 +1,12 @@
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const fallbackFrom = "LokalOptimal <onboarding@resend.dev>";
+const MAX_FIELD_LENGTH = 180;
+const MAX_MESSAGE_LENGTH = 1800;
+const RESEND_TIMEOUT_MS = 8000;
+
+function field(value: unknown, maxLength = MAX_FIELD_LENGTH) {
+  return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
 
 async function readResendError(response: Response) {
   const text = await response.text();
@@ -36,6 +43,9 @@ function getEmailPayload(from: string, body: Record<string, string>) {
 }
 
 async function sendEmail(apiKey: string, from: string, body: Record<string, string>) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), RESEND_TIMEOUT_MS);
+
   return fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -43,16 +53,30 @@ async function sendEmail(apiKey: string, from: string, body: Record<string, stri
       "Content-Type": "application/json",
     },
     body: JSON.stringify(getEmailPayload(from, body)),
-  });
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeout));
 }
 
 export default async function handler(req: any, res: any) {
+  res.setHeader("Cache-Control", "no-store");
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed." });
   }
 
-  const { name, email, company, topic, message, company_url: companyUrl } = req.body || {};
+  const contentType = req.headers["content-type"] || "";
+  if (!String(contentType).toLowerCase().includes("application/json")) {
+    return res.status(415).json({ error: "Bitte als JSON senden." });
+  }
+
+  const body = req.body && typeof req.body === "object" ? req.body : {};
+  const name = field(body.name);
+  const email = field(body.email, 254).toLowerCase();
+  const company = field(body.company);
+  const topic = field(body.topic);
+  const message = field(body.message, MAX_MESSAGE_LENGTH);
+  const companyUrl = field(body.company_url, 120);
 
   if (companyUrl) {
     return res.status(200).json({ ok: true });
@@ -70,21 +94,31 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ error: "Kontaktformular ist noch nicht konfiguriert." });
   }
 
-  let response = await sendEmail(apiKey, from, { name, email, company, topic, message });
+  let response: Response;
+
+  try {
+    response = await sendEmail(apiKey, from, { name, email, company, topic, message });
+  } catch {
+    return res.status(504).json({ error: "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut." });
+  }
 
   if (!response.ok) {
     const resendError = await readResendError(response);
-    console.error("[contact]", resendError);
+    console.error("[contact]", response.status, resendError.slice(0, 240));
 
     if (from !== fallbackFrom && isUnverifiedDomainError(resendError)) {
-      response = await sendEmail(apiKey, fallbackFrom, { name, email, company, topic, message });
+      try {
+        response = await sendEmail(apiKey, fallbackFrom, { name, email, company, topic, message });
+      } catch {
+        return res.status(504).json({ error: "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut." });
+      }
 
       if (response.ok) {
         return res.status(200).json({ ok: true });
       }
 
       const fallbackError = await readResendError(response);
-      console.error("[contact fallback]", fallbackError);
+      console.error("[contact fallback]", response.status, fallbackError.slice(0, 240));
 
       if (response.status === 403) {
         return res.status(502).json({

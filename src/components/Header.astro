@@ -33,13 +33,13 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
       Termin vereinbaren
     </button>
 
-    <button class="mobile-menu-button" aria-label="Menü öffnen" aria-expanded="false" data-menu-button>
+    <button class="mobile-menu-button" type="button" aria-label="Menü öffnen" aria-controls="mobile-menu" aria-expanded="false" data-menu-button>
       <span></span>
       <span></span>
     </button>
   </nav>
 
-  <div class="mobile-menu" data-mobile-menu>
+  <div class="mobile-menu" id="mobile-menu" data-mobile-menu>
     {navItems.map((item) => <a href={getNavHref(item.href)}>{item.label}</a>)}
     <button class="mobile-cal-cta" type="button" data-cal-open>Termin vereinbaren</button>
   </div>
@@ -100,7 +100,13 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
     lastFocusedElement = document.activeElement;
     closeMenu();
     if (calFrame && !calFrame.getAttribute("src")) {
-      calFrame.setAttribute("src", calFrame.dataset.calSrc || "");
+      const source = calFrame.dataset.calSrc || "";
+      try {
+        const url = new URL(source);
+        if (url.protocol === "https:") calFrame.setAttribute("src", source);
+      } catch {
+        return;
+      }
     }
     modal?.removeAttribute("hidden");
     modal?.setAttribute("aria-hidden", "false");

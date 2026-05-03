@@ -3,6 +3,9 @@ const DEFAULT_RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_WINDOW_SECONDS = 60 * 60 * 24;
 const RATE_LIMIT_NAMESPACE = "gbp-audit:v2";
 const INVALID_GOOGLE_MAPS_URL = "INVALID_GOOGLE_MAPS_URL";
+const FETCH_TIMEOUT_MS = 6500;
+const MAX_URL_LENGTH = 900;
+const placeIdPattern = /^[A-Za-z0-9_-]{12,180}$/;
 
 type FoundBusiness = { place_id: string; name: string; address?: string | null };
 type Details = {
@@ -18,10 +21,30 @@ type Details = {
 };
 
 function setCors(req: any, res: any) {
-  const allowedOrigin = process.env.ALLOWED_ORIGIN || "*";
-  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  const origin = firstValue(req.headers.origin);
+  const host = firstValue(req.headers.host);
+  const configuredOrigins = (process.env.ALLOWED_ORIGIN || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const sameHostOrigins = host ? [`https://${host}`, `http://${host}`] : [];
+  const allowWildcard = configuredOrigins.includes("*");
+  const allowedOrigins = configuredOrigins.filter((value) => value !== "*");
+  const allowedOrigin =
+    origin && (allowWildcard || allowedOrigins.includes(origin) || sameHostOrigins.includes(origin))
+      ? origin
+      : allowedOrigins[0] || "";
+
+  if (allowedOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+    res.setHeader("Vary", "Origin");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (origin && !allowedOrigin) {
+    res.status(403).end();
+    return true;
+  }
   if (req.method === "OPTIONS") {
     res.status(204).end();
     return true;
@@ -39,6 +62,8 @@ function dailyRateLimitMax() {
 }
 
 function isAllowedSubmittedGoogleMapsUrl(raw: string) {
+  if (raw.length > MAX_URL_LENGTH) return false;
+
   try {
     const parsed = new URL(raw.trim());
     if (parsed.protocol !== "https:") return false;
@@ -102,7 +127,7 @@ async function resolveGoogleMapsUrl(raw: string) {
   if (submittedUrl.hostname === "www.google.com") return current;
 
   for (let i = 0; i < 5; i += 1) {
-    const response = await fetch(current, {
+    const response = await fetchWithTimeout(current, {
       method: "GET",
       redirect: "manual",
       headers: {
@@ -139,6 +164,17 @@ async function sha256(value: string) {
     .join("");
 }
 
+async function fetchWithTimeout(input: string, init: RequestInit = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function clientKey(req: any) {
   const forwardedFor = firstValue(req.headers["x-forwarded-for"]) || "";
   const ip = forwardedFor.split(",")[0]?.trim() || firstValue(req.headers["x-real-ip"]) || req.socket?.remoteAddress || "unknown";
@@ -155,7 +191,7 @@ async function kvCommand<T>(command: string, ...args: Array<string | number>): P
   }
 
   const path = [command, ...args.map((arg) => encodeURIComponent(String(arg)))].join("/");
-  const response = await fetch(`${baseUrl.replace(/\/$/, "")}/${path}`, {
+  const response = await fetchWithTimeout(`${baseUrl.replace(/\/$/, "")}/${path}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   const payload = await response.json();
@@ -209,7 +245,7 @@ async function searchPlace(apiKey: string, query: string, lat?: string, lng?: st
     };
   }
 
-  const response = await fetch(`${PLACES_BASE}/places:searchText`, {
+  const response = await fetchWithTimeout(`${PLACES_BASE}/places:searchText`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -235,7 +271,7 @@ async function searchPlace(apiKey: string, query: string, lat?: string, lng?: st
 }
 
 async function getPlaceDetails(apiKey: string, placeId: string): Promise<Details> {
-  const response = await fetch(`${PLACES_BASE}/places/${placeId}`, {
+  const response = await fetchWithTimeout(`${PLACES_BASE}/places/${placeId}`, {
     headers: {
       "X-Goog-Api-Key": apiKey,
       "X-Goog-FieldMask": [
@@ -298,7 +334,13 @@ async function guardGoogleCalls(req: any, res: any) {
 }
 
 export default async function handler(req: any, res: any) {
+  res.setHeader("Cache-Control", "no-store");
   if (setCors(req, res)) return;
+
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET, OPTIONS");
+    return res.status(405).json({ error: "Method not allowed." });
+  }
 
   const { action } = req.query;
 
@@ -331,6 +373,7 @@ export default async function handler(req: any, res: any) {
     if (action === "details") {
       const placeId = firstValue(req.query.place_id);
       if (!placeId) return res.status(400).json({ error: "Missing place_id parameter." });
+      if (!placeIdPattern.test(String(placeId))) return res.status(400).json({ error: "Invalid place_id parameter." });
       const apiKey = process.env.GOOGLE_PLACES_API_KEY;
       if (!apiKey) return res.status(500).json({ error: "Google Places API key is not configured." });
       if (!(await guardGoogleCalls(req, res))) return;

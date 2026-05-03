@@ -4,6 +4,9 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   integrations: [react()],
+  devToolbar: {
+    enabled: false,
+  },
   vite: {
     optimizeDeps: {
       include: ["react", "react-dom", "react-dom/client"],

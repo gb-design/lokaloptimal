@@ -14,12 +14,15 @@ export default function ContactForm() {
 
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form));
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 9000);
 
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
+        signal: controller.signal,
       });
 
       if (!response.ok) {
@@ -32,32 +35,34 @@ export default function ContactForm() {
       setMessage("Danke. Ihre Anfrage ist angekommen.");
     } catch (error) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Bitte versuchen Sie es erneut.");
+      setMessage(error instanceof Error && error.name !== "AbortError" ? error.message : "Bitte versuchen Sie es erneut.");
+    } finally {
+      window.clearTimeout(timeout);
     }
   }
 
   return (
-    <form className="contact-form" onSubmit={handleSubmit}>
-      <input className="trap" type="text" name="company_url" tabIndex={-1} autoComplete="off" />
+    <form className="contact-form" onSubmit={handleSubmit} aria-describedby={message ? "contact-form-message" : undefined}>
+      <input className="trap" type="text" name="company_url" tabIndex={-1} autoComplete="off" aria-hidden="true" />
 
-      <label>
+      <label htmlFor="contact-name">
         Name
-        <input className="field" name="name" type="text" autoComplete="name" required />
+        <input id="contact-name" className="field" name="name" type="text" autoComplete="name" maxLength={180} required />
       </label>
 
-      <label>
+      <label htmlFor="contact-email">
         E-Mail
-        <input className="field" name="email" type="email" autoComplete="email" required />
+        <input id="contact-email" className="field" name="email" type="email" autoComplete="email" maxLength={254} required />
       </label>
 
-      <label>
+      <label htmlFor="contact-company">
         Unternehmen
-        <input className="field" name="company" type="text" autoComplete="organization" />
+        <input id="contact-company" className="field" name="company" type="text" autoComplete="organization" maxLength={180} />
       </label>
 
-      <label>
+      <label htmlFor="contact-topic">
         Worum geht es?
-        <select className="field" name="topic" defaultValue="GBP Audit">
+        <select id="contact-topic" className="field" name="topic" defaultValue="GBP Audit">
           <option>GBP Audit</option>
           <option>Profil-Setup</option>
           <option>Growth Paket</option>
@@ -66,26 +71,33 @@ export default function ContactForm() {
         </select>
       </label>
 
-      <label className="full">
+      <label className="full" htmlFor="contact-message">
         Nachricht
         <textarea
+          id="contact-message"
           className="field"
           name="message"
           rows={5}
+          maxLength={1800}
           placeholder="Kurz beschreiben, wo Ihr Google Business Profil gerade steht."
           required
         />
       </label>
 
-      <button className="btn btn-primary full" disabled={status === "sending"} type="submit">
-        {status === "sending" ? "Wird gesendet..." : "Anfrage senden"}
+      <button className="btn btn-primary full" disabled={status === "sending"} type="submit" aria-busy={status === "sending"}>
+        {status === "sending" && <span className="button-spinner" aria-hidden="true" />}
+        <span>{status === "sending" ? "Wird gesendet..." : "Anfrage senden"}</span>
         <span className="btn-icon">
           <ArrowRight size={18} />
         </span>
       </button>
 
       {message && (
-        <p className={`form-message full ${status === "success" ? "success" : "error"}`} role="status">
+        <p
+          id="contact-form-message"
+          className={`form-message full ${status === "success" ? "success" : "error"}`}
+          role={status === "error" ? "alert" : "status"}
+        >
           {message}
         </p>
       )}
