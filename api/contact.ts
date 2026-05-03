@@ -4,6 +4,22 @@ const MAX_FIELD_LENGTH = 180;
 const MAX_MESSAGE_LENGTH = 1800;
 const RESEND_TIMEOUT_MS = 8000;
 
+const RATE_LIMIT = 3;
+const RATE_WINDOW_MS = 60 * 60 * 1000;
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
 function field(value: unknown, maxLength = MAX_FIELD_LENGTH) {
   return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
 }
@@ -63,6 +79,11 @@ export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed." });
+  }
+
+  const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket?.remoteAddress || "unknown";
+  if (!checkRateLimit(ip)) {
+    return res.status(429).json({ error: "Zu viele Anfragen. Bitte versuchen Sie es in einer Stunde erneut." });
   }
 
   const contentType = req.headers["content-type"] || "";
