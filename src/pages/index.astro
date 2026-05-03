@@ -12,6 +12,7 @@ import heroBrowserImage from "../../assets/avif/hero-visual/chrome-browser.avif"
 import heroPinImage from "../../assets/avif/hero-visual/pin-marker.avif";
 import heroProfileCardImage from "../../assets/avif/hero-visual/profile-card.avif";
 import heroScoreCardImage from "../../assets/avif/hero-visual/score-card.avif";
+import grfProfileImage from "../../assets/avif/grf_profile.avif";
 
 const calUrl = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
 
@@ -536,6 +537,26 @@ const testimonials = [
           <h2 class="h2">Lassen Sie uns Ihren lokalen Auftritt sauber einordnen.</h2>
           <p class="lead">Schicken Sie eine kurze Anfrage oder buchen Sie direkt einen Termin. Der erste Check ist kostenlos und unverbindlich.</p>
           <a class="btn btn-secondary contact-cal" href={calUrl} target="_blank" rel="noopener noreferrer" data-cal-open>Kostenloses Erstgespräch buchen</a>
+          <figure class="founder-card">
+            <div class="founder-avatar">
+              <div class="founder-ring" aria-hidden="true"></div>
+              <img
+                src={grfProfileImage.src}
+                width={grfProfileImage.width}
+                height={grfProfileImage.height}
+                alt="Georg R.-F., Gründer von LokalOptimal"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <figcaption class="founder-info">
+              <strong class="founder-name">Georg R.-F.</strong>
+              <span class="founder-role">Gründer von LokalOptimal</span>
+              <blockquote class="founder-quote">
+                <p>„Wenn jemand nach Ihrem Angebot sucht, zählt der erste Eindruck auf Google. Ich sorge dafür, dass Ihr Profil vollständig, aktuell und überzeugend wirkt – damit aus Sichtbarkeit, Anfragen werden."</p>
+              </blockquote>
+            </figcaption>
+          </figure>
         </div>
         <div class="panel-shell" data-gsap="reveal">
           <div class="panel-core contact-core">
