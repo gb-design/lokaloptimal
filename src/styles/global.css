@@ -3299,6 +3299,10 @@ textarea.field {
     font-size: 0.82rem;
   }
 
+  .hero-kicker strong {
+    display: inline;
+  }
+
   .hero-grid {
     gap: clamp(2.75rem, 10vw, 3.75rem);
   }
