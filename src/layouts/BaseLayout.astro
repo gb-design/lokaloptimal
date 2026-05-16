@@ -1,16 +1,26 @@
 ---
 import "../styles/global.css";
 import favicon from "../../assets/pngs/lo_fav.png";
+import defaultOgImage from "../../assets/pngs/addon-landingpage.png";
 
 interface Props {
   title?: string;
   description?: string;
+  canonicalPath?: string;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
   title = "LokalOptimal - Google Business Profil Optimierung",
   description = "LokalOptimal optimiert Google Business Profile für lokale Unternehmen, damit mehr Sichtbarkeit, Vertrauen und Anfragen entstehen.",
+  canonicalPath = "/",
+  structuredData,
 } = Astro.props;
+
+const siteUrl = "https://www.lokaloptimal.at";
+const canonicalUrl = new URL(canonicalPath, siteUrl).toString();
+const ogImageUrl = new URL(defaultOgImage.src, siteUrl).toString();
+const structuredDataItems = structuredData ? (Array.isArray(structuredData) ? structuredData : [structuredData]) : [];
 ---
 
 <!doctype html>
@@ -21,9 +31,17 @@ const {
     <meta name="description" content={description} />
     <meta name="theme-color" content="#4965f5" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:locale" content="de_AT" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageUrl} />
     <link rel="icon" type="image/png" href={favicon.src} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -40,6 +58,9 @@ const {
     <!-- Start cookieyes banner -->
     <script id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/16a98acd4297ce348c47650676c03ad7/script.js"></script>
     <!-- End cookieyes banner -->
+    {structuredDataItems.map((item) => (
+      <script type="application/ld+json" set:html={JSON.stringify(item)} />
+    ))}
   </head>
   <body>
     <slot />

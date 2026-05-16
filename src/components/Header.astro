@@ -95,6 +95,14 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
     menu?.removeAttribute("data-open");
   };
 
+  document.addEventListener("pointerdown", (event) => {
+    if (!menu?.hasAttribute("data-open")) return;
+    if (!(event.target instanceof Element)) return;
+    if (event.target.closest("[data-mobile-menu], [data-menu-button]")) return;
+
+    closeMenu();
+  });
+
   const openModal = (event) => {
     event?.preventDefault();
     lastFocusedElement = document.activeElement;

@@ -15,6 +15,9 @@ import heroScoreCardImage from "../../assets/avif/hero-visual/score-card.avif";
 import grfProfileImage from "../../assets/avif/grf_profile.avif";
 
 const calUrl = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
+const siteUrl = "https://www.lokaloptimal.at";
+const homeTitle = "Google Business Profil Optimierung Österreich | LokalOptimal";
+const homeDescription = "LokalOptimal optimiert Google Business Profile für lokale Unternehmen in Österreich: mehr Sichtbarkeit, Vertrauen und Anfragen mit kostenlosem GBP-Check.";
 
 const industries = [
   ["Notar", "business_center"],
@@ -171,6 +174,108 @@ const addons = [
   },
 ];
 
+const faqs = [
+  {
+    question: "Was bringt eine Google Business Profil Optimierung?",
+    answer: "Eine Google Business Profil Optimierung sorgt dafür, dass wichtige Informationen wie Leistungen, Öffnungszeiten, Fotos, Bewertungen und Kontaktwege vollständig, aktuell und vertrauenswürdig erscheinen. Das verbessert den ersten Eindruck in Google Suche und Google Maps und kann mehr relevante Anfragen aus lokalen Suchanfragen unterstützen.",
+  },
+  {
+    question: "Für welche lokalen Unternehmen ist LokalOptimal geeignet?",
+    answer: "LokalOptimal ist für lokale Dienstleister, Praxen, Kanzleien, Handwerksbetriebe, Restaurants, Studios und andere Unternehmen geeignet, die regional gefunden werden und aus ihrem Google Business Profil mehr Vertrauen und Kontaktanfragen gewinnen möchten.",
+  },
+  {
+    question: "Was passiert beim kostenlosen GBP-Check?",
+    answer: "Beim kostenlosen GBP-Check wird ein bestehendes Google Business Profil anhand zentraler Profilfaktoren geprüft. Dazu gehören unter anderem Basisdaten, Öffnungszeiten, Beschreibung, Fotos, Bewertungen und sichtbare Kontaktmöglichkeiten. Danach lässt sich einschätzen, wo schnelle Verbesserungen möglich sind.",
+  },
+  {
+    question: "Gibt es Rankingversprechen?",
+    answer: "Nein. LokalOptimal gibt bewusst keine Rankingversprechen. Google Suche und Google Maps hängen von vielen Faktoren ab. Ziel ist eine fachgerechte Optimierung nach aktuellen Best Practices, damit das Profil vollständiger, aktueller und überzeugender wirkt.",
+  },
+];
+
+const homeStructuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${siteUrl}/#organization`,
+    name: "LokalOptimal",
+    alternateName: "george&burn design co.",
+    url: siteUrl,
+    email: "lokaloptimal@gmail.com",
+    founder: {
+      "@type": "Person",
+      name: "Georg Redl-Fortelny",
+    },
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Lorenz-Mandl-Gasse 16",
+      postalCode: "1160",
+      addressLocality: "Wien",
+      addressCountry: "AT",
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${siteUrl}/#website`,
+    name: "LokalOptimal",
+    url: siteUrl,
+    inLanguage: "de-AT",
+    publisher: {
+      "@id": `${siteUrl}/#organization`,
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${siteUrl}/#webpage`,
+    url: siteUrl,
+    name: homeTitle,
+    description: homeDescription,
+    inLanguage: "de-AT",
+    isPartOf: {
+      "@id": `${siteUrl}/#website`,
+    },
+    about: {
+      "@id": `${siteUrl}/#service`,
+    },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${siteUrl}/#service`,
+    name: "Google Business Profil Optimierung",
+    description: "Optimierung und Pflege von Google Business Profilen für lokale Unternehmen in Österreich.",
+    provider: {
+      "@id": `${siteUrl}/#organization`,
+    },
+    areaServed: [
+      {
+        "@type": "Country",
+        name: "Österreich",
+      },
+      {
+        "@type": "City",
+        name: "Wien",
+      },
+    ],
+    serviceType: "Local SEO und Google Business Profile Optimierung",
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${siteUrl}/#faq`,
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  },
+];
+
 const testimonials = [
   {
     quote: "Das Profil wirkt endlich aufgeräumt und professionell. Besonders hilfreich war, dass wir jetzt klar sehen, welche Inhalte im Google-Profil wirklich zählen.",
@@ -210,7 +315,7 @@ const testimonials = [
 ];
 ---
 
-<BaseLayout>
+<BaseLayout title={homeTitle} description={homeDescription} canonicalPath="/" structuredData={homeStructuredData}>
   <Header />
 
   <main>
@@ -238,7 +343,7 @@ const testimonials = [
           </div>
         </div>
 
-        <div class="hero-visual" data-gsap="parallax">
+        <div class="hero-visual" data-gsap="parallax" data-hero-tilt>
           <div class="hero-visual-stack">
             <img
               class="hero-browser-image"
@@ -249,33 +354,39 @@ const testimonials = [
               loading="eager"
               decoding="async"
             />
-            <img
-              class="hero-profile-card-image"
-              src={heroProfileCardImage.src}
-              width={heroProfileCardImage.width}
-              height={heroProfileCardImage.height}
-              alt=""
-              loading="eager"
-              decoding="async"
-            />
-            <img
-              class="hero-score-card-image"
-              src={heroScoreCardImage.src}
-              width={heroScoreCardImage.width}
-              height={heroScoreCardImage.height}
-              alt=""
-              loading="eager"
-              decoding="async"
-            />
-            <img
-              class="hero-pin-image"
-              src={heroPinImage.src}
-              width={heroPinImage.width}
-              height={heroPinImage.height}
-              alt=""
-              loading="eager"
-              decoding="async"
-            />
+            <div class="hero-layer hero-profile-card-layer" data-hero-layer data-depth="10">
+              <img
+                class="hero-profile-card-image"
+                src={heroProfileCardImage.src}
+                width={heroProfileCardImage.width}
+                height={heroProfileCardImage.height}
+                alt=""
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+            <div class="hero-layer hero-score-card-layer" data-hero-layer data-depth="14">
+              <img
+                class="hero-score-card-image"
+                src={heroScoreCardImage.src}
+                width={heroScoreCardImage.width}
+                height={heroScoreCardImage.height}
+                alt=""
+                loading="eager"
+                decoding="async"
+              />
+            </div>
+            <div class="hero-layer hero-pin-layer" data-hero-layer data-depth="8">
+              <img
+                class="hero-pin-image"
+                src={heroPinImage.src}
+                width={heroPinImage.width}
+                height={heroPinImage.height}
+                alt=""
+                loading="eager"
+                decoding="async"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -392,13 +503,17 @@ const testimonials = [
                 data-tab-index={index}
                 hidden={index !== 0}
               >
-                <span class="tab-icon material-symbols-rounded" aria-hidden="true">{tab.icon}</span>
-                <h3>{tab.title}</h3>
-                <strong>{tab.subtitle}</strong>
-                <ul>
-                  {tab.points.map((point) => <li>{point}</li>)}
-                </ul>
-                <p class="tab-closing">{tab.closingText}</p>
+                <div class="tab-content-head">
+                  <span class="tab-icon material-symbols-rounded" aria-hidden="true">{tab.icon}</span>
+                  <h3>{tab.title}</h3>
+                </div>
+                <div class="tab-content-body">
+                  <strong>{tab.subtitle}</strong>
+                  <ul>
+                    {tab.points.map((point) => <li>{point}</li>)}
+                  </ul>
+                  <p class="tab-closing">{tab.closingText}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -483,7 +598,7 @@ const testimonials = [
       </div>
     </section>
 
-    <section class="section testimonials-section" id="kundenstimmen">
+    <section class="section testimonials-section" id="kundenstimmen" hidden aria-hidden="true">
       <div class="container section-heading" data-gsap="reveal">
         <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">reviews</span>Kundenstimmen</span>
         <h2 class="h2">Was lokale Unternehmen über <span class="text-blue">LokalOptimal</span> sagen</h2>
@@ -530,6 +645,26 @@ const testimonials = [
       </div>
     </section>
 
+    <section class="section faq-section" id="faq">
+      <div class="container section-heading" data-gsap="reveal">
+        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">help</span>Häufige Fragen</span>
+        <h2 class="h2">Google Business Profil: Kurz beantwortet</h2>
+        <p class="lead">Die wichtigsten Punkte vor einem kostenlosen GBP-Check.</p>
+      </div>
+
+      <div class="container faq-list" data-gsap="reveal">
+        {faqs.map((faq, index) => (
+          <details class="faq-item" open={index === 0}>
+            <summary>
+              <span>{faq.question}</span>
+              <span class="material-symbols-rounded" aria-hidden="true">expand_more</span>
+            </summary>
+            <p>{faq.answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+
     <section class="section contact-section" id="kontakt">
       <div class="container contact-grid">
         <div data-gsap="reveal">
@@ -544,14 +679,14 @@ const testimonials = [
                 src={grfProfileImage.src}
                 width={grfProfileImage.width}
                 height={grfProfileImage.height}
-                alt="Georg R.-F., Gründer von LokalOptimal"
+                alt="Georg R.-F., Gründer von LokalOptimal und Ihr persönlicher Betreuer"
                 loading="lazy"
                 decoding="async"
               />
             </div>
             <figcaption class="founder-info">
               <strong class="founder-name">Georg R.-F.</strong>
-              <span class="founder-role">Gründer von LokalOptimal</span>
+              <span class="founder-role">Gründer von LokalOptimal und Ihr persönlicher Betreuer</span>
               <blockquote class="founder-quote">
                 <p>„Wenn jemand nach Ihrem Angebot sucht, zählt der erste Eindruck auf Google. Ich sorge dafür, dass Ihr Profil vollständig, aktuell und überzeugend wirkt – damit aus Sichtbarkeit, Anfragen werden."</p>
               </blockquote>

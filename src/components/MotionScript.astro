@@ -4,38 +4,8 @@
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+  const hasFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const header = document.querySelector<HTMLElement>(".site-header");
-
-  if (header) {
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
-    const updateHeader = () => {
-      const currentScrollY = window.scrollY;
-      const isMenuOpen = document.body.hasAttribute("data-menu-open");
-      const isScrollingDown = currentScrollY > lastScrollY;
-
-      if (currentScrollY <= 8 || isMenuOpen || !isScrollingDown) {
-        header.classList.remove("is-hidden");
-      } else if (currentScrollY > 80) {
-        header.classList.add("is-hidden");
-      }
-
-      lastScrollY = Math.max(currentScrollY, 0);
-      ticking = false;
-    };
-
-    window.addEventListener(
-      "scroll",
-      () => {
-        if (!ticking) {
-          window.requestAnimationFrame(updateHeader);
-          ticking = true;
-        }
-      },
-      { passive: true },
-    );
-  }
 
   const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>(".nav-links a[href^='#']"));
   const navSections = navLinks
@@ -131,6 +101,88 @@
         countObserver.observe(document.querySelector("#vorteile .benefit-bento") ?? countUpElements[0]);
       }
     }
+  }
+
+  if (!reduceMotion && hasFinePointer) {
+    document.querySelectorAll<HTMLElement>("[data-hero-tilt]").forEach((element) => {
+      const stack = element.querySelector<HTMLElement>(".hero-visual-stack");
+      const layers = Array.from(element.querySelectorAll<HTMLElement>("[data-hero-layer]"));
+
+      if (!stack || layers.length === 0) return;
+
+      let targetX = 0;
+      let targetY = 0;
+      let targetRotateX = 0;
+      let targetRotateY = 0;
+      let currentX = 0;
+      let currentY = 0;
+      let currentRotateX = 0;
+      let currentRotateY = 0;
+      let frameId = 0;
+
+      const maxRotation = 5;
+      const settleThreshold = 0.001;
+
+      const renderTilt = () => {
+        currentX += (targetX - currentX) * 0.14;
+        currentY += (targetY - currentY) * 0.14;
+        currentRotateX += (targetRotateX - currentRotateX) * 0.14;
+        currentRotateY += (targetRotateY - currentRotateY) * 0.14;
+
+        stack.style.setProperty("--hero-tilt-x", `${currentRotateX.toFixed(3)}deg`);
+        stack.style.setProperty("--hero-tilt-y", `${currentRotateY.toFixed(3)}deg`);
+
+        layers.forEach((layer) => {
+          const depth = Number(layer.dataset.depth ?? "8");
+          layer.style.setProperty("--hero-layer-x", `${(currentX * depth).toFixed(3)}px`);
+          layer.style.setProperty("--hero-layer-y", `${(currentY * depth * 0.65).toFixed(3)}px`);
+        });
+
+        const hasSettled =
+          Math.abs(targetX - currentX) < settleThreshold &&
+          Math.abs(targetY - currentY) < settleThreshold &&
+          Math.abs(targetRotateX - currentRotateX) < settleThreshold &&
+          Math.abs(targetRotateY - currentRotateY) < settleThreshold;
+
+        if (!hasSettled) {
+          frameId = window.requestAnimationFrame(renderTilt);
+        } else {
+          frameId = 0;
+        }
+      };
+
+      const startTiltLoop = () => {
+        if (frameId) return;
+        frameId = window.requestAnimationFrame(renderTilt);
+      };
+
+      const resetTilt = () => {
+        targetX = 0;
+        targetY = 0;
+        targetRotateX = 0;
+        targetRotateY = 0;
+        if (!frameId) frameId = window.requestAnimationFrame(renderTilt);
+      };
+
+      element.addEventListener(
+        "pointermove",
+        (event) => {
+          const rect = element.getBoundingClientRect();
+          const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+          const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+
+          targetX = Math.max(-1, Math.min(1, x));
+          targetY = Math.max(-1, Math.min(1, y));
+          targetRotateX = -targetY * maxRotation;
+          targetRotateY = targetX * maxRotation;
+          startTiltLoop();
+        },
+        { passive: true },
+      );
+
+      element.addEventListener("pointerleave", resetTilt, { passive: true });
+      element.addEventListener("blur", resetTilt, true);
+    });
   }
 
   if (!reduceMotion) {
