@@ -322,14 +322,15 @@ async function guardGoogleCalls(req: any, res: any) {
 
     return true;
   } catch (error) {
+    // Fail open: if the rate-limit storage (Upstash KV) is unreachable or
+    // misconfigured, allow the request through instead of breaking the whole
+    // widget. A KV outage should not take the audit feature offline.
     if ((error as Error).message === "KV_NOT_CONFIGURED") {
-      res.status(503).json({ error: "Rate limit storage is not configured." });
-      return false;
+      console.warn("[places rate limit] KV not configured, allowing request (fail-open)");
+    } else {
+      console.error("[places rate limit] check failed, allowing request (fail-open)", error);
     }
-
-    console.error("[places rate limit]", error);
-    res.status(503).json({ error: "Rate limit check failed." });
-    return false;
+    return true;
   }
 }
 
