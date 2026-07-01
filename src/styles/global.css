@@ -35,7 +35,7 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: var(--header-height);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 @media (hover: hover) and (pointer: fine) {
@@ -47,7 +47,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  overflow-x: hidden;
+  overflow-x: clip;
   background: linear-gradient(108deg, #f9f9ff 0%, var(--soft-blue) 100%);
   color: var(--ink);
   font-family: var(--font-body);
@@ -2525,6 +2525,28 @@ textarea.field {
   color: oklch(0.96 0.01 274);
 }
 
+@media (min-width: 761px) {
+  main {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(108deg, #f9f9ff 0%, var(--soft-blue) 100%);
+    box-shadow: 0 24px 48px rgb(25 28 50 / 0.12);
+  }
+
+  .footer[data-footer-reveal] {
+    position: sticky;
+    bottom: 0;
+    z-index: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer[data-footer-reveal] {
+    position: relative;
+    bottom: auto;
+  }
+}
+
 .footer-grid {
   display: grid;
   grid-template-columns: 1.5fr 0.65fr 0.65fr;
@@ -3164,6 +3186,18 @@ textarea.field {
   .industry-pill {
     min-height: 3.25rem;
     font-size: clamp(1.05rem, 1.8vw, 1.2rem);
+  }
+
+  .nav-links {
+    gap: 1.25rem;
+  }
+
+  .nav-cta {
+    padding: 0.42rem 0.75rem;
+  }
+
+  .nav-cta .material-symbols-rounded {
+    display: none;
   }
 }
 

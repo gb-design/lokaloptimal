@@ -4,8 +4,10 @@
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+  const usesMobileFooterReveal = window.matchMedia("(max-width: 760px)").matches;
   const hasFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const header = document.querySelector<HTMLElement>(".site-header");
+  const revealFooter = document.querySelector<HTMLElement>("[data-footer-reveal]");
 
   const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>(".nav-links a[href^='#']"));
   const navSections = navLinks
@@ -187,6 +189,25 @@
 
   if (!reduceMotion) {
     gsap.registerPlugin(ScrollTrigger);
+
+    if (usesMobileFooterReveal && revealFooter) {
+      gsap.fromTo(
+        revealFooter,
+        { autoAlpha: 0, y: 24 },
+        {
+          autoAlpha: 1,
+          y: 0,
+          duration: 0.7,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: revealFooter,
+            start: "top 94%",
+            once: true,
+            toggleActions: "play none none none",
+          },
+        },
+      );
+    }
 
     gsap.utils.toArray<HTMLElement>("[data-gsap='reveal']").forEach((element, index) => {
       const revealOffset = element.closest(".check-section") ? 16 : 42;

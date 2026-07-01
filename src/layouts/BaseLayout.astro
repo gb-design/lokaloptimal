@@ -1,5 +1,6 @@
 ---
 import "../styles/global.css";
+import "lenis/dist/lenis.css";
 import favicon from "../../assets/pngs/lo_fav.png";
 import defaultOgImage from "../../assets/pngs/addon-landingpage.png";
 
@@ -66,3 +67,42 @@ const structuredDataItems = structuredData ? (Array.isArray(structuredData) ? st
     <slot />
   </body>
 </html>
+
+<script>
+  import Lenis from "lenis";
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  if (!reducedMotion.matches) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const header = document.querySelector<HTMLElement>(".site-header");
+    const lenis = new Lenis({
+      autoRaf: false,
+      lerp: 0.1,
+      smoothWheel: true,
+      syncTouch: false,
+      anchors: {
+        offset: -(header?.offsetHeight ?? 0),
+      },
+      stopInertiaOnNavigate: true,
+    });
+
+    lenis.on("scroll", ScrollTrigger.update);
+
+    const updateLenis = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+
+    gsap.ticker.add(updateLenis);
+    gsap.ticker.lagSmoothing(0);
+
+    reducedMotion.addEventListener("change", (event) => {
+      if (!event.matches) return;
+      gsap.ticker.remove(updateLenis);
+      lenis.destroy();
+    }, { once: true });
+  }
+</script>
