@@ -1851,6 +1851,7 @@ body[data-cal-modal-open] {
 
 .addon-price {
   position: relative;
+  margin-top: 0;
 }
 
 .addon-price summary {
@@ -2017,6 +2018,109 @@ body[data-cal-modal-open] {
     color: color-mix(in oklch, var(--blue-deep), black 8%);
     font-weight: 640;
   }
+}
+
+.geo-check {
+  margin-top: 1rem;
+}
+
+.geo-check-core {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(1.5rem, 3vw, 2.75rem);
+  align-items: center;
+  padding: clamp(1.6rem, 3vw, 2.4rem);
+  background: linear-gradient(140deg, var(--blue) 0%, var(--blue-deep) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.14),
+    0 20px 46px rgb(31 50 140 / 0.28);
+}
+
+.geo-check-core .eyebrow {
+  background: white;
+  color: var(--blue-deep);
+}
+
+.geo-check-core .eyebrow .material-symbols-rounded {
+  color: var(--blue);
+}
+
+.geo-check-headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  margin-block: 0.85rem 0.9rem;
+}
+
+.geo-check-headline h3 {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.4vw, 1.75rem);
+  font-weight: 800;
+  color: white;
+}
+
+.geo-check-intro p {
+  margin: 0;
+  max-width: 48ch;
+  color: color-mix(in oklch, white, var(--blue) 14%);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.geo-check-headline .addon-price-value span {
+  font-size: 2rem;
+  color: white;
+}
+
+.geo-check-headline .addon-price-value small {
+  font-size: 0.82rem;
+  color: color-mix(in oklch, white, var(--blue) 22%);
+}
+
+.geo-check-list {
+  align-self: stretch;
+  display: grid;
+  align-content: center;
+  gap: 1rem;
+  padding: clamp(1.2rem, 2.4vw, 1.8rem);
+  border-radius: var(--radius-md, 1rem);
+  border: 1px solid rgb(255 255 255 / 0.18);
+  background: rgb(255 255 255 / 0.1);
+}
+
+.geo-check-list-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in oklch, white, var(--blue) 22%);
+}
+
+.geo-check-list ul {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.geo-check-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  font-weight: 680;
+  line-height: 1.3;
+  color: white;
+}
+
+.geo-check-list li .material-symbols-rounded {
+  flex: none;
+  margin-top: 0.05rem;
+  color: white;
+  font-size: 1.35rem;
 }
 
 .important-note {
@@ -3179,6 +3283,11 @@ textarea.field {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .geo-check-core {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
   .industry-marquee {
     gap: clamp(1rem, 3vw, 2rem);
   }
@@ -3691,6 +3800,10 @@ textarea.field {
   .pricing-grid,
   .addon-price-grid,
   .contact-form {
+    grid-template-columns: 1fr;
+  }
+
+  .geo-check-list ul {
     grid-template-columns: 1fr;
   }
 
