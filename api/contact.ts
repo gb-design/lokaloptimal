@@ -1,3 +1,5 @@
+import { findAddon, findOffer, formatEuro, quickCheck } from "../src/data/pricing";
+
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const fallbackFrom = "LokalOptimal <onboarding@resend.dev>";
 const MAX_FIELD_LENGTH = 180;
@@ -39,26 +41,93 @@ function isUnverifiedDomainError(message: string) {
   return message.toLowerCase().includes("domain is not verified");
 }
 
-function getEmailPayload(from: string, body: Record<string, string>) {
+const VALID_PATHS = new Set(["setup", "growth", "care", "single"]);
+const MAX_SELECTION_ADDONS = 12;
+
+type SelectionResult = { lines: string[] } | { error: string } | null;
+
+function buildSelection(raw: unknown): SelectionResult {
+  if (raw === undefined || raw === null) return null;
+  if (typeof raw !== "object" || Array.isArray(raw)) return { error: "Ungültige Auswahl." };
+
+  const selection = raw as Record<string, unknown>;
+  const path = typeof selection.path === "string" ? selection.path : "";
+  const offerId = typeof selection.offerId === "string" ? selection.offerId : null;
+  const addonIdsRaw = Array.isArray(selection.addonIds) ? selection.addonIds : [];
+
+  if (path && !VALID_PATHS.has(path)) return { error: "Ungültige Auswahl." };
+  if (addonIdsRaw.length > MAX_SELECTION_ADDONS) return { error: "Ungültige Auswahl." };
+
+  const offer = offerId ? findOffer(offerId) : undefined;
+  if (offerId && !offer) return { error: "Ungültige Auswahl." };
+
+  const addons = [];
+  for (const id of addonIdsRaw) {
+    const addon = typeof id === "string" ? findAddon(id) : undefined;
+    if (!addon || addon.id === quickCheck.id) return { error: "Ungültige Auswahl." };
+    addons.push(addon);
+  }
+
+  if (!offer && addons.length === 0) return null;
+
+  let once = 0;
+  let monthly = 0;
+  const lines = ["Gewählte Optionen:"];
+
+  if (offer) {
+    lines.push(`- ${offer.name}: ${offer.price} ${offer.period}`);
+    if (offer.interval === "monatlich") {
+      lines.push(`- ${quickCheck.name}: ${quickCheck.price} einmalig (Pflicht beim Direkteinstieg)`);
+      monthly += offer.priceValue;
+      once += quickCheck.priceValue;
+    } else {
+      once += offer.priceValue;
+    }
+  }
+
+  for (const addon of addons) {
+    lines.push(`- ${addon.name}: ${addon.priceValue ? `${addon.price} ${addon.period}` : "auf Anfrage"}`);
+    if (addon.interval === "monatlich") monthly += addon.priceValue;
+    else once += addon.priceValue;
+  }
+
+  const totals = [
+    once > 0 ? `${formatEuro(once)} einmalig` : "",
+    monthly > 0 ? `${formatEuro(monthly)}/Monat` : "",
+  ].filter(Boolean);
+  if (totals.length) lines.push(`Summe: ${totals.join(" + ")} (exkl. MwSt.)`);
+
+  return { lines };
+}
+
+function getEmailPayload(from: string, body: Record<string, string>, selectionLines?: string[]) {
   const { name, email, company, topic, message } = body;
+
+  const text = [
+    `Name: ${name}`,
+    `E-Mail: ${email}`,
+    `Unternehmen: ${company || "-"}`,
+    `Thema: ${topic || "-"}`,
+  ];
+
+  if (selectionLines?.length) {
+    text.push("", ...selectionLines);
+  }
+
+  if (message) {
+    text.push("", message);
+  }
 
   return {
     from,
     to: process.env.CONTACT_TO_EMAIL,
     reply_to: email,
     subject: `Neue LokalOptimal Anfrage: ${topic || "Kontakt"}`,
-    text: [
-      `Name: ${name}`,
-      `E-Mail: ${email}`,
-      `Unternehmen: ${company || "-"}`,
-      `Thema: ${topic || "-"}`,
-      "",
-      message,
-    ].join("\n"),
+    text: text.join("\n"),
   };
 }
 
-async function sendEmail(apiKey: string, from: string, body: Record<string, string>) {
+async function sendEmail(apiKey: string, from: string, body: Record<string, string>, selectionLines?: string[]) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), RESEND_TIMEOUT_MS);
 
@@ -68,7 +137,7 @@ async function sendEmail(apiKey: string, from: string, body: Record<string, stri
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(getEmailPayload(from, body)),
+    body: JSON.stringify(getEmailPayload(from, body, selectionLines)),
     signal: controller.signal,
   }).finally(() => clearTimeout(timeout));
 }
@@ -104,7 +173,13 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({ ok: true });
   }
 
-  if (!name?.trim() || !emailPattern.test(email || "") || !message?.trim()) {
+  const selection = buildSelection(body.selection);
+  if (selection && "error" in selection) {
+    return res.status(400).json({ error: selection.error });
+  }
+  const selectionLines = selection && "lines" in selection ? selection.lines : undefined;
+
+  if (!name?.trim() || !emailPattern.test(email || "") || (!message?.trim() && !selectionLines)) {
     return res.status(400).json({ error: "Bitte Name, gültige E-Mail und Nachricht ausfüllen." });
   }
 
@@ -123,7 +198,7 @@ export default async function handler(req: any, res: any) {
   let response: Response;
 
   try {
-    response = await sendEmail(apiKey, from, { name, email, company, topic, message });
+    response = await sendEmail(apiKey, from, { name, email, company, topic, message }, selectionLines);
   } catch {
     return res.status(504).json({ error: "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut." });
   }
@@ -134,7 +209,7 @@ export default async function handler(req: any, res: any) {
 
     if (from !== fallbackFrom && isUnverifiedDomainError(resendError)) {
       try {
-        response = await sendEmail(apiKey, fallbackFrom, { name, email, company, topic, message });
+        response = await sendEmail(apiKey, fallbackFrom, { name, email, company, topic, message }, selectionLines);
       } catch {
         return res.status(504).json({ error: "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut." });
       }

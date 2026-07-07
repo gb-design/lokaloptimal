@@ -33,3 +33,27 @@ const year = new Date().getFullYear();
     <span>Keine Ranking-Garantien. Saubere Optimierung nach aktuellen Best Practices.</span>
   </div>
 </footer>
+
+<script>
+  const footer = document.querySelector<HTMLElement>("[data-footer-reveal]");
+  const canAnimateFooter =
+    footer &&
+    window.matchMedia("(max-width: 760px)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+    "IntersectionObserver" in window;
+
+  if (footer && canAnimateFooter) {
+    footer.classList.add("footer-reveal-ready");
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        footer.classList.add("is-visible");
+        observer.disconnect();
+      },
+      { rootMargin: "0px 0px -4% 0px", threshold: 0.08 },
+    );
+
+    window.requestAnimationFrame(() => observer.observe(footer));
+  }
+</script>

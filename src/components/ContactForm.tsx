@@ -66,9 +66,14 @@ export default function ContactForm() {
         Worum geht es?
         <select id="contact-topic" className="field" name="topic" defaultValue="GBP Audit">
           <option>GBP Audit</option>
-          <option>Profil-Setup</option>
+          <option>Starter Paket</option>
+          <option>Essential Paket</option>
           <option>Growth Paket</option>
-          <option>Landingpage</option>
+          <option>Local Pro Paket</option>
+          <option>Care Betreuung (monatlich)</option>
+          <option>Pro Care Betreuung (monatlich)</option>
+          <option>Add-on / Einzelleistung</option>
+          <option>Website GEO-Check</option>
           <option>Sonstiges</option>
         </select>
       </label>
