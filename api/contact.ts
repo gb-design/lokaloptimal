@@ -1,4 +1,4 @@
-import { findAddon, findOffer, formatEuro, quickCheck } from "../src/data/pricing";
+import { findAddon, findOffer, formatEuro, quickCheck } from "../src/data/pricing.js";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const fallbackFrom = "LokalOptimal <onboarding@resend.dev>";
