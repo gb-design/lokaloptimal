@@ -1,0 +1,60 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../../components/dashboard/DashboardIcon";
+import EmptyState from "../../../components/dashboard/EmptyState.astro";
+import { listOffers } from "../../../lib/dashboard/queries";
+import { offerStatusLabels, type OfferStatus } from "../../../lib/dashboard/types";
+
+const offers = await listOffers(Astro);
+const money = (value: number) => new Intl.NumberFormat("de-AT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
+const date = (value: string) => new Intl.DateTimeFormat("de-AT", { timeZone: "Europe/Vienna", dateStyle: "medium" }).format(new Date(value));
+---
+
+<DashboardLayout title="Angebote" eyebrow="Vertrieb" description="Leistungsumfang, PDF und Entscheidung in einem klaren Statusverlauf.">
+  <a slot="actions" class="dash-button secondary" href="/dashboard/leads">
+    <DashboardIcon name="person_search" size={18} />
+    Lead auswählen
+  </a>
+
+  {offers.length ? (
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th style="width:36%">Angebot</th>
+            <th>Status</th>
+            <th>Einmalig</th>
+            <th>Monatlich</th>
+            <th>Gültig bis</th>
+            <th class="dash-table-action"><span class="sr-only">Öffnen</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {offers.map((offer: any) => (
+            <tr>
+              <td data-label="Angebot">
+                <div class="dash-table-primary">
+                  <a href={`/dashboard/offers/${offer.id}`}>{offer.offer_number || `Entwurf #${offer.id}`}</a>
+                  <small>{offer.lead.company_name}</small>
+                </div>
+              </td>
+              <td data-label="Status"><span class="dash-badge" data-tone={offer.status}>{offerStatusLabels[offer.status as OfferStatus]}</span></td>
+              <td data-label="Einmalig"><span class="dash-data-value">{Number(offer.once_total) > 0 ? money(Number(offer.once_total)) : "—"}</span></td>
+              <td data-label="Monatlich"><span class="dash-data-value">{Number(offer.monthly_total) > 0 ? money(Number(offer.monthly_total)) : "—"}</span></td>
+              <td data-label="Gültig bis">{date(offer.valid_until)}</td>
+              <td class="dash-table-action">
+                <a href={`/dashboard/offers/${offer.id}`} aria-label={`${offer.offer_number || "Angebot"} öffnen`}>
+                  <DashboardIcon name="arrow_forward" size={17} />
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <EmptyState icon="request_quote" title="Noch keine Angebote" text="Lead auswählen; nach einem Audit sind passende Leistungen bereits vorausgewählt." href="/dashboard/leads" action="Lead auswählen" />
+  )}
+</DashboardLayout>

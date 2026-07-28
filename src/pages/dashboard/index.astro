@@ -1,0 +1,231 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../components/dashboard/DashboardIcon";
+import EmptyState from "../../components/dashboard/EmptyState.astro";
+import { getOverview } from "../../lib/dashboard/queries";
+import {
+  leadStatusLabels,
+  priorityLabels,
+  type LeadPriority,
+  type LeadStatus,
+} from "../../lib/dashboard/types";
+
+const data = await getOverview(Astro);
+const dateTime = (value: string) =>
+  new Intl.DateTimeFormat("de-AT", {
+    timeZone: "Europe/Vienna",
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+const shortDate = (value: string) =>
+  new Intl.DateTimeFormat("de-AT", {
+    timeZone: "Europe/Vienna",
+    day: "2-digit",
+    month: "2-digit",
+  }).format(new Date(value));
+const todayLabel = new Intl.DateTimeFormat("de-AT", {
+  timeZone: "Europe/Vienna",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+}).format(new Date());
+---
+
+<DashboardLayout
+  title="Heute im Blick"
+  eyebrow={todayLabel}
+  description="Fällige Arbeit zuerst. Danach Pipeline und Engpässe."
+>
+  <a slot="actions" class="dash-button" href="/dashboard/leads/new">
+    <DashboardIcon name="person_add" size={18} weight="bold" />
+    Lead anlegen
+  </a>
+
+  <section class="dash-today-strip" aria-label="Arbeitsüberblick">
+    {data.todayMetrics.map((metric) => (
+      <a class="dash-today-metric" data-tone={metric.tone} href={metric.href}>
+        <strong>{metric.value}</strong>
+        <span>{metric.label}</span>
+      </a>
+    ))}
+  </section>
+
+  <div class="dash-overview-grid dash-section">
+    <section class="dash-panel" aria-labelledby="work-heading">
+      <div class="dash-panel-head">
+        <div>
+          <h2 id="work-heading">Nächste Schritte</h2>
+          <p>Nach Fälligkeit sortiert</p>
+        </div>
+        <a href="/dashboard/leads" class="dash-button ghost">Alle Leads</a>
+      </div>
+
+      {data.workItems.length ? (
+        <div>
+          {data.workItems.map((item) => (
+            <article class="dash-work-item" data-overdue={String(item.overdue)}>
+              <span class="dash-work-item-icon">
+                <DashboardIcon
+                  name={item.kind === "lead_follow_up" ? "person" : "task_alt"}
+                  size={17}
+                  weight="bold"
+                />
+              </span>
+              <div class="dash-work-item-copy">
+                <a href={item.href}>{item.title}</a>
+                <small>{item.context} · {item.kind === "lead_follow_up" ? "Lead" : "Projekt"}</small>
+              </div>
+              <span class="dash-badge" data-tone={item.priority}>
+                {priorityLabels[item.priority as LeadPriority]}
+              </span>
+              <time datetime={item.dueAt}>
+                {item.overdue ? "Überfällig · " : ""}{dateTime(item.dueAt)}
+              </time>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <EmptyState
+          icon="done_all"
+          title="Heute ist alles im Plan"
+          text="Fällige Lead-Schritte und Projektaufgaben erscheinen automatisch an dieser Stelle."
+          href="/dashboard/leads"
+          action="Pipeline prüfen"
+        />
+      )}
+    </section>
+
+    <aside class="dash-panel" aria-labelledby="pipeline-heading">
+      <div class="dash-panel-head">
+        <div>
+          <h2 id="pipeline-heading">Lead-Pipeline</h2>
+          <p>{data.pipelineTotal} aktive Leads</p>
+        </div>
+      </div>
+
+      {data.pipelineTotal ? (
+        <>
+          <div class="dash-pipeline" aria-label="Verteilung der aktiven Leads">
+            {data.pipeline.map((item) => (
+              <a
+                class="dash-pipeline-row"
+                href={item.href}
+                aria-label={`${item.label}: ${item.count} Leads, ${item.share} Prozent`}
+              >
+                <span>{item.label}</span>
+                <span class="dash-pipeline-track" aria-hidden="true">
+                  <span class="dash-pipeline-fill" style={`--pipeline-share:${item.share}`}></span>
+                </span>
+                <strong class="dash-pipeline-count">{item.count}</strong>
+              </a>
+            ))}
+          </div>
+          <div class="dash-pipeline-outcomes">
+            <span><strong>{data.wonCount}</strong> gewonnen</span>
+            <span><strong>{data.lostCount}</strong> verloren</span>
+          </div>
+        </>
+      ) : (
+        <EmptyState
+          icon="group"
+          title="Noch keine Pipeline"
+          text="Sobald Leads angelegt sind, wird ihre tatsächliche Statusverteilung hier sichtbar."
+          href="/dashboard/leads/new"
+          action="Ersten Lead anlegen"
+        />
+      )}
+    </aside>
+  </div>
+
+  {(data.pendingOffers.length > 0 || data.blockedProjects.length > 0) && (
+    <div class="dash-overview-grid dash-section">
+      <section>
+        <div class="dash-section-head">
+          <h2>Angebote mit Entscheidung offen</h2>
+          <a href="/dashboard/offers">Alle Angebote</a>
+        </div>
+        <div class="dash-compact-stack">
+          {data.pendingOffers.length ? data.pendingOffers.map((offer) => (
+            <a class="dash-compact-link" href={offer.href}>
+              <span>
+                <strong>{offer.label}</strong>
+                <small>{offer.companyName}</small>
+              </span>
+              <span class="dash-badge">bis {shortDate(offer.validUntil)}</span>
+            </a>
+          )) : (
+            <p class="dash-cell-muted">Keine versendeten Angebote offen.</p>
+          )}
+        </div>
+      </section>
+
+      <section>
+        <div class="dash-section-head">
+          <h2>Wartet auf Kunde</h2>
+          <a href="/dashboard/projects">Alle Projekte</a>
+        </div>
+        <div class="dash-compact-stack">
+          {data.blockedProjects.length ? data.blockedProjects.map((project) => (
+            <a class="dash-compact-link" href={project.href}>
+              <span>
+                <strong>{project.name}</strong>
+                <small>{project.companyName}</small>
+              </span>
+              <DashboardIcon name="arrow_forward" size={17} />
+            </a>
+          )) : (
+            <p class="dash-cell-muted">Kein Projekt wartet auf Rückmeldung.</p>
+          )}
+        </div>
+      </section>
+    </div>
+  )}
+
+  {data.recentLeads.length > 0 && (
+    <section class="dash-section" aria-labelledby="recent-heading">
+      <div class="dash-section-head">
+        <h2 id="recent-heading">Zuletzt bearbeitet</h2>
+      </div>
+      <div class="dash-table-wrap">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th style="width:42%">Unternehmen</th>
+              <th>Status</th>
+              <th>Priorität</th>
+              <th>Aktualisiert</th>
+              <th class="dash-table-action"><span class="sr-only">Öffnen</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.recentLeads.map((lead) => (
+              <tr>
+                <td data-label="Unternehmen">
+                  <div class="dash-table-primary">
+                    <a href={`/dashboard/leads/${lead.id}`}>{lead.company_name}</a>
+                  </div>
+                </td>
+                <td data-label="Status">
+                  <span class="dash-badge">{leadStatusLabels[lead.status as LeadStatus]}</span>
+                </td>
+                <td data-label="Priorität">
+                  <span class="dash-badge" data-tone={lead.priority}>
+                    {priorityLabels[lead.priority as LeadPriority]}
+                  </span>
+                </td>
+                <td data-label="Aktualisiert">{dateTime(lead.updated_at)}</td>
+                <td class="dash-table-action">
+                  <a href={`/dashboard/leads/${lead.id}`} aria-label={`${lead.company_name} öffnen`}>
+                    <DashboardIcon name="arrow_forward" size={17} />
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )}
+</DashboardLayout>

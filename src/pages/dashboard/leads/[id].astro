@@ -1,0 +1,124 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../../components/dashboard/DashboardIcon";
+import EmptyState from "../../../components/dashboard/EmptyState.astro";
+import { LeadEditor } from "../../../components/dashboard/LeadForm";
+import { getLead } from "../../../lib/dashboard/queries";
+import { auditBandLabels, leadStatusLabels, offerStatusLabels, type AuditBand, type LeadStatus, type OfferStatus } from "../../../lib/dashboard/types";
+
+const id = Number(Astro.params.id);
+if (!Number.isInteger(id)) return new Response("Ungültige Lead-ID", { status: 400 });
+const data = await getLead(Astro, id);
+if (!data.lead) return new Response("Lead nicht gefunden", { status: 404 });
+const activeStages: LeadStatus[] = ["neu", "audit_offen", "priorisiert", "kontaktiert", "gespraech", "angebot"];
+const currentIndex = activeStages.indexOf(data.lead.status as LeadStatus);
+const dueLabel = data.lead.next_action_at
+  ? new Intl.DateTimeFormat("de-AT", {
+      timeZone: "Europe/Vienna",
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date(data.lead.next_action_at))
+  : "Kein Termin";
+---
+
+<DashboardLayout title={data.lead.company_name} eyebrow="Lead-Detail" description={[data.lead.industry, data.lead.location].filter(Boolean).join(" · ") || "Unternehmensdaten und nächster Schritt"}>
+  <a slot="actions" class="dash-button secondary" href="/dashboard/leads">
+    <DashboardIcon name="arrow_back" size={18} />
+    Leadliste
+  </a>
+
+  <nav class="dash-subnav" aria-label="Lead-Bereiche">
+    <a class="active" href="#stammdaten">Stammdaten</a>
+    <a href="#audits">Audits ({data.audits.length})</a>
+    <a href="#angebote">Angebote ({data.offers.length})</a>
+    {data.project && <a href={`/dashboard/projects/${data.project.id}`}>Projekt</a>}
+  </nav>
+
+  <section class="dash-panel dash-section" aria-labelledby="lead-pipeline-heading">
+    <div class="dash-panel-head">
+      <div>
+        <h2 id="lead-pipeline-heading">Pipeline</h2>
+        <p>
+          Aktuell: {leadStatusLabels[data.lead.status as LeadStatus]}
+          {data.lead.next_action ? ` · ${data.lead.next_action}` : ""}
+          {` · ${dueLabel}`}
+        </p>
+      </div>
+      <span class="dash-badge" data-tone={data.lead.priority}>{data.lead.priority} priorisiert</span>
+    </div>
+    {currentIndex >= 0 ? (
+      <div class="dash-process" style={`--process-steps:${activeStages.length}`} aria-label={`Pipeline-Status: ${leadStatusLabels[data.lead.status as LeadStatus]}`}>
+        {activeStages.map((status, index) => (
+          <span
+            class="dash-process-step"
+            data-complete={index < currentIndex ? "true" : "false"}
+            data-current={index === currentIndex ? "true" : "false"}
+          >
+            {leadStatusLabels[status]}
+          </span>
+        ))}
+      </div>
+    ) : (
+      <p class="dash-outcome-copy">
+        Der Lead ist als <strong>{leadStatusLabels[data.lead.status as LeadStatus]}</strong> abgeschlossen.
+      </p>
+    )}
+  </section>
+
+  <section class="dash-section" id="stammdaten">
+    <div class="dash-panel">
+      <LeadEditor lead={data.lead} client:load />
+    </div>
+  </section>
+
+  <div class="dash-work-grid dash-section">
+    <section id="audits">
+      <div class="dash-section-head">
+        <h2>Audits</h2>
+      </div>
+      {data.audits.length ? (
+        <div class="dash-list">
+          {data.audits.map((audit: any) => (
+            <div class="dash-list-row">
+              <div class="dash-list-main">
+                <a href={`/dashboard/audits/${audit.id}`}>Audit Version {audit.version}</a>
+                <small>{audit.status === "abgeschlossen" ? "Abgeschlossen" : "Entwurf"}</small>
+              </div>
+              <span class="dash-badge" data-tone={audit.band}>{audit.band ? auditBandLabels[audit.band as AuditBand] : "Noch ohne Score"}</span>
+              <span class="dash-cell-muted">{audit.score !== null ? `${audit.score}/100` : "—"}</span>
+              <a href={`/dashboard/audits/${audit.id}`} aria-label={`Audit ${audit.version} öffnen`}><DashboardIcon name="arrow_forward" size={18} /></a>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <EmptyState icon="fact_check" title="Noch kein Audit" text="Starten Sie den Audit über die Stammdaten. Google-Daten und qualitative Bewertung werden dort zusammengeführt." />
+      )}
+    </section>
+
+    <aside id="angebote">
+      <div class="dash-section-head">
+        <h2>Angebote</h2>
+        <a href={`/dashboard/offers/new?lead=${data.lead.id}`}>Neu</a>
+      </div>
+      {data.offers.length ? (
+        <div class="dash-panel">
+          <div class="dash-list">
+            {data.offers.map((offer: any) => (
+              <div class="dash-list-row compact">
+                <div class="dash-list-main">
+                  <a href={`/dashboard/offers/${offer.id}`}>{offer.offer_number || `Entwurf #${offer.id}`}</a>
+                  <small>{offerStatusLabels[offer.status as OfferStatus]}</small>
+                </div>
+                <strong>{Number(offer.once_total) > 0 ? `€ ${Number(offer.once_total).toLocaleString("de-AT")}` : `€ ${Number(offer.monthly_total).toLocaleString("de-AT")}/M.`}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <EmptyState icon="request_quote" title="Noch kein Angebot" text="Schließen Sie zuerst einen Audit ab oder erstellen Sie direkt einen Angebotsentwurf." href={`/dashboard/offers/new?lead=${data.lead.id}`} action="Angebot anlegen" />
+      )}
+    </aside>
+  </div>
+</DashboardLayout>

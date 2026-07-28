@@ -1,0 +1,118 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../../components/dashboard/DashboardIcon";
+import { OfferControls } from "../../../components/dashboard/OfferForms";
+import { getOffer } from "../../../lib/dashboard/queries";
+import { auditBandLabels, offerStatusLabels, type AuditBand, type OfferStatus } from "../../../lib/dashboard/types";
+
+const id = Number(Astro.params.id);
+if (!Number.isInteger(id)) return new Response("Ungültige Angebots-ID", { status: 400 });
+const data = await getOffer(Astro, id);
+if (!data.offer) return new Response("Angebot nicht gefunden", { status: 404 });
+const money = (value: number) => new Intl.NumberFormat("de-AT", { style: "currency", currency: "EUR", maximumFractionDigits: 2 }).format(value);
+const audit = Array.isArray(data.offer.audit) ? data.offer.audit[0] : data.offer.audit;
+const offerSteps: OfferStatus[] = ["entwurf", "erstellt", "versendet"];
+const resultStatuses: OfferStatus[] = ["angenommen", "abgelehnt", "abgelaufen"];
+const resultStatus = resultStatuses.includes(data.offer.status as OfferStatus) ? data.offer.status as OfferStatus : null;
+const offerStepIndex = resultStatus ? offerSteps.length : offerSteps.indexOf(data.offer.status as OfferStatus);
+---
+
+<DashboardLayout title={data.offer.offer_number || `Angebotsentwurf #${data.offer.id}`} eyebrow="Angebot" description={`Für ${data.offer.recipient_company}`}>
+  <a slot="actions" class="dash-button secondary" href={`/dashboard/leads/${data.offer.lead.id}`}>
+    <DashboardIcon name="arrow_back" size={18} />
+    Zum Lead
+  </a>
+
+  <section class="dash-panel dash-section" aria-labelledby="offer-process-heading">
+    <div class="dash-panel-head">
+      <div>
+        <h2 id="offer-process-heading">Angebotsprozess</h2>
+        <p>Status: {offerStatusLabels[data.offer.status as OfferStatus]} · Revision {data.offer.revision}</p>
+      </div>
+      {resultStatus && <span class="dash-badge" data-tone={resultStatus}>{offerStatusLabels[resultStatus]}</span>}
+    </div>
+    <div class="dash-process" style={`--process-steps:${offerSteps.length + 1}`} aria-label={`Angebotsstatus: ${offerStatusLabels[data.offer.status as OfferStatus]}`}>
+      {offerSteps.map((status, index) => (
+        <span
+          class="dash-process-step"
+          data-complete={index < offerStepIndex ? "true" : "false"}
+          data-current={!resultStatus && index === offerStepIndex ? "true" : "false"}
+        >
+          {offerStatusLabels[status]}
+        </span>
+      ))}
+      <span class="dash-process-step" data-current={resultStatus ? "true" : "false"}>
+        {resultStatus ? offerStatusLabels[resultStatus] : "Entscheidung"}
+      </span>
+    </div>
+  </section>
+
+  <div class="dash-detail-grid">
+    <section class="dash-stack">
+      <div class="dash-panel">
+        <div class="dash-panel-head">
+          <div>
+            <h2>Leistungsumfang</h2>
+            <p>{data.items.length} Positionen · Revision {data.offer.revision}</p>
+          </div>
+          {audit?.score !== null && audit?.score !== undefined && (
+            <span class="dash-badge" data-tone={audit.band}>{audit.score}/100 · {auditBandLabels[audit.band as AuditBand]}</span>
+          )}
+        </div>
+        <div class="dash-list">
+          {data.items.map((item: any) => (
+            <div class="dash-list-row">
+              <div class="dash-list-main">
+                <strong>{item.name_snapshot}</strong>
+                <small>{item.description_snapshot}</small>
+              </div>
+              <span class="dash-badge">{item.period_snapshot || item.interval}</span>
+              <strong>{item.price_label_snapshot || money(Number(item.unit_price) * Number(item.quantity))}</strong>
+              <span></span>
+            </div>
+          ))}
+        </div>
+        <div class="dash-total" style="margin-top:1.5rem">
+          {Number(data.offer.once_total) > 0 && <div class="dash-total-row"><span>Einmalig netto</span><strong>{money(Number(data.offer.once_total))}</strong></div>}
+          {Number(data.offer.monthly_total) > 0 && <div class="dash-total-row"><span>Monatlich netto</span><strong>{money(Number(data.offer.monthly_total))}</strong></div>}
+          <small style="color:var(--dash-muted);text-align:right">Alle Preise exkl. USt.</small>
+        </div>
+      </div>
+
+      <div class="dash-panel">
+        <div class="dash-panel-head">
+          <div>
+            <h2>Ziel & nächster Schritt</h2>
+          </div>
+        </div>
+        <p style="color:var(--dash-ink);line-height:1.65">{data.offer.goal}</p>
+        {data.offer.next_steps && <p style="margin-top:1rem;line-height:1.65">{data.offer.next_steps}</p>}
+      </div>
+    </section>
+
+    <aside class="dash-stack">
+      <div class="dash-panel">
+        <div class="dash-panel-head">
+          <div>
+            <h2>Status</h2>
+            <p>PDF, Versand und Projektübergabe</p>
+          </div>
+        </div>
+        <OfferControls offer={data.offer} project={data.project} client:load />
+      </div>
+      <div class="dash-panel">
+        <h2>Empfänger</h2>
+        <div class="dash-list" style="margin-top:1rem">
+          <div class="dash-list-row compact">
+            <div class="dash-list-main">
+              <strong>{data.offer.recipient_company}</strong>
+              <small>{data.offer.recipient_name || "Kein Ansprechpartner"}<br />{data.offer.recipient_address || "Keine Adresse"}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</DashboardLayout>

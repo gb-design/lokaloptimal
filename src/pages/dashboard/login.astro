@@ -1,0 +1,62 @@
+---
+export const prerender = false;
+
+import "../../styles/dashboard.css";
+import "@fontsource-variable/onest";
+import favicon from "../../../assets/pngs/lo_fav.png";
+import logo from "../../../assets/lo_logo.svg";
+import DashboardIcon from "../../components/dashboard/DashboardIcon";
+import LoginForm from "../../components/dashboard/LoginForm";
+import { getAuthenticatedUser, supabaseConfigured } from "../../lib/supabase/server";
+
+if (supabaseConfigured() && await getAuthenticatedUser(Astro)) {
+  return Astro.redirect("/dashboard");
+}
+
+const setup = Astro.url.searchParams.get("setup") === "1" || !supabaseConfigured();
+const next = Astro.url.searchParams.get("next") || "/dashboard";
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#272936" />
+    <link rel="icon" type="image/png" href={favicon.src} />
+    <title>Dashboard-Anmeldung · LokalOptimal</title>
+  </head>
+  <body class="dashboard-body">
+    <main class="dash-login">
+      <section class="dash-login-brand">
+        <img src={logo.src} alt="LokalOptimal" />
+        <blockquote>Vom ersten Signal bis zum sichtbaren Ergebnis.</blockquote>
+        <small>Interner Arbeitsbereich · kein Kundenportal</small>
+      </section>
+      <section class="dash-login-main">
+        <div class="dash-login-box">
+          <div>
+            <p class="dash-eyebrow">LokalOptimal OS</p>
+            <h1>Willkommen zurück.</h1>
+            <p>Leads, Audits, Angebote und Projekte an einem Ort.</p>
+          </div>
+          {setup ? (
+            <div class="dash-feedback error" role="alert">
+              <DashboardIcon name="settings_alert" size={20} />
+              <span>
+                Supabase ist noch nicht verbunden. Hinterlegen Sie
+                <code> PUBLIC_SUPABASE_URL </code> und
+                <code> PUBLIC_SUPABASE_PUBLISHABLE_KEY </code> und führen Sie die Migration aus.
+              </span>
+            </div>
+          ) : (
+            <LoginForm next={next} client:load />
+          )}
+          <a class="dash-button ghost" href="/">Zur öffentlichen Website</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,57 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../../components/dashboard/DashboardIcon";
+import EmptyState from "../../../components/dashboard/EmptyState.astro";
+import { listAudits } from "../../../lib/dashboard/queries";
+import { auditBandLabels, type AuditBand } from "../../../lib/dashboard/types";
+
+const audits = await listAudits(Astro);
+const date = (value: string) => new Intl.DateTimeFormat("de-AT", { timeZone: "Europe/Vienna", dateStyle: "medium" }).format(new Date(value));
+---
+
+<DashboardLayout title="Audits" eyebrow="Analyse" description="Messbare Signale und qualitative Beobachtungen nachvollziehbar bewerten.">
+  <a slot="actions" class="dash-button secondary" href="/dashboard/leads">
+    <DashboardIcon name="person_search" size={18} />
+    Lead auswählen
+  </a>
+
+  {audits.length ? (
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th style="width:42%">Unternehmen</th>
+            <th>Bearbeitung</th>
+            <th>Ergebnis</th>
+            <th>Score</th>
+            <th class="dash-table-action"><span class="sr-only">Öffnen</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {audits.map((audit: any) => (
+            <tr>
+              <td data-label="Unternehmen">
+                <div class="dash-table-primary">
+                  <a href={`/dashboard/audits/${audit.id}`}>{audit.lead.company_name}</a>
+                  <small>Version {audit.version} · aktualisiert {date(audit.updated_at)}</small>
+                </div>
+              </td>
+              <td data-label="Bearbeitung"><span class="dash-badge">{audit.status === "abgeschlossen" ? "Abgeschlossen" : "Entwurf"}</span></td>
+              <td data-label="Ergebnis"><span class="dash-badge" data-tone={audit.band}>{audit.band ? auditBandLabels[audit.band as AuditBand] : "Offen"}</span></td>
+              <td data-label="Score"><span class="dash-data-value">{audit.score !== null ? `${audit.score}/100` : "—"}</span></td>
+              <td class="dash-table-action">
+                <a href={`/dashboard/audits/${audit.id}`} aria-label={`Audit für ${audit.lead.company_name} öffnen`}>
+                  <DashboardIcon name="arrow_forward" size={17} />
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <EmptyState icon="fact_check" title="Noch keine Audits" text="Lead öffnen und dort die erste Analyse starten." href="/dashboard/leads" action="Leads öffnen" />
+  )}
+</DashboardLayout>

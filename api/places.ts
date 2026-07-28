@@ -146,7 +146,7 @@ async function resolveGoogleMapsUrl(raw: string) {
   throw error;
 }
 
-async function queryFromSubmittedUrl(raw: string) {
+export async function queryFromSubmittedUrl(raw: string) {
   const resolvedUrl = await resolveGoogleMapsUrl(raw);
   const parsed = parseGoogleMapsUrl(resolvedUrl);
   if (parsed) return parsed;
@@ -229,7 +229,7 @@ async function enforceRateLimit(req: any) {
   };
 }
 
-async function searchPlace(apiKey: string, query: string, lat?: string, lng?: string): Promise<FoundBusiness> {
+export async function searchPlace(apiKey: string, query: string, lat?: string, lng?: string): Promise<FoundBusiness> {
   const body: Record<string, unknown> = {
     textQuery: query,
     maxResultCount: 1,
@@ -270,7 +270,7 @@ async function searchPlace(apiKey: string, query: string, lat?: string, lng?: st
   };
 }
 
-async function getPlaceDetails(apiKey: string, placeId: string): Promise<Details> {
+export async function getPlaceDetails(apiKey: string, placeId: string): Promise<Details> {
   const response = await fetchWithTimeout(`${PLACES_BASE}/places/${placeId}`, {
     headers: {
       "X-Goog-Api-Key": apiKey,

@@ -6,19 +6,35 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "@astrojs/react": "^5.0.7",
+    "@astrojs/react": "^6.0.1",
+    "@astrojs/vercel": "^11.0.3",
+    "@fontsource-variable/onest": "^5.3.0",
+    "@internationalized/date": "^3.12.2",
+    "@phosphor-icons/react": "^2.1.10",
+    "@react-pdf/renderer": "^4.5.1",
+    "@supabase/ssr": "^0.12.3",
+    "@supabase/supabase-js": "^2.110.9",
     "@tailwindcss/vite": "^4.1.13",
-    "astro": "^6.4.7",
+    "astro": "^7.1.4",
     "react": "^19.1.1",
+    "react-aria-components": "^1.19.0",
     "react-dom": "^19.1.1",
-    "tailwindcss": "^4.1.13"
+    "tailwindcss": "^4.1.13",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
-    "typescript": "^5.9.2"
+    "supabase": "^2.110.0",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.10"
+  },
+  "overrides": {
+    "path-to-regexp": "6.3.0"
   }
 }

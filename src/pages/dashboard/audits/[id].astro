@@ -1,0 +1,21 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../../components/dashboard/DashboardIcon";
+import AuditEditor from "../../../components/dashboard/AuditEditor";
+import { getAudit } from "../../../lib/dashboard/queries";
+
+const id = Number(Astro.params.id);
+if (!Number.isInteger(id)) return new Response("Ungültige Audit-ID", { status: 400 });
+const data = await getAudit(Astro, id);
+if (!data.audit) return new Response("Audit nicht gefunden", { status: 404 });
+---
+
+<DashboardLayout title={`Audit: ${data.audit.lead.company_name}`} eyebrow={`Version ${data.audit.version}`} description="Messbare Signale übernehmen, qualitative Punkte prüfen und daraus konkrete Maßnahmen ableiten.">
+  <a slot="actions" class="dash-button secondary" href={`/dashboard/leads/${data.audit.lead.id}`}>
+    <DashboardIcon name="arrow_back" size={18} />
+    Zum Lead
+  </a>
+  <AuditEditor audit={data.audit} answers={data.answers} recommendations={data.recommendations} client:load />
+</DashboardLayout>

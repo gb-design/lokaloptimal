@@ -1,0 +1,66 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../../components/dashboard/DashboardIcon";
+import EmptyState from "../../../components/dashboard/EmptyState.astro";
+import { listProjects } from "../../../lib/dashboard/queries";
+import { projectStatusLabels, type ProjectStatus } from "../../../lib/dashboard/types";
+
+const projects = await listProjects(Astro);
+const date = (value?: string | null) => value
+  ? new Intl.DateTimeFormat("de-AT", { timeZone: "Europe/Vienna", dateStyle: "medium" }).format(new Date(value))
+  : "Ohne Zieltermin";
+---
+
+<DashboardLayout title="Kundenprojekte" eyebrow="Delivery" description="Aufgaben, Fortschritt und Engpässe ohne zusätzlichen Verwaltungsballast.">
+  {projects.length ? (
+    <div class="dash-table-wrap">
+      <table class="dash-table">
+        <thead>
+          <tr>
+            <th style="width:38%">Projekt</th>
+            <th>Status</th>
+            <th>Fortschritt</th>
+            <th>Zieltermin</th>
+            <th class="dash-table-action"><span class="sr-only">Öffnen</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {projects.map((project: any) => {
+            const tasks = project.tasks || [];
+            const completed = tasks.filter((task: any) => task.status === "erledigt").length;
+            const progress = tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
+            return (
+              <tr>
+                <td data-label="Projekt">
+                  <div class="dash-table-primary">
+                    <a href={`/dashboard/projects/${project.id}`}>{project.name}</a>
+                    <small>{project.lead.company_name} · {tasks.length - completed} Aufgaben offen</small>
+                  </div>
+                </td>
+                <td data-label="Status"><span class="dash-badge" data-tone={project.status}>{projectStatusLabels[project.status as ProjectStatus]}</span></td>
+                <td data-label="Fortschritt">
+                  {tasks.length ? (
+                    <div class="dash-progress" aria-label={`${completed} von ${tasks.length} Aufgaben erledigt`}>
+                      <div class="dash-progress-copy"><span>{completed}/{tasks.length}</span><strong>{progress}%</strong></div>
+                      <div class="dash-progress-track" aria-hidden="true"><div class="dash-progress-fill" style={`--progress:${progress}`}></div></div>
+                    </div>
+                  ) : <span class="dash-cell-muted">Noch keine Aufgaben</span>}
+                </td>
+                <td data-label="Zieltermin">{date(project.target_date)}</td>
+                <td class="dash-table-action">
+                  <a href={`/dashboard/projects/${project.id}`} aria-label={`${project.name} öffnen`}>
+                    <DashboardIcon name="arrow_forward" size={17} />
+                  </a>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <EmptyState icon="view_kanban" title="Noch keine Kundenprojekte" text="Angenommene Angebote lassen sich mit einem Klick samt Startaufgaben überführen." href="/dashboard/offers" action="Angebote öffnen" />
+  )}
+</DashboardLayout>

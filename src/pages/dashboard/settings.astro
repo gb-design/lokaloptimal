@@ -1,0 +1,38 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../components/dashboard/DashboardIcon";
+import SettingsForm from "../../components/dashboard/SettingsForm";
+import { getWorkspaceSettings } from "../../lib/dashboard/queries";
+
+const settings = await getWorkspaceSettings(Astro);
+---
+
+<DashboardLayout title="Einstellungen" eyebrow="Arbeitsbereich" description="Absender- und Pflichtdaten für reproduzierbare Angebots-PDFs.">
+  <div class="dash-detail-grid">
+    <SettingsForm settings={settings} client:load />
+    <aside class="dash-panel">
+      <div class="dash-panel-head">
+        <div>
+          <h2>Sicherer Rahmen</h2>
+          <p>Was in diesem MVP bewusst nicht gespeichert wird.</p>
+        </div>
+      </div>
+      <div class="dash-list">
+        <div class="dash-list-row compact">
+          <div class="dash-list-main"><strong>Keine Kundenpasswörter</strong><small>Zugänge gehören in einen Passwortmanager.</small></div>
+          <DashboardIcon name="password" size={20} />
+        </div>
+        <div class="dash-list-row compact">
+          <div class="dash-list-main"><strong>Private Angebots-PDFs</strong><small>Dateien liegen im geschützten Benutzerpfad.</small></div>
+          <DashboardIcon name="lock" size={20} />
+        </div>
+        <div class="dash-list-row compact">
+          <div class="dash-list-main"><strong>Kein Kundenportal</strong><small>Der Arbeitsbereich bleibt vorerst rein intern.</small></div>
+          <DashboardIcon name="visibility_off" size={20} />
+        </div>
+      </div>
+    </aside>
+  </div>
+</DashboardLayout>

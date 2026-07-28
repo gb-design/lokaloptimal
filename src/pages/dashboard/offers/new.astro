@@ -1,0 +1,33 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../../components/dashboard/DashboardIcon";
+import { OfferCreateForm } from "../../../components/dashboard/OfferForms";
+import { getAudit, getLead } from "../../../lib/dashboard/queries";
+
+const leadId = Number(Astro.url.searchParams.get("lead"));
+const auditId = Number(Astro.url.searchParams.get("audit"));
+if (!Number.isInteger(leadId)) return Astro.redirect("/dashboard/leads");
+const leadData = await getLead(Astro, leadId);
+if (!leadData.lead) return new Response("Lead nicht gefunden", { status: 404 });
+
+let audit: any = null;
+if (Number.isInteger(auditId)) {
+  const auditData = await getAudit(Astro, auditId);
+  if (auditData.audit?.lead?.id === leadId) {
+    audit = {
+      ...auditData.audit,
+      recommendations: auditData.recommendations,
+    };
+  }
+}
+---
+
+<DashboardLayout title={`Angebot für ${leadData.lead.company_name}`} eyebrow="Neuer Entwurf" description="Bestehende Pakete und Ergänzungen werden als unveränderlicher Preis-Snapshot gespeichert.">
+  <a slot="actions" class="dash-button secondary" href={`/dashboard/leads/${leadId}`}>
+    <DashboardIcon name="arrow_back" size={18} />
+    Zum Lead
+  </a>
+  <OfferCreateForm lead={leadData.lead} audit={audit} client:load />
+</DashboardLayout>

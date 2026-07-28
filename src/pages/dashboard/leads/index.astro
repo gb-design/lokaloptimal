@@ -1,0 +1,153 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../../components/dashboard/DashboardIcon";
+import EmptyState from "../../../components/dashboard/EmptyState.astro";
+import { listLeads } from "../../../lib/dashboard/queries";
+import { normalizeLeadFilters } from "../../../lib/dashboard/insights";
+import {
+  leadStatusLabels,
+  priorityLabels,
+  type LeadPriority,
+  type LeadStatus,
+} from "../../../lib/dashboard/types";
+
+const validStatuses = Object.keys(leadStatusLabels) as LeadStatus[];
+const validPriorities = Object.keys(priorityLabels) as LeadPriority[];
+const filters = normalizeLeadFilters({
+  search: Astro.url.searchParams.get("q"),
+  status: Astro.url.searchParams.get("status"),
+  priority: Astro.url.searchParams.get("priority"),
+  due: Astro.url.searchParams.get("due"),
+  page: Astro.url.searchParams.get("page"),
+});
+const { search = "", status, priority, due, page } = filters;
+const leads = await listLeads(Astro, { search, status, priority, due, page });
+const date = (value?: string | null) => value
+  ? new Intl.DateTimeFormat("de-AT", { timeZone: "Europe/Vienna", dateStyle: "medium" }).format(new Date(value))
+  : "Kein Follow-up";
+
+const filterHref = (next: { status?: LeadStatus; priority?: LeadPriority; page?: number } = {}) => {
+  const params = new URLSearchParams();
+  if (search) params.set("q", search);
+  const nextStatus = "status" in next ? next.status : status;
+  const nextPriority = "priority" in next ? next.priority : priority;
+  if (nextStatus) params.set("status", nextStatus);
+  if (nextPriority) params.set("priority", nextPriority);
+  if (due) params.set("due", due);
+  if ((next.page || 1) > 1) params.set("page", String(next.page));
+  const query = params.toString();
+  return `/dashboard/leads${query ? `?${query}` : ""}`;
+};
+---
+
+<DashboardLayout title="Leads" eyebrow="Akquise" description="Unternehmen analysieren, priorisieren und konsequent weiterführen.">
+  <a slot="actions" class="dash-button" href="/dashboard/leads/new">
+    <DashboardIcon name="person_add" size={18} weight="bold" />
+    Lead anlegen
+  </a>
+
+  <form method="get" class="dash-filter-bar" role="search">
+    {status && <input type="hidden" name="status" value={status} />}
+    {priority && <input type="hidden" name="priority" value={priority} />}
+    {due && <input type="hidden" name="due" value={due} />}
+    <div class="dash-field">
+      <label for="lead-search">Lead suchen</label>
+      <div class="dash-search-control">
+        <DashboardIcon name="search" size={17} />
+        <input class="dash-search" id="lead-search" name="q" value={search} placeholder="Unternehmen, Kontakt oder Standort" />
+      </div>
+    </div>
+    <button class="dash-button secondary" type="submit">Suchen</button>
+  </form>
+
+  <div class="dash-filter-groups" aria-label="Lead-Filter">
+    <div class="dash-filter-group">
+      <span>Status</span>
+      <div>
+        <a class:list={["dash-filter-chip", { active: !status }]} href={filterHref({ status: undefined })}>Alle</a>
+        {validStatuses.map((entry) => (
+          <a class:list={["dash-filter-chip", { active: status === entry }]} href={filterHref({ status: entry })}>
+            {leadStatusLabels[entry]}
+          </a>
+        ))}
+      </div>
+    </div>
+    <div class="dash-filter-group">
+      <span>Priorität</span>
+      <div>
+        <a class:list={["dash-filter-chip", { active: !priority }]} href={filterHref({ priority: undefined })}>Alle</a>
+        {validPriorities.map((entry) => (
+          <a class:list={["dash-filter-chip", { active: priority === entry }]} href={filterHref({ priority: entry })}>
+            {priorityLabels[entry]}
+          </a>
+        ))}
+      </div>
+    </div>
+    {due && (
+      <div class="dash-active-filter">
+        <span class="dash-badge" data-tone={due === "overdue" ? "ueberfaellig" : "heute"}>
+          {due === "overdue" ? "Überfällige Follow-ups" : "Heute fällige Follow-ups"}
+        </span>
+        <a href="/dashboard/leads">Filter löschen</a>
+      </div>
+    )}
+  </div>
+
+  {leads.length ? (
+    <>
+      <div class="dash-table-wrap dash-section">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th style="width:38%">Unternehmen</th>
+              <th>Status</th>
+              <th>Priorität</th>
+              <th>Nächster Schritt</th>
+              <th class="dash-table-action"><span class="sr-only">Öffnen</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {leads.map((lead: any) => (
+              <tr>
+                <td data-label="Unternehmen">
+                  <div class="dash-table-primary">
+                    <a href={`/dashboard/leads/${lead.id}`}>{lead.company_name}</a>
+                    <small>{[lead.industry, lead.location, lead.contact_name].filter(Boolean).join(" · ") || "Noch keine Zusatzdaten"}</small>
+                  </div>
+                </td>
+                <td data-label="Status"><span class="dash-badge">{leadStatusLabels[lead.status as LeadStatus]}</span></td>
+                <td data-label="Priorität"><span class="dash-badge" data-tone={lead.priority}>{priorityLabels[lead.priority as LeadPriority]}</span></td>
+                <td data-label="Nächster Schritt">
+                  <div class="dash-table-primary">
+                    <span>{lead.next_action || "Noch nicht festgelegt"}</span>
+                    <small>{date(lead.next_action_at)}</small>
+                  </div>
+                </td>
+                <td class="dash-table-action">
+                  <a href={`/dashboard/leads/${lead.id}`} aria-label={`${lead.company_name} öffnen`}>
+                    <DashboardIcon name="arrow_forward" size={17} />
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <nav class="dash-pagination" aria-label="Seitennavigation">
+        {page > 1 ? <a class="dash-button secondary" href={filterHref({ page: page - 1 })}>Zurück</a> : <span></span>}
+        <span>Seite {page}</span>
+        {leads.length === 25 && <a class="dash-button secondary" href={filterHref({ page: page + 1 })}>Weiter</a>}
+      </nav>
+    </>
+  ) : (
+    <EmptyState
+      icon="person_search"
+      title={search || status || priority || due ? "Keine passenden Leads" : "Noch keine Leads"}
+      text={search || status || priority || due ? "Filter anpassen oder zurücksetzen." : "Unternehmen anlegen und anschließend den Schnell-Audit starten."}
+      href="/dashboard/leads/new"
+      action="Lead anlegen"
+    />
+  )}
+</DashboardLayout>

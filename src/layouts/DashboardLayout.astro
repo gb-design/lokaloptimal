@@ -1,0 +1,131 @@
+---
+import "../styles/dashboard.css";
+import "@fontsource-variable/onest";
+import favicon from "../../assets/pngs/lo_fav.png";
+import logo from "../../assets/lo_logo.svg";
+import DashboardIcon, { type DashboardIconName } from "../components/dashboard/DashboardIcon";
+import SignOutButton from "../components/dashboard/SignOutButton";
+
+interface Props {
+  title: string;
+  eyebrow?: string;
+  description?: string;
+}
+
+const { title, eyebrow = "LokalOptimal OS", description } = Astro.props;
+const path = Astro.url.pathname;
+const nav = [
+  { href: "/dashboard", label: "Heute", icon: "today", exact: true },
+  { href: "/dashboard/leads", label: "Leads", icon: "group" },
+  { href: "/dashboard/audits", label: "Audits", icon: "fact_check" },
+  { href: "/dashboard/offers", label: "Angebote", icon: "request_quote" },
+  { href: "/dashboard/projects", label: "Kundenprojekte", icon: "view_kanban" },
+] satisfies Array<{ href: string; label: string; icon: DashboardIconName; exact?: boolean }>;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f5f7fc" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <link rel="icon" type="image/png" href={favicon.src} />
+    <title>{title} · LokalOptimal</title>
+  </head>
+  <body class="dashboard-body">
+    <a class="dash-skip" href="#dashboard-main">Zum Inhalt springen</a>
+    <header class="dash-mobile-bar">
+      <a class="dash-mobile-brand" href="/dashboard" aria-label="LokalOptimal Dashboard">
+        <img src={logo.src} alt="LokalOptimal" />
+      </a>
+      <details class="dash-mobile-menu">
+        <summary aria-label="Navigation öffnen">
+          <span></span><span></span><span></span>
+        </summary>
+        <div class="dash-mobile-menu-panel">
+          <nav aria-label="Dashboard-Navigation">
+            {nav.map((item) => {
+              const active = item.exact ? path === item.href : path.startsWith(item.href);
+              return (
+                <a href={item.href} class:list={["dash-nav-item", { active }]} aria-current={active ? "page" : undefined}>
+                  <DashboardIcon name={item.icon} size={20} weight={active ? "fill" : "regular"} />
+                  <span>{item.label}</span>
+                </a>
+              );
+            })}
+            <a class:list={["dash-nav-item", { active: path === "/dashboard/settings" }]} href="/dashboard/settings">
+              <DashboardIcon name="settings" size={20} />
+              <span>Einstellungen</span>
+            </a>
+          </nav>
+          <div class="dash-mobile-user">
+            <span class="dash-user-avatar" aria-hidden="true">{Astro.locals.user?.email?.slice(0, 1).toUpperCase() || "L"}</span>
+            <span class="dash-user-meta">
+              <strong>Angemeldet</strong>
+              <small>{Astro.locals.user?.email || "LokalOptimal"}</small>
+            </span>
+            <SignOutButton client:load />
+          </div>
+        </div>
+      </details>
+    </header>
+    <div class="dash-shell">
+      <aside class="dash-sidebar">
+        <a class="dash-brand" href="/dashboard" aria-label="LokalOptimal Dashboard">
+          <img class="dash-brand-full" src={logo.src} alt="LokalOptimal" />
+          <img class="dash-brand-mark" src={favicon.src} alt="" />
+          <span>Arbeitsbereich</span>
+        </a>
+
+        <nav class="dash-nav" aria-label="Dashboard-Navigation">
+          {nav.map((item) => {
+            const active = item.exact ? path === item.href : path.startsWith(item.href);
+            return (
+              <a href={item.href} class:list={["dash-nav-item", { active }]} data-label={item.label} aria-current={active ? "page" : undefined}>
+                <DashboardIcon name={item.icon} size={19} weight={active ? "fill" : "regular"} />
+                <span>{item.label}</span>
+              </a>
+            );
+          })}
+        </nav>
+
+        <div class="dash-sidebar-foot">
+          <a class:list={["dash-nav-item", { active: path === "/dashboard/settings" }]} data-label="Einstellungen" href="/dashboard/settings">
+            <DashboardIcon name="settings" size={19} />
+            <span>Einstellungen</span>
+          </a>
+          <div class="dash-user">
+            <span class="dash-user-avatar" aria-hidden="true">{Astro.locals.user?.email?.slice(0, 1).toUpperCase() || "L"}</span>
+            <span class="dash-user-meta">
+              <strong>Angemeldet</strong>
+              <small>{Astro.locals.user?.email || "LokalOptimal"}</small>
+            </span>
+            <SignOutButton client:load />
+          </div>
+        </div>
+      </aside>
+
+      <main class="dash-main" id="dashboard-main">
+        <header class="dash-page-head">
+          <div>
+            <p class="dash-eyebrow">{eyebrow}</p>
+            <h1>{title}</h1>
+            {description && <p class="dash-description">{description}</p>}
+          </div>
+          <div class="dash-head-actions">
+            <slot name="actions" />
+          </div>
+        </header>
+        <slot />
+      </main>
+    </div>
+    <script>
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        document.querySelectorAll(".dash-mobile-menu[open]").forEach((menu) => menu.removeAttribute("open"));
+      });
+    </script>
+  </body>
+</html>

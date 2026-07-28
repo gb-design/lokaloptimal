@@ -1,0 +1,19 @@
+---
+import DashboardIcon, { type DashboardIconName } from "./DashboardIcon";
+
+interface Props {
+  icon: DashboardIconName;
+  title: string;
+  text: string;
+  href?: string;
+  action?: string;
+}
+const { icon, title, text, href, action } = Astro.props;
+---
+
+<div class="dash-empty">
+  <DashboardIcon name={icon} size={28} />
+  <strong>{title}</strong>
+  <p>{text}</p>
+  {href && action && <a class="dash-button secondary" href={href}>{action}</a>}
+</div>
