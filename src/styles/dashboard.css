@@ -2264,6 +2264,190 @@ textarea {
   font-weight: 680;
 }
 
+/* Datumsfeld mit Kalender-Popover */
+
+.dash-aria-date-input {
+  justify-content: space-between;
+}
+
+.dash-aria-date-segments {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  font-family: var(--dash-data);
+  font-variant-numeric: tabular-nums;
+  outline: none;
+}
+
+.dash-aria-date-trigger {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--dash-radius-sm);
+  background: transparent;
+  color: var(--dash-secondary);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background var(--dash-motion-fast) var(--dash-ease-out),
+    color var(--dash-motion-fast) var(--dash-ease-out);
+}
+
+.dash-aria-date-trigger[data-hovered],
+.dash-aria-date-trigger[data-pressed] {
+  background: var(--dash-blue-soft);
+  color: var(--dash-blue-deep);
+}
+
+.dash-aria-date-trigger[data-focus-visible] {
+  outline: 3px solid color-mix(in oklch, var(--dash-blue), white 45%);
+  outline-offset: 2px;
+}
+
+.dash-aria-date-popover {
+  max-width: calc(100vw - 2rem);
+  padding: 0.75rem;
+  border: 1px solid var(--dash-line-strong);
+  border-radius: 0.65rem;
+  background: var(--dash-surface);
+  box-shadow: 0 14px 42px oklch(0.25 0.03 269 / 0.14);
+  animation: dash-popover-in var(--dash-motion-base) var(--dash-ease-out) both;
+}
+
+.dash-aria-date-dialog {
+  display: grid;
+  gap: 0.75rem;
+  outline: none;
+}
+
+.dash-aria-calendar {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.dash-aria-calendar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dash-aria-calendar-head h2 {
+  margin: 0;
+  color: var(--dash-ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.dash-aria-calendar-nav {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--dash-line);
+  border-radius: var(--dash-radius-sm);
+  background: var(--dash-surface);
+  color: var(--dash-secondary);
+  cursor: pointer;
+  outline: none;
+  transition:
+    background var(--dash-motion-fast) var(--dash-ease-out),
+    border-color var(--dash-motion-fast) var(--dash-ease-out);
+}
+
+.dash-aria-calendar-nav[data-hovered] {
+  border-color: var(--dash-line-strong);
+  background: var(--dash-surface-muted);
+}
+
+.dash-aria-calendar-nav[data-focus-visible] {
+  outline: 3px solid color-mix(in oklch, var(--dash-blue), white 45%);
+  outline-offset: 2px;
+}
+
+.dash-aria-calendar-nav[data-disabled] {
+  color: var(--dash-faint);
+  cursor: not-allowed;
+}
+
+.dash-aria-calendar-grid {
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+
+.dash-aria-calendar-weekday {
+  padding-bottom: 0.25rem;
+  color: var(--dash-muted);
+  font-size: 0.68rem;
+  font-weight: 680;
+  text-transform: uppercase;
+}
+
+.dash-aria-calendar-cell {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--dash-radius-sm);
+  color: var(--dash-ink);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition:
+    background var(--dash-motion-fast) var(--dash-ease-out),
+    color var(--dash-motion-fast) var(--dash-ease-out);
+}
+
+.dash-aria-calendar-cell[data-outside-month] {
+  visibility: hidden;
+}
+
+.dash-aria-calendar-cell[data-hovered] {
+  background: var(--dash-blue-soft);
+  color: var(--dash-blue-deep);
+}
+
+.dash-aria-calendar-cell[data-selected] {
+  background: var(--dash-blue);
+  color: white;
+  font-weight: 700;
+}
+
+.dash-aria-calendar-cell[data-focus-visible] {
+  outline: 3px solid color-mix(in oklch, var(--dash-blue), white 45%);
+  outline-offset: 1px;
+}
+
+.dash-aria-calendar-cell[data-disabled],
+.dash-aria-calendar-cell[data-unavailable] {
+  color: var(--dash-faint);
+  cursor: not-allowed;
+}
+
+.dash-aria-time-row {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--dash-line);
+}
+
+.dash-aria-time {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.dash-aria-time > label {
+  color: var(--dash-secondary);
+  font-size: 0.72rem;
+  font-weight: 680;
+}
+
 .dash-rating .dash-rating-option {
   width: 2.35rem;
   height: 2.35rem;
@@ -2768,6 +2952,11 @@ textarea {
   .dash-choice-price {
     grid-column: 2;
   }
+
+  .dash-aria-calendar-cell {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -2776,6 +2965,7 @@ textarea {
   .dash-progress-fill,
   .dash-feedback,
   .dash-mobile-menu-panel,
+  .dash-aria-date-popover,
   .dash-svg-icon.is-spinning {
     animation: none !important;
   }
@@ -2940,4 +3130,14 @@ textarea {
     grid-column: 2;
     justify-self: start;
   }
+}
+
+.dash-audit-note {
+  margin: 0 0 var(--dash-space-lg);
+  padding: var(--dash-space-md) var(--dash-space-lg);
+  border-radius: var(--dash-radius-sm);
+  background: var(--dash-surface-muted);
+  color: var(--dash-secondary);
+  font-size: 0.82rem;
+  line-height: 1.55;
 }
