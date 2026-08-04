@@ -131,10 +131,14 @@ export type AuditCategoryScore = {
   label: string;
   score: number;
   contribution: number;
+  /** Gewicht aller Kriterien der Kategorie. */
   maximum: number;
+  /** Gewicht der bereits beantworteten Kriterien — der Nenner für `score`. */
+  answeredWeight: number;
   answered: number;
   criteria: number;
-  band: AuditBand;
+  /** Null, solange in dieser Kategorie nichts beantwortet ist. */
+  band: AuditBand | null;
 };
 
 export type AuditCriterion = {

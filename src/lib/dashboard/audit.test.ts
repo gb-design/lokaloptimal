@@ -8,6 +8,8 @@ import {
   recommendationsFromAnswers,
   suggestedRatingsFromGoogle,
 } from "./audit";
+import { scorePlaceSignals, toPlaceSignals } from "../place-signals";
+import type { AuditAnswerInput, GooglePlaceSnapshot } from "./types";
 
 describe("Audit scoring", () => {
   it("normalizes all criteria to a 0–100 score", () => {
@@ -74,9 +76,96 @@ describe("Audit scoring", () => {
       review_count: 55,
       photos_count: 12,
     });
-    expect(suggestions.gbp_basisdaten).toBe(2);
+    // Telefon, Website und Öffnungszeiten sind vorhanden; die Google-Beschreibung
+    // geht seit der Angleichung an den öffentlichen Check nicht mehr ein.
+    expect(suggestions.gbp_basisdaten).toBe(3);
     expect(suggestions.reviews_menge).toBe(3);
     expect(suggestions.bilder_qualitaet).toBe(3);
     expect(suggestions.website_angebot).toBeUndefined();
+    expect(suggestions.kontakt_wege).toBeUndefined();
+  });
+});
+
+describe("Teilweise beantwortete Audits", () => {
+  const answered = (keys: string[], rating: 0 | 1 | 2 | 3) =>
+    keys.map((criterionKey) => ({ criterionKey, rating }));
+
+  it("rechnet nur über die beantworteten Kriterien statt Unbeantwortetes als Null zu werten", () => {
+    expect(calculateAuditScore(answered(["gbp_basisdaten"], 3))).toBe(100);
+    expect(calculateAuditScore(answered(["gbp_basisdaten", "reviews_menge"], 2))).toBe(67);
+  });
+
+  it("gibt ohne jede Antwort Null zurück statt NaN", () => {
+    expect(calculateAuditScore([])).toBe(0);
+  });
+
+  it("liefert bei allen zwölf Antworten exakt das Ergebnis der alten Formel", () => {
+    // Die Kriteriengewichte summieren sich auf 100, deshalb ist der neue Nenner
+    // bei vollständiger Beantwortung identisch. Das ist die Garantie, dass
+    // gespeicherte abgeschlossene Audits keine Migration brauchen.
+    const mixed = auditCriteria.map((criterion, index) => ({
+      criterionKey: criterion.key,
+      rating: (index % 4) as 0 | 1 | 2 | 3,
+    }));
+    const legacy = Math.round(
+      auditCriteria.reduce((sum, criterion, index) => sum + criterion.weight * ((index % 4) / 3), 0),
+    );
+    expect(calculateAuditScore(mixed)).toBe(legacy);
+  });
+
+  it("misst Kategorien am beantworteten Gewicht und urteilt nicht über Unbeantwortetes", () => {
+    const categories = calculateAuditCategoryScores(answered(["gbp_basisdaten"], 3));
+    const google = categories.find((category) => category.category === "google_profil");
+    const website = categories.find((category) => category.category === "website");
+    expect(google).toMatchObject({ score: 100, answered: 1, answeredWeight: 12.5, maximum: 25 });
+    expect(website).toMatchObject({ score: 0, answered: 0, answeredWeight: 0, band: null });
+  });
+
+  it("leitet aus unbeantworteten Kriterien keine Empfehlungen ab", () => {
+    expect(recommendationsFromAnswers([])).toEqual([]);
+    const partial = recommendationsFromAnswers(answered(["website_angebot"], 0));
+    expect(partial.every((entry) => entry.reason === "Angebot sofort verständlich")).toBe(true);
+  });
+});
+
+describe("Öffentlicher Check und interner Audit-Start", () => {
+  /** Der Startwert des Audits, direkt nachdem die Google-Daten geladen wurden. */
+  function dashboardStartScore(snapshot: GooglePlaceSnapshot) {
+    const answers = Object.entries(suggestedRatingsFromGoogle(snapshot))
+      .filter((entry): entry is [string, 0 | 1 | 2 | 3] => entry[1] !== undefined)
+      .map(([criterionKey, rating]) => ({ criterionKey, rating })) as AuditAnswerInput[];
+    return calculateAuditScore(answers);
+  }
+
+  const fixtures: Array<{ name: string; snapshot: GooglePlaceSnapshot }> = [
+    {
+      name: "Kosmetikstudio ohne Website",
+      snapshot: { phone: true, website: false, has_opening_hours: true, rating: 4.2, review_count: 8, photos_count: 2 },
+    },
+    {
+      name: "gepflegtes Profil",
+      snapshot: { phone: true, website: true, has_opening_hours: true, rating: 4.1, review_count: 20, photos_count: 6 },
+    },
+    {
+      name: "Vorzeigebetrieb",
+      snapshot: { phone: true, website: true, has_opening_hours: true, rating: 4.7, review_count: 60, photos_count: 12 },
+    },
+    {
+      name: "verwaistes Profil",
+      snapshot: { phone: false, website: false, has_opening_hours: false, rating: 0, review_count: 0, photos_count: 0 },
+    },
+  ];
+
+  // Genau diese Prüfung hätte die Differenz von 47 zu 14 aufgedeckt.
+  it.each(fixtures)("liegt bei $name nicht mehr als 10 Punkte auseinander", ({ snapshot }) => {
+    const widget = scorePlaceSignals(toPlaceSignals(snapshot)).score;
+    const dashboard = dashboardStartScore(snapshot);
+    expect(Math.abs(widget - dashboard)).toBeLessThanOrEqual(10);
+  });
+
+  it("rechnet den Beispielbetrieb auf 50 im Widget und 48 im Audit", () => {
+    const snapshot = fixtures[0].snapshot;
+    expect(scorePlaceSignals(toPlaceSignals(snapshot)).score).toBe(50);
+    expect(dashboardStartScore(snapshot)).toBe(48);
   });
 });

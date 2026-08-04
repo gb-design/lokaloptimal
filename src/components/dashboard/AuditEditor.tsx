@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { actions } from "astro:actions";
 import { Radio, RadioGroup } from "react-aria-components";
 import DashboardIcon from "./DashboardIcon";
@@ -61,6 +61,8 @@ export default function AuditEditor({
     Object.fromEntries(answers.map((answer) => [answer.criterion_key, answer.rating])),
   );
   const [snapshot, setSnapshot] = useState<GooglePlaceSnapshot>(audit.google_snapshot || {});
+  /** Kriterien, deren Wert aus Google stammt und nicht aus deiner Beurteilung. */
+  const [suggestedKeys, setSuggestedKeys] = useState<Set<string>>(new Set());
   const [recommendations, setRecommendations] = useState(initialRecommendations);
   const [busy, setBusy] = useState<"save" | "complete" | "lookup" | "">("");
   const [feedback, setFeedback] = useState<{ type: "error" | "success"; text: string } | null>(null);
@@ -88,6 +90,7 @@ export default function AuditEditor({
   const previewBand = auditBand(previewScore);
   const categoryScores = calculateAuditCategoryScores(answerPayload);
   const completeCount = Object.keys(ratings).length;
+  const isComplete = completeCount === auditCriteria.length;
 
   async function lookup() {
     if (!audit.lead.google_maps_url) {
@@ -115,10 +118,13 @@ export default function AuditEditor({
       const definedSuggestions = Object.fromEntries(
         Object.entries(suggestions).filter((entry): entry is [string, 0 | 1 | 2 | 3] => entry[1] !== undefined),
       );
+      // Bestehende Antworten gewinnen — ein Vorschlag überschreibt nie dein Urteil.
+      const applied = Object.keys(definedSuggestions).filter((key) => ratings[key] === undefined);
       setRatings((current) => ({ ...definedSuggestions, ...current }));
+      setSuggestedKeys(new Set(applied));
       setFeedback({
         type: "success",
-        text: "Google-Daten wurden geladen und drei messbare Kriterien vorgeschlagen. Bitte prüfen Sie die Bewertung.",
+        text: `Google-Daten geladen, ${applied.length} messbare Kriterien vorgeschlagen. Bitte prüfen und die restlichen selbst bewerten.`,
       });
     } catch (error) {
       setFeedback({ type: "error", text: error instanceof Error ? error.message : "Google Places war nicht erreichbar." });
@@ -126,6 +132,20 @@ export default function AuditEditor({
       setBusy("");
     }
   }
+
+  // Google-Daten einmalig beim Öffnen holen, solange noch kein Snapshot da ist.
+  // Bewusst hier und nicht in startAudit: der Lookup sind drei aufeinanderfolgende
+  // Netzaufrufe mit je 6,5 s Zeitlimit und darf das Anlegen eines Audits nicht blockieren.
+  const autoLookupDone = useRef(false);
+  useEffect(() => {
+    if (autoLookupDone.current) return;
+    if (locked) return;
+    if (!audit.lead.google_maps_url) return;
+    if (Object.keys(audit.google_snapshot || {}).length) return;
+    autoLookupDone.current = true;
+    void lookup();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function save(complete: boolean) {
     if (complete && completeCount !== auditCriteria.length) {
@@ -177,8 +197,10 @@ export default function AuditEditor({
           <div className="dash-score">
             <span className="dash-score-number">{previewScore}</span>
             <span>
-              <strong>{auditBandLabels[previewBand]}</strong>
-              <small style={{ display: "block", color: "var(--dash-muted)", marginTop: ".2rem" }}>von 100 Punkten</small>
+              <strong>{isComplete ? auditBandLabels[previewBand] : "Zwischenstand"}</strong>
+              <small style={{ display: "block", color: "var(--dash-muted)", marginTop: ".2rem" }}>
+                {isComplete ? "von 100 Punkten" : "aus den bewerteten Kriterien"}
+              </small>
             </span>
           </div>
         </div>
@@ -200,10 +222,18 @@ export default function AuditEditor({
               >
                 <span className="dash-progress-fill" style={{ "--progress": category.score } as React.CSSProperties} />
               </div>
-              <span className="dash-audit-bar-value">{category.contribution.toFixed(1)} / {category.maximum}</span>
+              <span className="dash-audit-bar-value">
+                {category.answered ? `${category.contribution.toFixed(1)} / ${category.answeredWeight}` : "—"}
+              </span>
             </div>
           ))}
         </div>
+
+        <p className="dash-audit-note">
+          Der kostenlose Check auf der Website bewertet nur die vier Signale, die Google öffentlich hergibt.
+          Dieser Audit prüft zusätzlich Website, lokale Auffindbarkeit, Wettbewerb und Antwortverhalten — der
+          interne Wert liegt deshalb üblicherweise niedriger als der, den der Interessent gesehen hat.
+        </p>
 
         {!locked && (
           <div className="dash-actions" style={{ marginBottom: "1.5rem" }}>
@@ -227,7 +257,12 @@ export default function AuditEditor({
               {criteria.map((criterion) => (
                 <div className="dash-criterion" key={criterion.key}>
                   <div className="dash-criterion-copy">
-                    <strong>{criterion.label}</strong>
+                    <strong>
+                      {criterion.label}
+                      {suggestedKeys.has(criterion.key) && (
+                        <span className="dash-badge" style={{ marginLeft: ".5rem" }}>Vorschlag aus Google</span>
+                      )}
+                    </strong>
                     <small>{criterion.description}</small>
                   </div>
                   <RadioGroup

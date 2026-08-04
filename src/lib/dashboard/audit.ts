@@ -1,4 +1,11 @@
 import { findAddon, findOffer } from "../../data/pricing";
+import {
+  contactBasicsLevel,
+  photosLevel,
+  reviewVolumeLevel,
+  SCORE_BAND_THRESHOLDS,
+  toPlaceSignals,
+} from "../place-signals";
 import type {
   AuditAnswerInput,
   AuditBand,
@@ -38,7 +45,7 @@ export const auditCriteria: AuditCriterion[] = [
     {
       key: "gbp_basisdaten",
       label: "Basisdaten vollständig",
-      description: "Telefon, Website, Öffnungszeiten und Beschreibung sind vollständig und korrekt.",
+      description: "Telefon, Website und Öffnungszeiten sind vollständig und korrekt hinterlegt.",
       recommendationIds: ["starter"],
     },
     {
@@ -121,39 +128,56 @@ export const auditCriteria: AuditCriterion[] = [
 ];
 
 export function auditBand(score: number): AuditBand {
-  if (score <= 39) return "kritisch";
-  if (score <= 59) return "verbesserungsbedarf";
-  if (score <= 79) return "solide";
+  if (score <= SCORE_BAND_THRESHOLDS.kritisch) return "kritisch";
+  if (score <= SCORE_BAND_THRESHOLDS.verbesserungsbedarf) return "verbesserungsbedarf";
+  if (score <= SCORE_BAND_THRESHOLDS.solide) return "solide";
   return "gut_aufgestellt";
 }
 
+/**
+ * Score über das BEANTWORTETE Gewicht, nicht über alle zwölf Kriterien.
+ *
+ * Zählte Unbeantwortetes als 0, würde ein halbfertiges Audit dramatisch
+ * untertreiben — genau der Grund, warum derselbe Betrieb im öffentlichen Check
+ * 47 und im Dashboard 14 bekam. Sind alle zwölf beantwortet, ist das Ergebnis
+ * identisch mit der alten Formel, weil die Gewichte exakt 100 ergeben.
+ */
 export function calculateAuditScore(answers: AuditAnswerInput[]): number {
   const ratings = new Map(answers.map((answer) => [answer.criterionKey, answer.rating]));
-  const points = auditCriteria.reduce((sum, criterion) => {
-    const rating = ratings.get(criterion.key) ?? 0;
-    return sum + criterion.weight * (rating / 3);
-  }, 0);
-  return Math.round(points);
+  let points = 0;
+  let answeredWeight = 0;
+  for (const criterion of auditCriteria) {
+    const rating = ratings.get(criterion.key);
+    if (rating === undefined) continue;
+    points += criterion.weight * (rating / 3);
+    answeredWeight += criterion.weight;
+  }
+  if (!answeredWeight) return 0;
+  return Math.round((points / answeredWeight) * 100);
 }
 
 export function calculateAuditCategoryScores(answers: AuditAnswerInput[]): AuditCategoryScore[] {
   const ratings = new Map(answers.map((answer) => [answer.criterionKey, answer.rating]));
   return categories.map((category) => {
     const criteria = auditCriteria.filter((criterion) => criterion.category === category.key);
-    const contribution = criteria.reduce((sum, criterion) => {
-      const rating = ratings.get(criterion.key) ?? 0;
-      return sum + criterion.weight * (rating / 3);
-    }, 0);
-    const normalized = category.weight ? Math.round((contribution / category.weight) * 100) : 0;
+    const answeredCriteria = criteria.filter((criterion) => ratings.has(criterion.key));
+    const contribution = answeredCriteria.reduce(
+      (sum, criterion) => sum + criterion.weight * ((ratings.get(criterion.key) ?? 0) / 3),
+      0,
+    );
+    const answeredWeight = answeredCriteria.reduce((sum, criterion) => sum + criterion.weight, 0);
+    const normalized = answeredWeight ? Math.round((contribution / answeredWeight) * 100) : 0;
     return {
       category: category.key,
       label: category.label,
       score: normalized,
       contribution: Math.round(contribution * 10) / 10,
       maximum: category.weight,
-      answered: criteria.filter((criterion) => ratings.has(criterion.key)).length,
+      answeredWeight: Math.round(answeredWeight * 10) / 10,
+      answered: answeredCriteria.length,
       criteria: criteria.length,
-      band: auditBand(normalized),
+      // Ohne Antwort gibt es kein Urteil — sonst stünde "kritisch" über einer leeren Menge.
+      band: answeredWeight ? auditBand(normalized) : null,
     };
   });
 }
@@ -173,6 +197,9 @@ export function recommendationsFromAnswers(answers: AuditAnswerInput[]): Recomme
   const collected = new Map<string, Recommendation>();
 
   for (const criterion of auditCriteria) {
+    // Unbeantwortetes zählt nicht in den Score und darf deshalb auch keine
+    // Empfehlung mit Priorität "hoch" erzeugen.
+    if (!answerMap.has(criterion.key)) continue;
     const rating = answerMap.get(criterion.key) ?? 0;
     if (rating > 1) continue;
 
@@ -193,20 +220,20 @@ export function recommendationsFromAnswers(answers: AuditAnswerInput[]): Recomme
   return [...collected.values()];
 }
 
+/**
+ * Vorschläge für die drei Kriterien, die sich aus Google-Daten ableiten lassen.
+ * Die Schwellen kommen aus dem gemeinsamen Modul, damit der öffentliche Check
+ * und das interne Audit dieselben Daten nicht unterschiedlich bewerten.
+ *
+ * `kontakt_wege` bleibt bewusst manuell: es beschreibt die Kontaktwege auf der
+ * Website, die Google nicht sehen kann — und würde dieselben drei Signale wie
+ * `gbp_basisdaten` ein zweites Mal zählen.
+ */
 export function suggestedRatingsFromGoogle(snapshot: GooglePlaceSnapshot): Partial<Record<string, 0 | 1 | 2 | 3>> {
-  const basics = [
-    snapshot.phone,
-    snapshot.website,
-    snapshot.has_opening_hours,
-    snapshot.has_description,
-  ].filter(Boolean).length;
-  const reviewCount = snapshot.review_count || 0;
-  const rating = snapshot.rating || 0;
-  const photos = snapshot.photos_count || 0;
-
+  const signals = toPlaceSignals(snapshot);
   return {
-    gbp_basisdaten: basics >= 4 ? 3 : basics >= 3 ? 2 : basics >= 1 ? 1 : 0,
-    reviews_menge: reviewCount >= 40 && rating >= 4.5 ? 3 : reviewCount >= 15 ? 2 : reviewCount >= 5 ? 1 : 0,
-    bilder_qualitaet: photos >= 10 ? 3 : photos >= 5 ? 2 : photos >= 1 ? 1 : 0,
+    gbp_basisdaten: contactBasicsLevel(signals),
+    reviews_menge: reviewVolumeLevel(signals),
+    bilder_qualitaet: photosLevel(signals),
   };
 }

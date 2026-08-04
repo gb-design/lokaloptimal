@@ -3911,6 +3911,23 @@ textarea.field {
   background: color-mix(in oklch, var(--soft-blue), white 42%);
 }
 
+.result-note {
+  margin: 0;
+  padding: 0.9rem 1.1rem;
+  border-radius: 0.75rem;
+  background: color-mix(in oklch, var(--soft-blue), white 55%);
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.result-note strong {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
 .rescan-button {
   justify-self: center;
   width: fit-content;

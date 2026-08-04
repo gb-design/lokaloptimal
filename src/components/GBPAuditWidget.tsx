@@ -1,6 +1,13 @@
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Check, Message, Shield, Star } from "./icons";
+import {
+  SCORE_BAND_THRESHOLDS,
+  scorePlaceSignals,
+  toPlaceSignals,
+  type PlaceScoreRowKey,
+  type SignalLevel,
+} from "../lib/place-signals";
 
 const CAL_URL = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
 
@@ -19,23 +26,25 @@ type Details = {
   photos_count?: number;
 };
 type CategoryDefinition = {
-  key: "profil" | "reviews" | "photos" | "activity" | "contact";
+  key: PlaceScoreRowKey;
   label: string;
-  weight: number;
   icon: typeof Shield;
-  hints: Record<StatusTone, string>;
+  hints: Record<SignalLevel, string>;
 };
 type ScoredCategory = CategoryDefinition & {
+  level: SignalLevel;
+  points: number;
   status: StatusTone;
   statusLabel: string;
-  pointsMultiplier: number;
   hintText: string;
 };
 
-const statusMeta: Record<StatusTone, { label: string; pointsMultiplier: number }> = {
-  good: { label: "Gut", pointsMultiplier: 1 },
-  warn: { label: "Ausbaufähig", pointsMultiplier: 0.65 },
-  bad: { label: "Schwach", pointsMultiplier: 0.2 },
+/** Vier Bewertungsstufen auf die drei vorhandenen CSS-Töne abbilden. */
+const levelMeta: Record<SignalLevel, { label: string; tone: StatusTone }> = {
+  3: { label: "Stark", tone: "good" },
+  2: { label: "Solide", tone: "warn" },
+  1: { label: "Ausbaufähig", tone: "warn" },
+  0: { label: "Schwach", tone: "bad" },
 };
 
 const scanMessages = [
@@ -47,58 +56,47 @@ const scanMessages = [
 
 const categories: CategoryDefinition[] = [
   {
-    key: "profil",
-    label: "Profilvollständigkeit",
-    weight: 25,
+    key: "kontakt",
+    label: "Kontakt & Erreichbarkeit",
     icon: Shield,
     hints: {
-      good: "Die wichtigsten Profildaten sind vorhanden. Das schafft Vertrauen und hilft Google, dein Unternehmen korrekt einzuordnen.",
-      warn: "Dein Profil hat noch Lücken. Fehlende Angaben zu Öffnungszeiten, Beschreibung oder Kontakt senken deine Wirkung direkt in der Google-Suche.",
-      bad: "Dein Profil ist unvollständig. Fehlende Grunddaten wie Telefon, Website oder Öffnungszeiten können Sichtbarkeit und Vertrauen deutlich schwächen.",
+      3: "Telefon, Website und Öffnungszeiten sind hinterlegt. Interessenten können ohne Umweg anrufen, buchen oder vorbeikommen.",
+      2: "Eine der drei Grundangaben fehlt — Telefon, Website oder Öffnungszeiten. Genau an dieser Lücke springen Suchende ab.",
+      1: "Nur eine der drei Grundangaben ist gepflegt. Ohne Telefon, Website und Öffnungszeiten bleibt dein Profil eine Sackgasse.",
+      0: "Weder Telefon noch Website noch Öffnungszeiten sind hinterlegt. Suchende finden dich, können aber nichts damit anfangen.",
     },
   },
   {
-    key: "reviews",
-    label: "Bewertungen & Antworten",
-    weight: 20,
+    key: "bewertungen_menge",
+    label: "Bewertungen: Menge",
     icon: Star,
     hints: {
-      good: "Dein Bewertungsprofil wirkt solide. Regelmäßige neue Bewertungen und aktive Antworten halten diesen Vertrauensvorsprung stabil.",
-      warn: "Dein Bewertungsprofil hat Potenzial. Profile, die systematisch Bewertungen sammeln und beantworten, wirken aktiver und vertrauenswürdiger.",
-      bad: "Wenige oder niedrig bewertete Rezensionen kosten Vertrauen bei Neukunden. Google wertet Bewertungsaktivität als wichtiges Qualitätssignal.",
+      3: "Du hast genug Bewertungen, dass sie statistisch tragen. Wichtig ist jetzt, dass regelmäßig neue dazukommen.",
+      2: "Eine solide Basis. Ab etwa 40 Bewertungen wirkt das Profil deutlich belastbarer als das der meisten Mitbewerber.",
+      1: "Wenige Bewertungen. Neukunden vergleichen, und ein dünnes Bewertungsprofil verliert diesen Vergleich fast immer.",
+      0: "So gut wie keine Bewertungen. Das ist der wirksamste und billigste Hebel, den du gerade liegen lässt.",
     },
   },
   {
-    key: "photos",
-    label: "Fotos & Aktualität",
-    weight: 20,
-    icon: Check,
-    hints: {
-      good: "Dein Profil hat eine gute visuelle Basis. Aktuelle Bilder helfen, Klicks und Vertrauen direkt im Suchergebnis zu erhöhen.",
-      warn: "Du hast Fotos, aber es fehlt noch Aktualität oder Menge. Mehr relevante Bilder verbessern die Wirkung deines Profils sichtbar.",
-      bad: "Dein Profil hat kaum oder keine Fotos. Das schwächt die Klickrate, weil Nutzer weniger echte Eindrücke vom Unternehmen bekommen.",
-    },
-  },
-  {
-    key: "activity",
-    label: "Aktivität & Beiträge",
-    weight: 20,
+    key: "bewertungen_qualitaet",
+    label: "Bewertungen: Qualität",
     icon: Message,
     hints: {
-      good: "Dein Profil sendet aktive Signale. Regelmäßige Beiträge zeigen Google und Suchenden, dass dein Unternehmen gepflegt wird.",
-      warn: "Die Aktivität ist ausbaufähig. Wiederkehrende Updates können helfen, dein Profil frischer und relevanter wirken zu lassen.",
-      bad: "Profile ohne aktive Google Posts der letzten 30 Tage werden seltener als aktuell wahrgenommen. Beiträge sind ein kostenloser Hebel für mehr Präsenz.",
+      3: "Ein sehr guter Schnitt. Antworten auf Bewertungen halten dieses Niveau und zeigen, dass jemand zuhört.",
+      2: "Ein ordentlicher Schnitt mit Luft nach oben. Gezielt zufriedene Kunden um eine Bewertung zu bitten hebt ihn spürbar.",
+      1: "Der Schnitt liegt unter dem, was Suchende erwarten. Einzelne schlechte Bewertungen wiegen schwer, wenn wenige gute dagegenstehen.",
+      0: "Der Bewertungsschnitt kostet dich aktiv Anfragen. Hier lohnt sich zuerst ein Blick auf die Ursachen, dann auf die Menge.",
     },
   },
   {
-    key: "contact",
-    label: "Kontakt & Conversion",
-    weight: 15,
-    icon: ArrowRight,
+    key: "fotos",
+    label: "Fotos",
+    icon: Check,
     hints: {
-      good: "Die wichtigsten Kontaktpunkte sind vorhanden. Interessenten können ohne Umweg anrufen, die Website öffnen oder Öffnungszeiten prüfen.",
-      warn: "Einige Conversion-Elemente fehlen oder sind unvollständig. Jeder fehlende Touchpoint kann direkte Kundenanfragen kosten.",
-      bad: "Kritische Kontakt- und Conversion-Elemente fehlen. Ohne vollständige Angaben verlassen viele Besucher dein Profil ohne Aktion.",
+      3: "Deine Galerie ist gut gefüllt. Aktuelle, echte Bilder erhöhen die Klickrate direkt im Suchergebnis.",
+      2: "Ein paar Bilder sind da. Mehr Aufnahmen von Räumen, Team und Arbeit machen den Unterschied zwischen anschauen und anrufen.",
+      1: "Kaum Fotos. Nutzer bekommen keinen Eindruck vom Unternehmen und klicken eher auf den Mitbewerber daneben.",
+      0: "Keine Fotos im Profil. Das ist die auffälligste Lücke, die Suchende sofort bemerken.",
     },
   },
 ];
@@ -158,48 +156,31 @@ function localMockResult(raw: string) {
   };
 }
 
-function scoreCategories(scoredCategories: ScoredCategory[]) {
-  return Math.round(scoredCategories.reduce((sum, category) => sum + category.weight * category.pointsMultiplier, 0));
-}
+/** Eine Berechnung für Score und Zeilen, damit das Modell nicht zweimal pro Render läuft. */
+function evaluate(details: Details): { score: number; rows: ScoredCategory[] } {
+  const { score, rows } = scorePlaceSignals(toPlaceSignals(details));
+  const byKey = new Map(rows.map((row) => [row.key, row]));
 
-function scoreDetails(details: Details) {
-  return scoreCategories(getScoredCategories(details));
-}
-
-function getScoredCategories(details: Details): ScoredCategory[] {
-  const profilePoints =
-    (details.phone ? 6 : 0) +
-    (details.website ? 6 : 0) +
-    (details.has_opening_hours ? 7 : 0) +
-    (details.has_description ? 6 : 0);
-  const profile: StatusTone = profilePoints >= 18 ? "good" : profilePoints >= 12 ? "warn" : "bad";
-  const reviews: StatusTone =
-    (details.rating || 0) >= 4.6 && (details.review_count || 0) >= 40
-      ? "good"
-      : (details.rating || 0) >= 3.8 || (details.review_count || 0) >= 5
-        ? "warn"
-        : "bad";
-  const photos: StatusTone = (details.photos_count || 0) >= 8 ? "good" : (details.photos_count || 0) >= 3 ? "warn" : "bad";
-  const activity: StatusTone = "bad";
-  const contactScore = [details.website, details.phone, details.has_opening_hours].filter(Boolean).length;
-  const contact: StatusTone = contactScore >= 3 ? "good" : contactScore >= 2 ? "warn" : "bad";
-  const values = { profil: profile, reviews, photos, activity, contact };
-
-  return categories.map((category) => {
-    const status = values[category.key];
-    return {
-      ...category,
-      status,
-      statusLabel: statusMeta[status].label,
-      pointsMultiplier: statusMeta[status].pointsMultiplier,
-      hintText: category.hints[status],
-    };
-  });
+  return {
+    score,
+    rows: categories.map((category) => {
+      const row = byKey.get(category.key)!;
+      const meta = levelMeta[row.level];
+      return {
+        ...category,
+        level: row.level,
+        points: row.points,
+        status: meta.tone,
+        statusLabel: meta.label,
+        hintText: category.hints[row.level],
+      };
+    }),
+  };
 }
 
 function zone(score: number) {
-  if (score < 42) return { label: "Kritischer Handlungsbedarf", tone: "bad" };
-  if (score < 72) return { label: "Ausbaufähig", tone: "warn" };
+  if (score <= SCORE_BAND_THRESHOLDS.kritisch) return { label: "Kritischer Handlungsbedarf", tone: "bad" };
+  if (score <= SCORE_BAND_THRESHOLDS.solide) return { label: "Ausbaufähig", tone: "warn" };
   return { label: "Gut aufgestellt", tone: "good" };
 }
 
@@ -211,10 +192,17 @@ export default function GBPAuditWidget() {
   const [consent, setConsent] = useState(false);
   const [message, setMessage] = useState("");
   const [scanMessageIndex, setScanMessageIndex] = useState(0);
-  const [openCategory, setOpenCategory] = useState<string | null>("activity");
+  // undefined heißt "noch nicht angetippt" und öffnet die schwächste Zeile.
+  const [openCategory, setOpenCategory] = useState<string | null | undefined>(undefined);
 
-  const scoredCategories = useMemo(() => (details ? getScoredCategories(details) : []), [details]);
-  const score = useMemo(() => (details ? scoreDetails(details) : 0), [details]);
+  const evaluation = useMemo(() => (details ? evaluate(details) : { score: 0, rows: [] }), [details]);
+  const scoredCategories = evaluation.rows;
+  const score = evaluation.score;
+  const weakestCategory = useMemo(() => {
+    if (!scoredCategories.length) return null;
+    return [...scoredCategories].sort((a, b) => a.points - b.points)[0].key as string;
+  }, [scoredCategories]);
+  const activeCategory = openCategory === undefined ? weakestCategory : openCategory;
   const currentZone = zone(score);
   const isScanning = phase === "scanning";
   const hasValidUrl = isAllowedGoogleMapsUrl(url);
@@ -243,7 +231,7 @@ export default function GBPAuditWidget() {
     setPhase("scanning");
     setMessage("");
     setFound(null);
-    setOpenCategory("activity");
+    setOpenCategory(undefined);
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 9000);
 
@@ -300,7 +288,7 @@ export default function GBPAuditWidget() {
     setFound(null);
     setDetails(null);
     setMessage("");
-    setOpenCategory("activity");
+    setOpenCategory(undefined);
   }
 
   return (
@@ -393,7 +381,7 @@ export default function GBPAuditWidget() {
           <div className="category-list">
             {scoredCategories.map((category) => {
               const Icon = category.icon;
-              const isOpen = openCategory === category.key;
+              const isOpen = activeCategory === category.key;
               return (
                 <div className={`category-item ${isOpen ? "open" : ""}`} key={category.key}>
                   <button
@@ -417,6 +405,14 @@ export default function GBPAuditWidget() {
               );
             })}
           </div>
+
+          <p className="result-note">
+            <strong>Was dieser Check nicht sieht</strong>
+            Bewertet wird ausschließlich, was Google öffentlich über dein Profil hergibt. Google Beiträge,
+            deine Website, deine Position gegenüber Mitbewerbern und dein Umgang mit Bewertungen lassen sich
+            hier nicht automatisch prüfen — sind aber oft die größten Hebel. Genau das schauen wir uns im
+            Gespräch gemeinsam an.
+          </p>
 
           <a className="btn btn-primary widget-button" href={CAL_URL} rel="noreferrer" data-cal-open>
             Jetzt handeln und Termin vereinbaren
