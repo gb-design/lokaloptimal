@@ -68,6 +68,14 @@ type ProjectOverviewRow = {
   lead: { company_name: string } | Array<{ company_name: string }>;
 };
 
+type CallOverviewRow = {
+  id: number;
+  scheduled_at: string;
+  lead:
+    | { id: number; company_name: string; priority: LeadPriority }
+    | Array<{ id: number; company_name: string; priority: LeadPriority }>;
+};
+
 function firstRelation<T>(value: T | T[]): T {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -183,6 +191,7 @@ export function buildDashboardOverview(
   tasks: TaskOverviewRow[],
   offers: OfferOverviewRow[],
   projects: ProjectOverviewRow[],
+  calls: CallOverviewRow[] = [],
   now = new Date(),
 ): DashboardOverview {
   const { start, end } = viennaDayBounds(now);
@@ -191,6 +200,7 @@ export function buildDashboardOverview(
     (lead) => lead.next_action_at && new Date(lead.next_action_at).getTime() < start.getTime(),
   );
   const leadsDueToday = leads.filter((lead) => isWithin(lead.next_action_at, start, end));
+  const dueCalls = calls.filter((call) => new Date(call.scheduled_at).getTime() < end.getTime());
   const pendingOffers = offers
     .filter((offer) => offer.status === "versendet")
     .map((offer) => {
@@ -207,6 +217,19 @@ export function buildDashboardOverview(
     .slice(0, 5);
 
   const workItems: DashboardWorkItem[] = [
+    ...dueCalls.map((call) => {
+      const lead = firstRelation(call.lead);
+      return {
+        id: `call-${call.id}`,
+        kind: "call" as const,
+        title: "Anruf",
+        context: lead?.company_name || "Unbekanntes Unternehmen",
+        dueAt: call.scheduled_at,
+        priority: lead?.priority || ("mittel" as LeadPriority),
+        href: "/dashboard/calls",
+        overdue: new Date(call.scheduled_at).getTime() < start.getTime(),
+      };
+    }),
     ...leads
       .filter((lead) => lead.next_action_at && new Date(lead.next_action_at).getTime() < end.getTime())
       .map((lead) => ({
@@ -253,6 +276,17 @@ export function buildDashboardOverview(
   });
 
   const todayMetrics: DashboardMetric[] = [
+    {
+      id: "calls_due",
+      label: "Anrufe fällig",
+      value: dueCalls.length,
+      href: "/dashboard/calls",
+      tone: dueCalls.some((call) => new Date(call.scheduled_at).getTime() < start.getTime())
+        ? "danger"
+        : dueCalls.length
+          ? "warning"
+          : "neutral",
+    },
     {
       id: "overdue_followups",
       label: "Follow-ups überfällig",

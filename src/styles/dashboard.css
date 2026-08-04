@@ -2780,3 +2780,164 @@ textarea {
     animation: none !important;
   }
 }
+
+/* Anrufliste */
+
+.dash-call-queue > .dash-panel h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--dash-space-sm);
+}
+
+.dash-call-row {
+  padding: var(--dash-space-md) 0;
+  border-bottom: 1px solid var(--dash-line);
+}
+
+.dash-call-row:last-child {
+  border-bottom: 0;
+}
+
+.dash-call-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--dash-space-md);
+}
+
+.dash-call-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dash-space-sm);
+  justify-content: flex-end;
+}
+
+.dash-call-actions .dash-button {
+  white-space: nowrap;
+}
+
+.dash-call-note {
+  color: var(--dash-secondary);
+  font-style: italic;
+}
+
+.dash-call-drawer {
+  margin-top: var(--dash-space-md);
+  padding: var(--dash-space-lg);
+  border: 1px solid var(--dash-line);
+  border-radius: var(--dash-radius-md);
+  background: var(--dash-surface-muted);
+}
+
+.dash-call-form .dash-field legend {
+  margin-bottom: var(--dash-space-sm);
+}
+
+.dash-radio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--dash-space-sm);
+}
+
+.dash-radio {
+  display: grid;
+  grid-template-columns: 1.1rem minmax(0, 1fr);
+  gap: var(--dash-space-sm);
+  align-items: start;
+  padding: var(--dash-space-md);
+  border: 1px solid var(--dash-line);
+  border-radius: var(--dash-radius-sm);
+  background: var(--dash-surface);
+  cursor: pointer;
+  transition:
+    border-color var(--dash-motion-fast) var(--dash-ease-out),
+    background var(--dash-motion-fast) var(--dash-ease-out);
+}
+
+.dash-radio:hover {
+  border-color: var(--dash-line-strong);
+}
+
+.dash-radio[data-active="true"] {
+  border-color: var(--dash-blue);
+  background: var(--dash-blue-soft);
+}
+
+.dash-radio input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0.2rem 0 0;
+  accent-color: var(--dash-blue);
+}
+
+.dash-radio span {
+  display: grid;
+  gap: 2px;
+}
+
+.dash-radio strong {
+  font-size: 0.9rem;
+}
+
+.dash-radio small {
+  color: var(--dash-muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.dash-choices {
+  display: grid;
+  margin-top: var(--dash-space-sm);
+}
+
+.dash-callout {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  gap: var(--dash-space-md);
+  align-items: center;
+  padding: var(--dash-space-lg);
+  border-radius: var(--dash-radius-md);
+  border: 1px solid var(--dash-line);
+  background: var(--dash-surface-muted);
+}
+
+.dash-callout.danger {
+  border-color: color-mix(in oklch, var(--dash-danger), white 60%);
+  background: var(--dash-danger-soft);
+  color: var(--dash-danger);
+}
+
+.dash-callout p {
+  margin: 2px 0 0;
+  color: var(--dash-secondary);
+  font-size: 0.85rem;
+}
+
+.dash-lead-calls {
+  display: grid;
+  gap: var(--dash-space-lg);
+}
+
+.dash-call-planned {
+  border-color: var(--dash-line-strong);
+}
+
+@media (max-width: 780px) {
+  .dash-call-main {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .dash-call-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .dash-callout {
+    grid-template-columns: 24px minmax(0, 1fr);
+  }
+
+  .dash-callout .dash-button {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

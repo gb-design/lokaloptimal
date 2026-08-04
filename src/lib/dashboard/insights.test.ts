@@ -66,12 +66,21 @@ describe("dashboard insights", () => {
           lead: { company_name: "Praxis Grün" },
         },
       ],
+      [
+        {
+          id: 12,
+          scheduled_at: "2026-07-28T08:00:00Z",
+          lead: { id: 1, company_name: "Café Blau", priority: "hoch" },
+        },
+      ],
       new Date("2026-07-28T12:00:00Z"),
     );
 
-    expect(overview.todayMetrics.map((metric) => metric.value)).toEqual([1, 1, 1, 1]);
-    expect(overview.workItems).toHaveLength(3);
+    expect(overview.todayMetrics.map((metric) => metric.value)).toEqual([1, 1, 1, 1, 1]);
+    expect(overview.workItems).toHaveLength(4);
     expect(overview.workItems[0].overdue).toBe(true);
+    expect(overview.workItems[1].kind).toBe("call");
+    expect(overview.workItems[1].context).toBe("Café Blau");
     expect(overview.pipelineTotal).toBe(2);
     expect(overview.pipeline.find((item) => item.status === "angebot")?.count).toBe(1);
     expect(overview.pendingOffers[0].companyName).toBe("Praxis Grün");
@@ -79,7 +88,7 @@ describe("dashboard insights", () => {
   });
 
   it("returns honest empty states without invented values", () => {
-    const overview = buildDashboardOverview([], [], [], [], new Date("2026-07-28T12:00:00Z"));
+    const overview = buildDashboardOverview([], [], [], [], [], new Date("2026-07-28T12:00:00Z"));
     expect(overview.workItems).toEqual([]);
     expect(overview.pipelineTotal).toBe(0);
     expect(overview.pipeline.every((item) => item.share === 0)).toBe(true);

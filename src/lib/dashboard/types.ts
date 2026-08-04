@@ -22,9 +22,19 @@ export type OfferInterval = "einmalig" | "monatlich" | "laufzeit";
 export type ProjectStatus = "vorbereitung" | "in_arbeit" | "wartet_auf_kunde" | "abnahme" | "abgeschlossen" | "pausiert";
 export type TaskStatus = "offen" | "erledigt";
 
+/** Lebenszyklus eines Anrufdatensatzes: geplant, durchgeführt oder verworfen. */
+export type CallState = "geplant" | "erledigt" | "abgesagt";
+/** Ergebnis eines durchgeführten Anrufs. Getrennt vom Lebenszyklus. */
+export type CallOutcome =
+  | "gespraech"
+  | "rueckruf"
+  | "kein_interesse"
+  | "nicht_erreicht"
+  | "falsche_nummer";
+
 export type DashboardWorkItem = {
   id: string;
-  kind: "lead_follow_up" | "project_task";
+  kind: "lead_follow_up" | "project_task" | "call";
   title: string;
   context: string;
   dueAt: string;
@@ -34,7 +44,7 @@ export type DashboardWorkItem = {
 };
 
 export type DashboardMetric = {
-  id: "overdue_followups" | "due_today" | "open_tasks" | "pending_offers";
+  id: "calls_due" | "overdue_followups" | "due_today" | "open_tasks" | "pending_offers";
   label: string;
   value: number;
   href: string;
@@ -76,6 +86,44 @@ export type DashboardOverview = {
     priority: LeadPriority;
     updated_at: string;
   }>;
+};
+
+/** Eine Zeile in der Anrufliste. `callId` ist null, solange nur ein Lead ohne geplanten Anruf vorliegt. */
+export type CallQueueEntry = {
+  callId: number | null;
+  leadId: number;
+  companyName: string;
+  contactName: string | null;
+  phone: string | null;
+  priority: LeadPriority;
+  leadStatus: LeadStatus;
+  scheduledAt: string | null;
+  note: string | null;
+  attempts: number;
+  lastOutcome: CallOutcome | null;
+  lastCalledAt: string | null;
+  lastNote: string | null;
+  idleDays: number | null;
+  doNotCall: boolean;
+};
+
+export type CallQueue = {
+  ueberfaellig: CallQueueEntry[];
+  heute: CallQueueEntry[];
+  demnaechst: CallQueueEntry[];
+  anrufbar: CallQueueEntry[];
+  dueCount: number;
+};
+
+export type LeadCallHistoryEntry = {
+  id: number;
+  state: CallState;
+  outcome: CallOutcome | null;
+  scheduledAt: string | null;
+  calledAt: string | null;
+  phone: string | null;
+  note: string | null;
+  rescheduledToId: number | null;
 };
 
 export type AuditCategoryScore = {
@@ -135,6 +183,20 @@ export const leadStatusLabels: Record<LeadStatus, string> = {
   angebot: "Angebot",
   gewonnen: "Gewonnen",
   verloren: "Verloren",
+};
+
+export const callStateLabels: Record<CallState, string> = {
+  geplant: "Offen",
+  erledigt: "Getätigt",
+  abgesagt: "Abgesagt",
+};
+
+export const callOutcomeLabels: Record<CallOutcome, string> = {
+  gespraech: "Gespräch geführt",
+  rueckruf: "Rückruf vereinbart",
+  kein_interesse: "Kein Interesse",
+  nicht_erreicht: "Nicht erreicht",
+  falsche_nummer: "Falsche Nummer",
 };
 
 export const priorityLabels: Record<LeadPriority, string> = {

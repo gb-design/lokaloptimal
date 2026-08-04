@@ -1,7 +1,12 @@
 import type { APIContext, AstroGlobal } from "astro";
+import { buildCallQueue } from "./calls";
 import { buildDashboardOverview, normalizeLeadFilters, viennaDayBounds } from "./insights";
 import type { LeadPriority, LeadStatus } from "./types";
 import { createSupabaseServerClient } from "../supabase/server";
+
+const callColumns = "id, lead_id, state, outcome, scheduled_at, called_at, phone, note";
+const callLeadColumns =
+  "id, company_name, contact_name, contact_phone, priority, status, do_not_call, updated_at";
 
 type QueryContext =
   | Pick<APIContext, "request" | "cookies">
@@ -18,7 +23,7 @@ function unwrap<T>(result: { data: T | null; error: { message: string } | null }
 
 export async function getOverview(context: QueryContext) {
   const supabase = client(context);
-  const [leadResult, taskResult, offerResult, projectResult] = await Promise.all([
+  const [leadResult, taskResult, offerResult, projectResult, callResult] = await Promise.all([
     supabase
       .from("leads")
       .select("id, company_name, status, priority, next_action, next_action_at, updated_at")
@@ -40,14 +45,33 @@ export async function getOverview(context: QueryContext) {
       .select("id, name, status, lead:leads!inner(company_name)")
       .is("archived_at", null)
       .limit(100),
+    supabase
+      .from("lead_calls")
+      .select("id, scheduled_at, lead:leads!inner(id, company_name, priority, archived_at)")
+      .eq("state", "geplant")
+      .order("scheduled_at", { ascending: true })
+      .limit(500),
   ]);
+
+  const calls = (unwrap(callResult, []) as any[]).filter((call) => !call.lead?.archived_at);
 
   return buildDashboardOverview(
     unwrap(leadResult, []) as any,
     unwrap(taskResult, []) as any,
     unwrap(offerResult, []) as any,
     unwrap(projectResult, []) as any,
+    calls as any,
   );
+}
+
+/** Anrufliste: geplante Anrufe nach Fälligkeit plus die Leads, die man anrufen könnte. */
+export async function getCallQueue(context: QueryContext) {
+  const supabase = client(context);
+  const [callResult, leadResult] = await Promise.all([
+    supabase.from("lead_calls").select(callColumns).limit(2000),
+    supabase.from("leads").select(callLeadColumns).is("archived_at", null).limit(500),
+  ]);
+  return buildCallQueue(unwrap(callResult, []) as any, unwrap(leadResult, []) as any);
 }
 
 export type LeadListFilters = {
@@ -85,7 +109,7 @@ export async function listLeads(context: QueryContext, filters: LeadListFilters 
 
 export async function getLead(context: QueryContext, id: number) {
   const supabase = client(context);
-  const [lead, audits, offers, project] = await Promise.all([
+  const [lead, audits, offers, project, calls] = await Promise.all([
     supabase.from("leads").select("*").eq("id", id).single(),
     supabase
       .from("audits")
@@ -103,12 +127,18 @@ export async function getLead(context: QueryContext, id: number) {
       .eq("lead_id", id)
       .is("archived_at", null)
       .maybeSingle(),
+    supabase
+      .from("lead_calls")
+      .select(`${callColumns}, rescheduled_to_id`)
+      .eq("lead_id", id)
+      .order("created_at", { ascending: false }),
   ]);
   return {
     lead: unwrap(lead, null as any),
     audits: unwrap(audits, []),
     offers: unwrap(offers, []),
     project: unwrap(project, null),
+    calls: unwrap(calls, []),
   };
 }
 

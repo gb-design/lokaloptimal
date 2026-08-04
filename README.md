@@ -29,11 +29,13 @@ Die API-Endpunkte liegen bewusst als native Vercel Functions im Root-Ordner `api
 ## Dashboard einrichten
 
 1. Ein Supabase-Projekt anlegen.
-2. Die Migration `supabase/migrations/202607280001_dashboard_mvp.sql` über die Supabase CLI oder den SQL Editor ausführen.
+2. Die Migrationen aus `supabase/migrations/` in Reihenfolge über die Supabase CLI oder den SQL Editor ausführen (`202607280001_dashboard_mvp.sql`, danach `202608040001_lead_calls.sql`).
 3. In Supabase Auth die öffentliche Registrierung deaktivieren und den internen Benutzer manuell anlegen.
 4. `.env.example` nach `.env` kopieren und `PUBLIC_SUPABASE_URL` sowie `PUBLIC_SUPABASE_PUBLISHABLE_KEY` eintragen.
 5. Für den Google-Lookup zusätzlich `GOOGLE_PLACES_API_KEY` setzen.
 6. Nach dem ersten Login unter `/dashboard/settings` die vollständigen Absenderdaten eintragen. Erst danach können Angebots-PDFs erzeugt werden.
+
+Unter `/dashboard/calls` liegt die Anrufliste: fällige und mögliche Anrufe nach Dringlichkeit gebündelt, Ergebnis pro Anruf erfassbar, Historie am jeweiligen Lead. Ein Kontakt mit gesetztem `do_not_call` verschwindet dauerhaft aus dieser Liste.
 
 Die Datenbank setzt Row Level Security auf allen Dashboard-Tabellen durch. Angebots-PDFs liegen im privaten Storage-Bucket `offers` unter dem Pfad des angemeldeten Benutzers. Kundenpasswörter und sonstige Zugangsdaten gehören nicht in Notizfelder.
 

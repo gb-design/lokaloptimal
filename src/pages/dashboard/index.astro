@@ -68,14 +68,16 @@ const todayLabel = new Intl.DateTimeFormat("de-AT", {
             <article class="dash-work-item" data-overdue={String(item.overdue)}>
               <span class="dash-work-item-icon">
                 <DashboardIcon
-                  name={item.kind === "lead_follow_up" ? "person" : "task_alt"}
+                  name={item.kind === "call" ? "call" : item.kind === "lead_follow_up" ? "person" : "task_alt"}
                   size={17}
                   weight="bold"
                 />
               </span>
               <div class="dash-work-item-copy">
                 <a href={item.href}>{item.title}</a>
-                <small>{item.context} · {item.kind === "lead_follow_up" ? "Lead" : "Projekt"}</small>
+                <small>
+                  {item.context} · {item.kind === "call" ? "Anruf" : item.kind === "lead_follow_up" ? "Lead" : "Projekt"}
+                </small>
               </div>
               <span class="dash-badge" data-tone={item.priority}>
                 {priorityLabels[item.priority as LeadPriority]}

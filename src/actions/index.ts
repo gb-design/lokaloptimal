@@ -17,11 +17,14 @@ import type {
 } from "../lib/dashboard/types";
 import { createSupabaseServerClient } from "../lib/supabase/server";
 import { canConvertOfferToProject, canTransitionOffer, leadStatusRequiresFollowUp } from "../lib/dashboard/workflow";
+import { canLogOutcome, requiresFollowUp, suggestLeadStatus } from "../lib/dashboard/calls";
+import type { CallOutcome } from "../lib/dashboard/types";
 
 const leadStatuses = ["neu", "audit_offen", "priorisiert", "kontaktiert", "gespraech", "angebot", "gewonnen", "verloren"] as const;
 const priorities = ["niedrig", "mittel", "hoch"] as const;
 const offerStatuses = ["entwurf", "erstellt", "versendet", "angenommen", "abgelehnt", "abgelaufen"] as const;
 const projectStatuses = ["vorbereitung", "in_arbeit", "wartet_auf_kunde", "abnahme", "abgeschlossen", "pausiert"] as const;
+const callOutcomeValues = ["gespraech", "rueckruf", "kein_interesse", "nicht_erreicht", "falsche_nummer"] as const;
 
 function fail(message: string, code: ConstructorParameters<typeof ActionError>[0]["code"] = "BAD_REQUEST"): never {
   throw new ActionError({ code, message });
@@ -43,6 +46,23 @@ function assertLeadFollowUp(status: LeadStatus, nextAction?: string | null, next
   if (leadStatusRequiresFollowUp(status) && (!nullable(nextAction) || !nullable(nextActionAt))) {
     fail("Für diesen Status brauchen Sie einen nächsten Schritt und ein Fälligkeitsdatum.");
   }
+}
+
+async function loadCallLead(supabase: any, leadId: number) {
+  const { data, error } = await supabase
+    .from("leads")
+    .select("id, status, contact_phone, next_action, next_action_at, do_not_call")
+    .eq("id", leadId)
+    .single();
+  if (error || !data) fail("Der Lead wurde nicht gefunden.", "NOT_FOUND");
+  return data as {
+    id: number;
+    status: LeadStatus;
+    contact_phone: string | null;
+    next_action: string | null;
+    next_action_at: string | null;
+    do_not_call: boolean;
+  };
 }
 
 async function ensureOfferEditable(supabase: any, offerId: number) {
@@ -569,6 +589,185 @@ export const server = {
         })
         .eq("id", input.id);
       if (error) fail(`Die Aufgabe konnte nicht aktualisiert werden: ${error.message}`);
+      return { ok: true };
+    },
+  }),
+
+  scheduleCall: defineAction({
+    input: z.object({
+      leadId: z.number().int().positive(),
+      scheduledAt: z.string().trim().min(1, "Bitte wählen Sie einen Termin für den Anruf."),
+      note: z.string().max(2000).optional(),
+    }),
+    async handler(input, context) {
+      const { supabase, user } = await authenticated(context);
+      const lead = await loadCallLead(supabase, input.leadId);
+      if (lead.do_not_call) fail("Dieser Kontakt möchte nicht mehr angerufen werden.");
+
+      const { data: open } = await supabase
+        .from("lead_calls")
+        .select("id")
+        .eq("lead_id", input.leadId)
+        .eq("state", "geplant")
+        .maybeSingle();
+      if (open) fail("Für diesen Lead ist bereits ein Anruf geplant.");
+
+      const { data, error } = await supabase
+        .from("lead_calls")
+        .insert({
+          owner_id: user.id,
+          lead_id: input.leadId,
+          state: "geplant",
+          scheduled_at: input.scheduledAt,
+          phone: lead.contact_phone,
+          note: nullable(input.note),
+        })
+        .select("id")
+        .single();
+      if (error) fail(`Der Anruf konnte nicht geplant werden: ${error.message}`);
+      return { id: data.id as number };
+    },
+  }),
+
+  logCall: defineAction({
+    input: z.object({
+      callId: z.number().int().positive(),
+      outcome: z.enum(callOutcomeValues),
+      note: z.string().max(2000).optional(),
+      followUpAt: z.string().optional(),
+      applyLeadStatus: z.boolean().default(true),
+      markDoNotCall: z.boolean().default(false),
+    }),
+    async handler(input, context) {
+      const { supabase, user } = await authenticated(context);
+      const outcome = input.outcome as CallOutcome;
+      const followUpAt = nullable(input.followUpAt);
+
+      const { data: call, error: callError } = await supabase
+        .from("lead_calls")
+        .select("id, lead_id, state, phone")
+        .eq("id", input.callId)
+        .single();
+      if (callError || !call) fail("Der Anruf wurde nicht gefunden.", "NOT_FOUND");
+      if (!canLogOutcome(call.state)) {
+        fail("Für diesen Anruf ist bereits ein Ergebnis erfasst. Planen Sie für eine Korrektur einen neuen Anruf.");
+      }
+      if (requiresFollowUp(outcome) && !followUpAt) {
+        fail("Ein vereinbarter Rückruf braucht einen neuen Termin.");
+      }
+
+      const lead = await loadCallLead(supabase, call.lead_id);
+
+      const { error } = await supabase
+        .from("lead_calls")
+        .update({
+          state: "erledigt",
+          outcome,
+          called_at: new Date().toISOString(),
+          phone: call.phone || lead.contact_phone,
+          note: nullable(input.note),
+        })
+        .eq("id", call.id);
+      if (error) fail(`Das Anrufergebnis konnte nicht gespeichert werden: ${error.message}`);
+
+      let followUpCallId: number | null = null;
+      if (requiresFollowUp(outcome) && followUpAt && !input.markDoNotCall) {
+        const { data: followUp, error: followUpError } = await supabase
+          .from("lead_calls")
+          .insert({
+            owner_id: user.id,
+            lead_id: call.lead_id,
+            state: "geplant",
+            scheduled_at: followUpAt,
+            phone: lead.contact_phone,
+          })
+          .select("id")
+          .single();
+        if (followUpError) {
+          fail(`Das Ergebnis ist gespeichert, der Folgetermin nicht: ${followUpError.message}`);
+        }
+        followUpCallId = followUp.id as number;
+        await supabase.from("lead_calls").update({ rescheduled_to_id: followUpCallId }).eq("id", call.id);
+      }
+
+      const leadUpdate: Record<string, unknown> = {};
+      let notice: string | null = null;
+
+      if (input.markDoNotCall) {
+        leadUpdate.do_not_call = true;
+        leadUpdate.do_not_call_at = new Date().toISOString();
+        await supabase
+          .from("lead_calls")
+          .update({ state: "abgesagt" })
+          .eq("lead_id", call.lead_id)
+          .eq("state", "geplant");
+      }
+
+      const suggestion = suggestLeadStatus(outcome, lead.status);
+      if (input.applyLeadStatus && suggestion) {
+        // Aktive Status verlangen laut assertLeadFollowUp einen nächsten Schritt mit Datum.
+        // Ohne den würde der Lead in einen Zustand geraten, den das Lead-Formular nicht mehr speichern kann.
+        if (leadStatusRequiresFollowUp(suggestion) && !lead.next_action_at && !followUpAt) {
+          notice = "Der Status blieb unverändert, weil dafür ein nächster Schritt mit Termin nötig ist.";
+        } else {
+          leadUpdate.status = suggestion;
+          if (leadStatusRequiresFollowUp(suggestion) && !lead.next_action_at && followUpAt) {
+            leadUpdate.next_action = "Anruf";
+            leadUpdate.next_action_at = followUpAt;
+          }
+        }
+      }
+
+      if (Object.keys(leadUpdate).length) {
+        const { error: leadError } = await supabase.from("leads").update(leadUpdate).eq("id", call.lead_id);
+        if (leadError) fail(`Das Ergebnis ist gespeichert, der Lead nicht: ${leadError.message}`);
+      }
+
+      return {
+        ok: true,
+        followUpCallId,
+        statusApplied: Boolean(leadUpdate.status),
+        notice,
+      };
+    },
+  }),
+
+  cancelCall: defineAction({
+    input: z.object({ callId: z.number().int().positive() }),
+    async handler({ callId }, context) {
+      const { supabase } = await authenticated(context);
+      const { data, error } = await supabase
+        .from("lead_calls")
+        .update({ state: "abgesagt" })
+        .eq("id", callId)
+        .eq("state", "geplant")
+        .select("id")
+        .maybeSingle();
+      if (error) fail(`Der Anruf konnte nicht abgesagt werden: ${error.message}`);
+      if (!data) fail("Nur ein geplanter Anruf lässt sich absagen.");
+      return { ok: true };
+    },
+  }),
+
+  setDoNotCall: defineAction({
+    input: z.object({ leadId: z.number().int().positive(), value: z.boolean() }),
+    async handler(input, context) {
+      const { supabase } = await authenticated(context);
+      const { error } = await supabase
+        .from("leads")
+        .update({
+          do_not_call: input.value,
+          do_not_call_at: input.value ? new Date().toISOString() : null,
+        })
+        .eq("id", input.leadId);
+      if (error) fail(`Die Anrufsperre konnte nicht gesetzt werden: ${error.message}`);
+      if (input.value) {
+        await supabase
+          .from("lead_calls")
+          .update({ state: "abgesagt" })
+          .eq("lead_id", input.leadId)
+          .eq("state", "geplant");
+      }
       return { ok: true };
     },
   }),

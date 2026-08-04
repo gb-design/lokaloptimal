@@ -16,6 +16,7 @@ const { title, eyebrow = "LokalOptimal OS", description } = Astro.props;
 const path = Astro.url.pathname;
 const nav = [
   { href: "/dashboard", label: "Heute", icon: "today", exact: true },
+  { href: "/dashboard/calls", label: "Anrufe", icon: "call" },
   { href: "/dashboard/leads", label: "Leads", icon: "group" },
   { href: "/dashboard/audits", label: "Audits", icon: "fact_check" },
   { href: "/dashboard/offers", label: "Angebote", icon: "request_quote" },

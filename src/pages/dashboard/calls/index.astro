@@ -1,0 +1,65 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../../components/dashboard/DashboardIcon";
+import EmptyState from "../../../components/dashboard/EmptyState.astro";
+import CallQueue from "../../../components/dashboard/CallQueue";
+import { getCallQueue } from "../../../lib/dashboard/queries";
+
+const queue = await getCallQueue(Astro);
+const total =
+  queue.ueberfaellig.length + queue.heute.length + queue.demnaechst.length + queue.anrufbar.length;
+const todayLabel = new Intl.DateTimeFormat("de-AT", {
+  timeZone: "Europe/Vienna",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+}).format(new Date());
+---
+
+<DashboardLayout
+  title="Anrufe"
+  eyebrow={todayLabel}
+  description={
+    queue.dueCount
+      ? `${queue.dueCount} ${queue.dueCount === 1 ? "Anruf ist" : "Anrufe sind"} fällig. Danach wartet die Anrufbar-Liste.`
+      : "Nichts überfällig. Die Anrufbar-Liste zeigt, wen Sie ansprechen könnten."
+  }
+>
+  <a slot="actions" class="dash-button secondary" href="/dashboard/leads">
+    <DashboardIcon name="group" size={18} />
+    Leadliste
+  </a>
+
+  <section class="dash-today-strip dash-section" aria-label="Anrufüberblick">
+    <span class="dash-today-metric" data-tone={queue.ueberfaellig.length ? "danger" : "neutral"}>
+      <strong>{queue.ueberfaellig.length}</strong>
+      <span>Überfällig</span>
+    </span>
+    <span class="dash-today-metric" data-tone={queue.heute.length ? "warning" : "neutral"}>
+      <strong>{queue.heute.length}</strong>
+      <span>Heute</span>
+    </span>
+    <span class="dash-today-metric" data-tone="neutral">
+      <strong>{queue.demnaechst.length}</strong>
+      <span>Demnächst</span>
+    </span>
+    <span class="dash-today-metric" data-tone="neutral">
+      <strong>{queue.anrufbar.length}</strong>
+      <span>Anrufbar</span>
+    </span>
+  </section>
+
+  {total ? (
+    <CallQueue queue={queue} client:load />
+  ) : (
+    <EmptyState
+      icon="call"
+      title="Keine Anrufe in Sicht"
+      text="Sobald ein Lead eine Telefonnummer hat, erscheint er hier als anrufbar. Geplante Anrufe legen Sie direkt am Lead oder in dieser Liste an."
+      href="/dashboard/leads"
+      action="Zur Leadliste"
+    />
+  )}
+</DashboardLayout>

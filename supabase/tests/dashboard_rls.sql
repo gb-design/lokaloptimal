@@ -1,5 +1,5 @@
 begin;
-select plan(5);
+select plan(9);
 
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password, created_at, updated_at)
 values
@@ -11,6 +11,14 @@ insert into public.leads (owner_id, company_name)
 values
   ('00000000-0000-0000-0000-000000000101', 'Lead von A'),
   ('00000000-0000-0000-0000-000000000202', 'Lead von B');
+
+insert into public.lead_calls (owner_id, lead_id, state, scheduled_at)
+values (
+  '00000000-0000-0000-0000-000000000202',
+  (select id from public.leads where company_name = 'Lead von B'),
+  'geplant',
+  now()
+);
 
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000101';
@@ -42,6 +50,33 @@ select is(
   (select count(*) from public.workspace_settings),
   1::bigint,
   'Owner A sieht nur eigene Einstellungen'
+);
+
+select is(
+  (select count(*) from public.lead_calls),
+  0::bigint,
+  'Der Anruf von Owner B ist für Owner A nicht sichtbar'
+);
+
+select throws_ok(
+  $$ insert into public.lead_calls (owner_id, lead_id, state)
+     values ('00000000-0000-0000-0000-000000000101',
+             (select id from public.leads where company_name = 'Lead von A'), 'geplant') $$,
+  'Ein geplanter Anruf ohne Termin wird abgelehnt'
+);
+
+select lives_ok(
+  $$ insert into public.lead_calls (owner_id, lead_id, state, scheduled_at)
+     values ('00000000-0000-0000-0000-000000000101',
+             (select id from public.leads where company_name = 'Lead von A'), 'geplant', now()) $$,
+  'Owner A darf einen Anruf zum eigenen Lead planen'
+);
+
+select throws_ok(
+  $$ insert into public.lead_calls (owner_id, lead_id, state, scheduled_at)
+     values ('00000000-0000-0000-0000-000000000101',
+             (select id from public.leads where company_name = 'Lead von A'), 'geplant', now()) $$,
+  'Ein zweiter offener Anruf zum selben Lead wird abgelehnt'
 );
 
 select * from finish();

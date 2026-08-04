@@ -5,6 +5,7 @@ import DashboardLayout from "../../../layouts/DashboardLayout.astro";
 import DashboardIcon from "../../../components/dashboard/DashboardIcon";
 import EmptyState from "../../../components/dashboard/EmptyState.astro";
 import { LeadEditor } from "../../../components/dashboard/LeadForm";
+import LeadCalls from "../../../components/dashboard/LeadCalls";
 import { getLead } from "../../../lib/dashboard/queries";
 import { auditBandLabels, leadStatusLabels, offerStatusLabels, type AuditBand, type LeadStatus, type OfferStatus } from "../../../lib/dashboard/types";
 
@@ -31,6 +32,7 @@ const dueLabel = data.lead.next_action_at
 
   <nav class="dash-subnav" aria-label="Lead-Bereiche">
     <a class="active" href="#stammdaten">Stammdaten</a>
+    <a href="#anrufe">Anrufe ({data.calls.length})</a>
     <a href="#audits">Audits ({data.audits.length})</a>
     <a href="#angebote">Angebote ({data.offers.length})</a>
     {data.project && <a href={`/dashboard/projects/${data.project.id}`}>Projekt</a>}
@@ -71,6 +73,22 @@ const dueLabel = data.lead.next_action_at
     <div class="dash-panel">
       <LeadEditor lead={data.lead} client:load />
     </div>
+  </section>
+
+  <section class="dash-section" id="anrufe">
+    <div class="dash-section-head">
+      <h2>Anrufe</h2>
+      <a href="/dashboard/calls">Anrufliste</a>
+    </div>
+    <LeadCalls
+      leadId={data.lead.id}
+      companyName={data.lead.company_name}
+      leadStatus={data.lead.status as LeadStatus}
+      doNotCall={Boolean(data.lead.do_not_call)}
+      doNotCallAt={data.lead.do_not_call_at ?? null}
+      calls={data.calls as any}
+      client:load
+    />
   </section>
 
   <div class="dash-work-grid dash-section">
