@@ -120,6 +120,7 @@ export async function getLead(context: QueryContext, id: number) {
       .from("offers")
       .select("id, offer_number, status, goal, once_total, monthly_total, valid_until, updated_at")
       .eq("lead_id", id)
+      .is("archived_at", null)
       .order("updated_at", { ascending: false }),
     supabase
       .from("projects")
@@ -171,15 +172,26 @@ export async function getAudit(context: QueryContext, id: number) {
   };
 }
 
-export async function listOffers(context: QueryContext) {
-  return unwrap(
-    await client(context)
-      .from("offers")
-      .select("id, offer_number, status, goal, once_total, monthly_total, valid_until, updated_at, lead:leads!inner(id, company_name)")
-      .order("updated_at", { ascending: false })
-      .range(0, 24),
-    [],
-  );
+export async function listOffers(context: QueryContext, archived = false) {
+  let query = client(context)
+    .from("offers")
+    .select(
+      "id, offer_number, status, goal, once_total, monthly_total, valid_until, updated_at, archived_at, lead:leads!inner(id, company_name)",
+    )
+    .order("updated_at", { ascending: false })
+    .range(0, 24);
+  query = archived ? query.not("archived_at", "is", null) : query.is("archived_at", null);
+  return unwrap(await query, []);
+}
+
+/** Zählt die archivierten Angebote für den Umschalter in der Angebotsliste. */
+export async function countArchivedOffers(context: QueryContext) {
+  const { count, error } = await client(context)
+    .from("offers")
+    .select("id", { count: "exact", head: true })
+    .not("archived_at", "is", null);
+  if (error) return 0;
+  return count || 0;
 }
 
 export async function getOffer(context: QueryContext, id: number) {

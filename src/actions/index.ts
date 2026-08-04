@@ -16,7 +16,14 @@ import type {
   ProjectStatus,
 } from "../lib/dashboard/types";
 import { createSupabaseServerClient } from "../lib/supabase/server";
-import { canConvertOfferToProject, canTransitionOffer, leadStatusRequiresFollowUp } from "../lib/dashboard/workflow";
+import {
+  canArchiveOffer,
+  canConvertOfferToProject,
+  canDeleteOffer,
+  canEditOffer,
+  canTransitionOffer,
+  leadStatusRequiresFollowUp,
+} from "../lib/dashboard/workflow";
 import { canLogOutcome, requiresFollowUp, suggestLeadStatus } from "../lib/dashboard/calls";
 import type { CallOutcome } from "../lib/dashboard/types";
 
@@ -66,12 +73,18 @@ async function loadCallLead(supabase: any, leadId: number) {
 }
 
 async function ensureOfferEditable(supabase: any, offerId: number) {
-  const { data, error } = await supabase.from("offers").select("id, status").eq("id", offerId).single();
+  const { data, error } = await supabase.from("offers").select("id, status, archived_at").eq("id", offerId).single();
   if (error || !data) fail("Das Angebot wurde nicht gefunden.", "NOT_FOUND");
-  if (["versendet", "angenommen", "abgelehnt", "abgelaufen"].includes(data.status)) {
-    fail("Dieses Angebot ist gesperrt. Duplizieren Sie es für Änderungen.");
+  if (!canEditOffer(data.status as OfferStatus)) {
+    fail("Dieses Angebot ist gesperrt, weil es bereits versendet wurde. Duplizieren Sie es für Änderungen.");
   }
   return data;
+}
+
+/** Angebote mit angehängtem Projekt sind unantastbar — sonst greift der Fremdschlüssel. */
+async function offerHasProject(supabase: any, offerId: number) {
+  const { data } = await supabase.from("projects").select("id").eq("offer_id", offerId).maybeSingle();
+  return Boolean(data);
 }
 
 export const server = {
@@ -305,8 +318,10 @@ export const server = {
         .from("audits")
         .update({
           google_snapshot: input.googleSnapshot || {},
-          score,
-          band,
+          // Ein Entwurf bekommt keinen Score: er rechnet nur über die bereits
+          // beantworteten Kriterien und wäre in Listen ein irreführendes Urteil.
+          score: input.complete ? score : null,
+          band: input.complete ? band : null,
           status: input.complete ? "abgeschlossen" : "entwurf",
           completed_at: completedAt,
         })
@@ -400,6 +415,129 @@ export const server = {
         fail(`Die Leistungspositionen konnten nicht gespeichert werden: ${itemError.message}`);
       }
       return { id: offer.id as number };
+    },
+  }),
+
+  updateOffer: defineAction({
+    input: z.object({
+      id: z.number().int().positive(),
+      offerId: z.string().nullable().optional(),
+      addonIds: z.array(z.string()).default([]),
+      goal: z.string().trim().min(1).max(1600),
+      nextSteps: z.string().max(1600).optional(),
+      recipientName: z.string().max(180).optional(),
+      recipientCompany: z.string().trim().min(1).max(180),
+      recipientAddress: z.string().max(500).optional(),
+      validUntil: z.string(),
+    }),
+    async handler(input, context) {
+      const { supabase } = await authenticated(context);
+      const existing = await ensureOfferEditable(supabase, input.id);
+
+      let items;
+      try {
+        items = buildOfferItems(input.offerId || null, input.addonIds);
+      } catch (error) {
+        fail(error instanceof Error ? error.message : "Die Leistungsauswahl ist ungültig.");
+      }
+      const totals = calculateOfferTotals(items);
+
+      // Liegt schon ein PDF vor, wird es durch die Änderung ungültig: sonst zeigte
+      // dieselbe Angebotsnummer plötzlich andere Zahlen. Zurück auf Entwurf, das
+      // nächste PDF trägt dieselbe Nummer mit erhöhter Revision.
+      const invalidatesPdf = existing.status === "erstellt";
+
+      const { error } = await supabase
+        .from("offers")
+        .update({
+          recipient_name: nullable(input.recipientName),
+          recipient_company: input.recipientCompany,
+          recipient_address: nullable(input.recipientAddress),
+          goal: input.goal,
+          next_steps: nullable(input.nextSteps),
+          valid_until: input.validUntil,
+          once_total: totals.once,
+          monthly_total: totals.monthly,
+          ...(invalidatesPdf ? { status: "entwurf", snapshot: null, pdf_path: null, generated_at: null } : {}),
+        })
+        .eq("id", input.id);
+      if (error) fail(`Das Angebot konnte nicht gespeichert werden: ${error.message}`);
+
+      const { error: deleteError } = await supabase.from("offer_items").delete().eq("offer_id", input.id);
+      if (deleteError) fail(`Die alten Leistungspositionen konnten nicht ersetzt werden: ${deleteError.message}`);
+
+      const { error: itemError } = await supabase.from("offer_items").insert(
+        items.map((item) => ({
+          offer_id: input.id,
+          catalog_item_id: item.catalogItemId,
+          name_snapshot: item.name,
+          description_snapshot: item.description,
+          interval: item.interval,
+          unit_price: item.unitPrice,
+          price_label_snapshot: item.priceLabel,
+          quantity: item.quantity,
+          period_snapshot: item.period,
+          sort_order: item.sortOrder,
+        })),
+      );
+      if (itemError) fail(`Die Leistungspositionen konnten nicht gespeichert werden: ${itemError.message}`);
+
+      return { id: input.id, pdfInvalidated: invalidatesPdf };
+    },
+  }),
+
+  setOfferArchived: defineAction({
+    input: z.object({ id: z.number().int().positive(), value: z.boolean() }),
+    async handler(input, context) {
+      const { supabase } = await authenticated(context);
+      const { data: offer, error } = await supabase
+        .from("offers")
+        .select("id, status")
+        .eq("id", input.id)
+        .single();
+      if (error || !offer) fail("Das Angebot wurde nicht gefunden.", "NOT_FOUND");
+      if (input.value && !canArchiveOffer(offer.status as OfferStatus)) {
+        fail("Entwürfe werden nicht archiviert, sondern gelöscht.");
+      }
+
+      const { error: updateError } = await supabase
+        .from("offers")
+        .update({ archived_at: input.value ? new Date().toISOString() : null })
+        .eq("id", input.id);
+      if (updateError) fail(`Das Angebot konnte nicht archiviert werden: ${updateError.message}`);
+      return { ok: true };
+    },
+  }),
+
+  deleteOffer: defineAction({
+    input: z.object({ id: z.number().int().positive() }),
+    async handler({ id }, context) {
+      const { supabase, user } = await authenticated(context);
+      const { data: offer, error } = await supabase
+        .from("offers")
+        .select("id, status, archived_at")
+        .eq("id", id)
+        .single();
+      if (error || !offer) fail("Das Angebot wurde nicht gefunden.", "NOT_FOUND");
+
+      // Vorher prüfen, damit die Meldung verständlich ist statt eines Fremdschlüsselfehlers.
+      if (await offerHasProject(supabase, id)) {
+        fail("Zu diesem Angebot gehört ein Kundenprojekt. Lösen Sie zuerst das Projekt.");
+      }
+      if (!canDeleteOffer(offer.status as OfferStatus, false, offer.archived_at)) {
+        fail("Versendete Angebote lassen sich erst aus dem Archiv heraus endgültig löschen.");
+      }
+
+      // PDFs zuerst wegräumen, sonst bleiben verwaiste Dateien im Speicher liegen.
+      const folder = `${user.id}/offers/${id}`;
+      const { data: files } = await supabase.storage.from("offers").list(folder);
+      if (files?.length) {
+        await supabase.storage.from("offers").remove(files.map((file: { name: string }) => `${folder}/${file.name}`));
+      }
+
+      const { error: deleteError } = await supabase.from("offers").delete().eq("id", id);
+      if (deleteError) fail(`Das Angebot konnte nicht gelöscht werden: ${deleteError.message}`);
+      return { ok: true };
     },
   }),
 

@@ -68,6 +68,34 @@ export function buildOfferItems(offerId: string | null, addonIds: string[]): Off
   return items;
 }
 
+/**
+ * Aus gespeicherten Positionen die ursprüngliche Katalogauswahl rekonstruieren,
+ * um die Bearbeiten-Maske vorzubefüllen.
+ *
+ * Wichtig: `buildOfferItems` ergänzt bei monatlichen Paketen automatisch den
+ * Quick-Check und lässt bereits im Paket enthaltene Ergänzungen weg. Diese
+ * impliziten Positionen dürfen hier NICHT als eigenständig gewählte Add-ons
+ * zurückkommen — sonst wüchse die Auswahl bei jedem Speichern.
+ */
+export function selectionFromItems(
+  items: Array<{ catalog_item_id: string }>,
+): { offerId: string | null; addonIds: string[] } {
+  const ids = items.map((item) => item.catalog_item_id);
+  const offerId = ids.find((id) => Boolean(findOffer(id))) || null;
+  const offer = offerId ? findOffer(offerId) : undefined;
+
+  const addonIds = ids.filter((id) => {
+    if (id === offerId) return false;
+    if (!findAddon(id)) return false;
+    // Vom Paket automatisch mitgebrachte Positionen wieder herausfiltern.
+    if (offer?.interval === "monatlich" && id === quickCheck.id) return false;
+    if (offer?.includedAddonIds.includes(id)) return false;
+    return true;
+  });
+
+  return { offerId, addonIds: [...new Set(addonIds)] };
+}
+
 export function calculateOfferTotals(items: OfferItemSnapshot[]) {
   return items.reduce(
     (totals, item) => {

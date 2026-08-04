@@ -1,0 +1,31 @@
+---
+export const prerender = false;
+
+import DashboardLayout from "../../../../layouts/DashboardLayout.astro";
+import DashboardIcon from "../../../../components/dashboard/DashboardIcon";
+import { OfferEditForm } from "../../../../components/dashboard/OfferForms";
+import { getOffer } from "../../../../lib/dashboard/queries";
+import { canEditOffer } from "../../../../lib/dashboard/workflow";
+import type { OfferStatus } from "../../../../lib/dashboard/types";
+
+const id = Number(Astro.params.id);
+if (!Number.isInteger(id)) return new Response("Ungültige Angebots-ID", { status: 400 });
+const data = await getOffer(Astro, id);
+if (!data.offer) return new Response("Angebot nicht gefunden", { status: 404 });
+if (!canEditOffer(data.offer.status as OfferStatus)) {
+  return Astro.redirect(`/dashboard/offers/${id}`);
+}
+---
+
+<DashboardLayout
+  title={data.offer.offer_number || `Angebotsentwurf #${data.offer.id}`}
+  eyebrow="Angebot bearbeiten"
+  description={`Für ${data.offer.recipient_company}`}
+>
+  <a slot="actions" class="dash-button secondary" href={`/dashboard/offers/${id}`}>
+    <DashboardIcon name="arrow_back" size={18} />
+    Zum Angebot
+  </a>
+
+  <OfferEditForm offer={data.offer} items={data.items as any} client:load />
+</DashboardLayout>

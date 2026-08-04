@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildOfferItems, calculateOfferTotals, offerNumber } from "./offers";
+import { buildOfferItems, calculateOfferTotals, offerNumber, selectionFromItems } from "./offers";
 
 describe("Offer snapshots", () => {
   it("copies package and add-on prices into stable line items", () => {
@@ -32,5 +32,47 @@ describe("Offer snapshots", () => {
 
   it("formats deterministic offer numbers", () => {
     expect(offerNumber(27, new Date("2026-07-28T10:00:00Z"))).toBe("LO-2026-0027");
+  });
+});
+
+describe("Katalogauswahl aus gespeicherten Positionen", () => {
+  const asRows = (items: ReturnType<typeof buildOfferItems>) =>
+    items.map((item) => ({ catalog_item_id: item.catalogItemId }));
+
+  it("erkennt Basispaket und gewählte Ergänzungen", () => {
+    expect(selectionFromItems(asRows(buildOfferItems("starter", ["landingpage"])))).toEqual({
+      offerId: "starter",
+      addonIds: ["landingpage"],
+    });
+  });
+
+  it("gibt den automatisch ergänzten Quick-Check nicht als gewählte Ergänzung zurück", () => {
+    // Sonst würde die Auswahl bei jedem Speichern um eine Position wachsen.
+    expect(selectionFromItems(asRows(buildOfferItems("care", [])))).toEqual({
+      offerId: "care",
+      addonIds: [],
+    });
+  });
+
+  it("kommt mit einem Angebot ohne Basispaket zurecht", () => {
+    expect(selectionFromItems(asRows(buildOfferItems(null, ["qr-review-trigger"])))).toEqual({
+      offerId: null,
+      addonIds: ["qr-review-trigger"],
+    });
+  });
+
+  it("bleibt über Speichern und erneutes Bearbeiten stabil", () => {
+    const cases: Array<[string | null, string[]]> = [
+      ["starter", ["landingpage"]],
+      ["care", []],
+      ["growth", ["landingpage"]],
+      [null, ["qr-review-trigger", "geo-check"]],
+    ];
+    for (const [offerId, addonIds] of cases) {
+      const first = buildOfferItems(offerId, addonIds);
+      const selection = selectionFromItems(asRows(first));
+      const second = buildOfferItems(selection.offerId, selection.addonIds);
+      expect(second.map((item) => item.catalogItemId)).toEqual(first.map((item) => item.catalogItemId));
+    }
   });
 });

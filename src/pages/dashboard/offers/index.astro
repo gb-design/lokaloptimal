@@ -4,19 +4,38 @@ export const prerender = false;
 import DashboardLayout from "../../../layouts/DashboardLayout.astro";
 import DashboardIcon from "../../../components/dashboard/DashboardIcon";
 import EmptyState from "../../../components/dashboard/EmptyState.astro";
-import { listOffers } from "../../../lib/dashboard/queries";
+import { countArchivedOffers, listOffers } from "../../../lib/dashboard/queries";
 import { offerStatusLabels, type OfferStatus } from "../../../lib/dashboard/types";
 
-const offers = await listOffers(Astro);
+const showArchive = Astro.url.searchParams.get("archiv") === "1";
+const [offers, archivedCount] = await Promise.all([
+  listOffers(Astro, showArchive),
+  countArchivedOffers(Astro),
+]);
 const money = (value: number) => new Intl.NumberFormat("de-AT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
 const date = (value: string) => new Intl.DateTimeFormat("de-AT", { timeZone: "Europe/Vienna", dateStyle: "medium" }).format(new Date(value));
 ---
 
-<DashboardLayout title="Angebote" eyebrow="Vertrieb" description="Leistungsumfang, PDF und Entscheidung in einem klaren Statusverlauf.">
+<DashboardLayout
+  title={showArchive ? "Angebote · Archiv" : "Angebote"}
+  eyebrow="Vertrieb"
+  description={
+    showArchive
+      ? "Abgelegte Angebote. Von hier aus lassen sie sich zurückholen oder endgültig löschen."
+      : "Leistungsumfang, PDF und Entscheidung in einem klaren Statusverlauf."
+  }
+>
   <a slot="actions" class="dash-button secondary" href="/dashboard/leads">
     <DashboardIcon name="person_search" size={18} />
     Lead auswählen
   </a>
+
+  <nav class="dash-subnav dash-section" aria-label="Angebotsansicht">
+    <a class:list={{ active: !showArchive }} href="/dashboard/offers">Aktiv</a>
+    <a class:list={{ active: showArchive }} href="/dashboard/offers?archiv=1">
+      Archiv{archivedCount ? ` (${archivedCount})` : ""}
+    </a>
+  </nav>
 
   {offers.length ? (
     <div class="dash-table-wrap">
@@ -55,6 +74,10 @@ const date = (value: string) => new Intl.DateTimeFormat("de-AT", { timeZone: "Eu
       </table>
     </div>
   ) : (
-    <EmptyState icon="request_quote" title="Noch keine Angebote" text="Lead auswählen; nach einem Audit sind passende Leistungen bereits vorausgewählt." href="/dashboard/leads" action="Lead auswählen" />
+    showArchive ? (
+      <EmptyState icon="visibility_off" title="Archiv ist leer" text="Versendete, abgelehnte oder abgelaufene Angebote landen hier, sobald Sie sie archivieren." href="/dashboard/offers" action="Zu den aktiven Angeboten" />
+    ) : (
+      <EmptyState icon="request_quote" title="Noch keine Angebote" text="Lead auswählen; nach einem Audit sind passende Leistungen bereits vorausgewählt." href="/dashboard/leads" action="Lead auswählen" />
+    )
   )}
 </DashboardLayout>

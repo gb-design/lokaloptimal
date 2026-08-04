@@ -10,8 +10,9 @@ import {
   qrReviewTrigger,
   retainers,
 } from "../../data/pricing";
-import { buildOfferItems, calculateOfferTotals } from "../../lib/dashboard/offers";
+import { buildOfferItems, calculateOfferTotals, selectionFromItems } from "../../lib/dashboard/offers";
 import { offerStatusLabels, type OfferStatus } from "../../lib/dashboard/types";
+import { canArchiveOffer, canDeleteOffer, canEditOffer } from "../../lib/dashboard/workflow";
 import { money, resultMessage } from "./action-utils";
 
 type LeadOption = {
@@ -34,24 +35,45 @@ type AuditOption = {
 const baseOffers = [...packages, ...retainers];
 const allAddons = [...addons, geoCheck, qrReviewTrigger];
 
-export function OfferCreateForm({
-  lead,
-  audit,
+export type OfferFormValues = {
+  offerId: string;
+  addonIds: string[];
+  recipientName: string;
+  recipientCompany: string;
+  recipientAddress: string;
+  goal: string;
+  nextSteps: string;
+  validUntil: string;
+};
+
+export type OfferFormPayload = Omit<OfferFormValues, "offerId"> & { offerId: string | null };
+
+/**
+ * Gemeinsame Maske für Anlegen und Bearbeiten. Die beiden Wege unterscheiden
+ * sich nur in den Startwerten und darin, welche Action beim Speichern läuft.
+ */
+function OfferForm({
+  initial,
+  submitLabel,
+  busyLabel,
+  cancelHref,
+  cancelLabel,
+  notice,
+  onSubmit,
 }: {
-  lead: LeadOption;
-  audit?: AuditOption | null;
+  initial: OfferFormValues;
+  submitLabel: string;
+  busyLabel: string;
+  cancelHref: string;
+  cancelLabel: string;
+  notice?: string;
+  onSubmit: (payload: OfferFormPayload) => Promise<string | null>;
 }) {
-  const recommendedIds = (audit?.recommendations || [])
-    .filter((entry) => entry.selected)
-    .map((entry) => entry.catalog_item_id);
-  const recommendedBase = baseOffers.find((entry) => recommendedIds.includes(entry.id))?.id || "";
-  const [offerId, setOfferId] = useState(recommendedBase);
-  const [addonIds, setAddonIds] = useState(
-    allAddons.filter((entry) => recommendedIds.includes(entry.id)).map((entry) => entry.id),
-  );
+  const [offerId, setOfferId] = useState(initial.offerId);
+  const [addonIds, setAddonIds] = useState(initial.addonIds);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [validUntil, setValidUntil] = useState(() => new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10));
+  const [validUntil, setValidUntil] = useState(initial.validUntil);
 
   const items = useMemo(() => {
     try {
@@ -72,9 +94,7 @@ export function OfferCreateForm({
     setBusy(true);
     setError("");
     const data = Object.fromEntries(new FormData(event.currentTarget)) as Record<string, string>;
-    const result = await actions.createOffer({
-      leadId: lead.id,
-      auditId: audit?.id || null,
+    const message = await onSubmit({
       offerId: offerId || null,
       addonIds,
       goal: data.goal,
@@ -84,13 +104,17 @@ export function OfferCreateForm({
       recipientAddress: data.recipientAddress,
       validUntil: data.validUntil,
     });
-    if (result.error) {
-      setError(resultMessage(result));
+    if (message) {
+      setError(message);
       setBusy(false);
-      return;
     }
-    window.location.assign(`/dashboard/offers/${result.data.id}`);
   }
+
+  const lead = {
+    contact_name: initial.recipientName,
+    company_name: initial.recipientCompany,
+    location: initial.recipientAddress,
+  };
 
   return (
     <form className="dash-form" onSubmit={submit}>
@@ -175,20 +199,11 @@ export function OfferCreateForm({
               </div>
               <div className="dash-field wide">
                 <label htmlFor="offer-goal">Erwartetes Ziel</label>
-                <textarea
-                  id="offer-goal"
-                  name="goal"
-                  required
-                  defaultValue={
-                    audit?.score !== null && audit?.score !== undefined
-                      ? `Auf Basis des LokalOptimal-Audits mit ${audit.score}/100 Punkten verbessern wir die wichtigsten Schwachstellen systematisch und schaffen eine belastbare Grundlage für mehr lokale Sichtbarkeit und Vertrauen.`
-                      : "Wir schaffen eine klare, gepflegte Grundlage für mehr lokale Sichtbarkeit und Vertrauen."
-                  }
-                />
+                <textarea id="offer-goal" name="goal" required defaultValue={initial.goal} />
               </div>
               <div className="dash-field wide">
                 <label htmlFor="offer-next">Nächste Schritte</label>
-                <textarea id="offer-next" name="nextSteps" defaultValue="Nach Ihrer Freigabe stimmen wir den Projektstart und die benötigten Inhalte in einem kurzen Auftakttermin ab." />
+                <textarea id="offer-next" name="nextSteps" defaultValue={initial.nextSteps} />
               </div>
               <DashboardDateField
                 id="offer-valid"
@@ -233,14 +248,116 @@ export function OfferCreateForm({
             {totals.monthly > 0 && <div className="dash-total-row"><span>Monatlich netto</span><strong>{money(totals.monthly)}</strong></div>}
             <small style={{ color: "var(--dash-muted)", textAlign: "right" }}>Alle Preise exkl. USt.</small>
           </div>
+          {notice && (
+            <div className="dash-feedback" role="status" style={{ marginTop: "1rem" }}>
+              <DashboardIcon name="info" size={18} />
+              {notice}
+            </div>
+          )}
           {error && <div className="dash-feedback error" role="alert" style={{ marginTop: "1rem" }}>{error}</div>}
           <button className="dash-button" type="submit" disabled={busy || !items.length} style={{ width: "100%", marginTop: "1.5rem" }}>
               <DashboardIcon name={busy ? "progress_activity" : "request_quote"} size={18} />
-            {busy ? "Entwurf wird angelegt…" : "Angebotsentwurf anlegen"}
+            {busy ? busyLabel : submitLabel}
           </button>
+          <a className="dash-button secondary" href={cancelHref} style={{ width: "100%", marginTop: ".75rem", justifyContent: "center" }}>
+            {cancelLabel}
+          </a>
         </aside>
       </div>
     </form>
+  );
+}
+
+export function OfferCreateForm({
+  lead,
+  audit,
+}: {
+  lead: LeadOption;
+  audit?: AuditOption | null;
+}) {
+  const recommendedIds = (audit?.recommendations || [])
+    .filter((entry) => entry.selected)
+    .map((entry) => entry.catalog_item_id);
+
+  const initial: OfferFormValues = {
+    offerId: baseOffers.find((entry) => recommendedIds.includes(entry.id))?.id || "",
+    addonIds: allAddons.filter((entry) => recommendedIds.includes(entry.id)).map((entry) => entry.id),
+    recipientName: lead.contact_name || "",
+    recipientCompany: lead.company_name,
+    recipientAddress: lead.location || "",
+    goal:
+      audit?.score !== null && audit?.score !== undefined
+        ? `Auf Basis des LokalOptimal-Audits mit ${audit.score}/100 Punkten verbessern wir die wichtigsten Schwachstellen systematisch und schaffen eine belastbare Grundlage für mehr lokale Sichtbarkeit und Vertrauen.`
+        : "Wir schaffen eine klare, gepflegte Grundlage für mehr lokale Sichtbarkeit und Vertrauen.",
+    nextSteps:
+      "Nach Ihrer Freigabe stimmen wir den Projektstart und die benötigten Inhalte in einem kurzen Auftakttermin ab.",
+    validUntil: new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10),
+  };
+
+  return (
+    <OfferForm
+      initial={initial}
+      submitLabel="Angebotsentwurf anlegen"
+      busyLabel="Entwurf wird angelegt…"
+      cancelHref={`/dashboard/leads/${lead.id}`}
+      cancelLabel="Abbrechen"
+      onSubmit={async (payload) => {
+        const result = await actions.createOffer({ leadId: lead.id, auditId: audit?.id || null, ...payload });
+        if (result.error) return resultMessage(result);
+        window.location.assign(`/dashboard/offers/${result.data.id}`);
+        return null;
+      }}
+    />
+  );
+}
+
+export function OfferEditForm({
+  offer,
+  items,
+}: {
+  offer: {
+    id: number;
+    status: OfferStatus;
+    recipient_name?: string | null;
+    recipient_company: string;
+    recipient_address?: string | null;
+    goal: string;
+    next_steps?: string | null;
+    valid_until: string;
+  };
+  items: Array<{ catalog_item_id: string }>;
+}) {
+  const selection = selectionFromItems(items);
+  const initial: OfferFormValues = {
+    offerId: selection.offerId || "",
+    addonIds: selection.addonIds,
+    recipientName: offer.recipient_name || "",
+    recipientCompany: offer.recipient_company,
+    recipientAddress: offer.recipient_address || "",
+    goal: offer.goal,
+    nextSteps: offer.next_steps || "",
+    validUntil: offer.valid_until.slice(0, 10),
+  };
+
+  return (
+    <OfferForm
+      initial={initial}
+      submitLabel="Änderungen speichern"
+      busyLabel="Wird gespeichert…"
+      cancelHref={`/dashboard/offers/${offer.id}`}
+      cancelLabel="Zurück zum Angebot"
+      notice={
+        offer.status === "erstellt"
+          ? "Für dieses Angebot liegt bereits ein PDF vor. Beim Speichern wird es verworfen und das Angebot geht zurück in den Entwurf — erzeugen Sie danach ein neues PDF."
+          : undefined
+      }
+      onSubmit={async (payload) => {
+        const result = await actions.updateOffer({ id: offer.id, ...payload });
+        if (result.error) return resultMessage(result);
+        window.location.assign(`/dashboard/offers/${offer.id}`);
+        return null;
+      }}
+    />
   );
 }
 
@@ -248,11 +365,43 @@ export function OfferControls({
   offer,
   project,
 }: {
-  offer: { id: number; status: OfferStatus; offer_number?: string | null };
+  offer: { id: number; status: OfferStatus; offer_number?: string | null; archived_at?: string | null };
   project?: { id: number } | null;
 }) {
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const hasProject = Boolean(project);
+  const editable = canEditOffer(offer.status);
+  const archived = Boolean(offer.archived_at);
+  const archivable = canArchiveOffer(offer.status);
+  const deletable = canDeleteOffer(offer.status, hasProject, offer.archived_at);
+
+  async function setArchived(value: boolean) {
+    setBusy("archive");
+    setError("");
+    const result = await actions.setOfferArchived({ id: offer.id, value });
+    if (result.error) {
+      setError(resultMessage(result));
+      setBusy("");
+      return;
+    }
+    window.location.reload();
+  }
+
+  async function remove() {
+    setBusy("delete");
+    setError("");
+    const result = await actions.deleteOffer({ id: offer.id });
+    if (result.error) {
+      setError(resultMessage(result));
+      setBusy("");
+      setConfirmDelete(false);
+      return;
+    }
+    window.location.assign("/dashboard/offers");
+  }
 
   async function generatePdf() {
     setBusy("pdf");
@@ -366,13 +515,76 @@ export function OfferControls({
           </>
         )}
       </div>
+      <div className="dash-actions">
+        {editable && (
+          <a className="dash-button secondary" href={`/dashboard/offers/${offer.id}/edit`}>
+            <DashboardIcon name="save" size={18} />
+            Bearbeiten
+          </a>
+        )}
+        {archivable && !archived && (
+          <button className="dash-button ghost" type="button" onClick={() => setArchived(true)} disabled={Boolean(busy)}>
+            <DashboardIcon name={busy === "archive" ? "progress_activity" : "visibility_off"} size={18} />
+            Archivieren
+          </button>
+        )}
+        {archived && (
+          <button className="dash-button secondary" type="button" onClick={() => setArchived(false)} disabled={Boolean(busy)}>
+            <DashboardIcon name={busy === "archive" ? "progress_activity" : "arrow_back"} size={18} />
+            Aus dem Archiv holen
+          </button>
+        )}
+        {deletable && !confirmDelete && (
+          <button className="dash-button danger" type="button" onClick={() => setConfirmDelete(true)} disabled={Boolean(busy)}>
+            <DashboardIcon name="block" size={18} />
+            Endgültig löschen
+          </button>
+        )}
+      </div>
+
+      {confirmDelete && (
+        <div className="dash-callout danger" role="alertdialog" aria-label="Löschen bestätigen">
+          <DashboardIcon name="error" size={20} weight="bold" />
+          <div>
+            <strong>Endgültig löschen?</strong>
+            <p>
+              Das Angebot und alle erzeugten PDFs werden unwiderruflich entfernt.
+              {offer.offer_number ? ` Die Nummer ${offer.offer_number} bleibt danach ungenutzt.` : ""}
+            </p>
+          </div>
+          <div className="dash-actions">
+            <button className="dash-button danger" type="button" onClick={remove} disabled={busy === "delete"}>
+              <DashboardIcon name={busy === "delete" ? "progress_activity" : "block"} size={18} />
+              Ja, löschen
+            </button>
+            <button className="dash-button secondary" type="button" onClick={() => setConfirmDelete(false)} disabled={busy === "delete"}>
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      )}
+
+      {hasProject && (
+        <p className="dash-cell-muted">
+          Zu diesem Angebot gehört ein Kundenprojekt — es lässt sich deshalb nicht löschen.
+        </p>
+      )}
+      {!archived && archivable && !deletable && (
+        <p className="dash-cell-muted">
+          Versendete Angebote lassen sich erst aus dem Archiv heraus endgültig löschen.
+        </p>
+      )}
+
       {error && (
         <div className="dash-feedback error" role="alert">
           <DashboardIcon name="error" size={18} />
           <span>{error} {error.includes("Einstellungen") && <a href="/dashboard/settings" style={{ textDecoration: "underline" }}>Einstellungen öffnen</a>}</span>
         </div>
       )}
-      <span className="dash-badge" data-tone={offer.status}>{offerStatusLabels[offer.status]}</span>
+      <div className="dash-actions">
+        <span className="dash-badge" data-tone={offer.status}>{offerStatusLabels[offer.status]}</span>
+        {archived && <span className="dash-badge">Archiviert</span>}
+      </div>
     </div>
   );
 }
