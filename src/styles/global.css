@@ -3995,6 +3995,32 @@ textarea.field {
   transform: rotate(-28deg);
 }
 
+/*
+ * "Profil nicht abrufbar" teilt das Layout des Limit-Hinweises, aber nicht
+ * dessen Warnton: Es ist eine sachliche Auskunft über Googles Index, kein
+ * Fehler des Nutzers. Deshalb Blau statt Amber und kein geneigtes Icon — die
+ * Neigung gehört zum Pfeil des Limit-Hinweises.
+ */
+.notice-state {
+  border-color: color-mix(in oklch, var(--blue), white 74%);
+  background:
+    radial-gradient(
+      circle at 50% 12%,
+      color-mix(in oklch, var(--soft-blue), white 34%),
+      transparent 54%
+    ),
+    color-mix(in oklch, white, var(--soft-blue) 22%);
+}
+
+.notice-icon {
+  background: color-mix(in oklch, var(--blue), white 84%);
+  color: var(--blue);
+}
+
+.notice-icon .material-symbols-rounded {
+  transform: none;
+}
+
 .cta-pulse {
   animation: cta-pulse 1.9s ease-in-out infinite;
 }

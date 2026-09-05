@@ -47,7 +47,11 @@ function parseGoogleMapsUrl(raw) {
   const href = url.toString();
   const placeMatch = href.match(/\/maps\/place\/([^/@?&]+)/);
   const query = url.searchParams.get("q") || url.searchParams.get("query");
-  const coordMatch = href.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+  // `!3d`/`!4d` tragen den Standort-Pin des Profils, `@lat,lng` nur die Mitte
+  // des geteilten Kartenausschnitts. Die Mitte kann Kilometer daneben liegen.
+  const pinMatch = href.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+  const viewportMatch = href.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+  const coordMatch = pinMatch || viewportMatch;
 
   let name = "";
   if (placeMatch) name = decodeMapsValue(placeMatch[1]).split("—")[0].trim();

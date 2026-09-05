@@ -8,10 +8,11 @@ import {
   type PlaceScoreRowKey,
   type SignalLevel,
 } from "../lib/place-signals";
+import { classifyAuditResponse } from "../lib/audit-response";
 
 const CAL_URL = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
 
-type Phase = "input" | "fallback" | "scanning" | "results" | "limit";
+type Phase = "input" | "fallback" | "scanning" | "results" | "limit" | "notfound";
 type StatusTone = "good" | "warn" | "bad";
 type FoundBusiness = { place_id: string; name: string; address?: string | null };
 type Details = {
@@ -250,15 +251,15 @@ export default function GBPAuditWidget() {
       const contentType = response.headers.get("content-type") || "";
       const payload = contentType.includes("application/json") ? await response.json() : null;
 
-      if (!payload) throw new Error("Unexpected API response.");
+      const outcome = classifyAuditResponse(response.status, payload);
 
-      if ((response.status === 400 || response.status === 422) && payload.error === "INVALID_GOOGLE_MAPS_URL") {
+      if (outcome.kind === "invalid-url") {
         setMessage(GOOGLE_MAPS_URL_ERROR);
         setPhase("input");
         return;
       }
 
-      if (response.status === 429) {
+      if (outcome.kind === "rate-limited") {
         try {
           window.localStorage.setItem("gbp-audit-rate-limited", String(Date.now()));
         } catch {
@@ -268,9 +269,18 @@ export default function GBPAuditWidget() {
         return;
       }
 
-      if (!response.ok) throw new Error(payload.error);
-      setFound(payload.found);
-      setDetails(payload.details);
+      // "Nicht im Index" ist kein Ausfall und bekommt deshalb einen eigenen
+      // Zustand. Sonst rät der Interessent auf einen Serverfehler und versucht
+      // es vergeblich später erneut, statt den Termin zu buchen.
+      if (outcome.kind === "not-found") {
+        setPhase("notfound");
+        return;
+      }
+
+      if (outcome.kind === "failed") throw new Error("Audit request failed.");
+
+      setFound(outcome.found as FoundBusiness);
+      setDetails(outcome.details as Details);
     } catch {
       setMessage("Der Check konnte gerade nicht abgeschlossen werden. Bitte versuchen Sie es später erneut oder buchen Sie direkt einen Termin.");
       setPhase("input");
@@ -321,6 +331,30 @@ export default function GBPAuditWidget() {
               <ArrowRight size={18} />
             </span>
           </a>
+        </div>
+      ) : phase === "notfound" ? (
+        <div className="limit-state notice-state" role="status" aria-live="polite">
+          <div className="limit-icon notice-icon" aria-hidden="true">
+            <Shield size={22} />
+          </div>
+          <div>
+            <p className="result-label">Profil nicht abrufbar</p>
+            <h3>Google gibt dieses Profil über die Schnittstelle nicht heraus.</h3>
+            <p>
+              Der Link ist korrekt — Ihr Profil ist nur noch nicht in Googles Datenschnittstelle enthalten. Das ist
+              normal bei frisch verifizierten Profilen und bei Betrieben ohne öffentlich sichtbare Adresse, und es
+              sagt nichts über die Qualität Ihres Profils aus. Wir prüfen es im Erstgespräch manuell.
+            </p>
+          </div>
+          <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} rel="noreferrer" data-cal-open>
+            Profil manuell prüfen lassen
+            <span className="btn-icon">
+              <ArrowRight size={18} />
+            </span>
+          </a>
+          <button className="rescan-button" type="button" onClick={resetScan}>
+            Anderes Profil scannen
+          </button>
         </div>
       ) : phase !== "results" ? (
         <>

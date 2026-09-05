@@ -3,6 +3,13 @@ const DEFAULT_RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_WINDOW_SECONDS = 60 * 60 * 24;
 const RATE_LIMIT_NAMESPACE = "gbp-audit:v2";
 const INVALID_GOOGLE_MAPS_URL = "INVALID_GOOGLE_MAPS_URL";
+/**
+ * Der Link ist gültig, aber die Places API liefert das Profil nicht aus. Das
+ * ist kein Ausfall: sehr junge Profile brauchen Wochen bis zur Propagation und
+ * Service-Area-Businesses ohne öffentliche Adresse fehlen im Index dauerhaft.
+ * Als eigener Code, damit das Widget davon eine ehrliche Meldung ableiten kann.
+ */
+export const PLACE_NOT_FOUND = "PLACE_NOT_FOUND";
 const FETCH_TIMEOUT_MS = 6500;
 const MAX_URL_LENGTH = 900;
 const placeIdPattern = /^[A-Za-z0-9_-]{12,180}$/;
@@ -100,7 +107,12 @@ function parseGoogleMapsUrl(raw: string) {
   const href = url.toString();
   const placeMatch = href.match(/\/maps\/place\/([^/@?&]+)/);
   const query = url.searchParams.get("q") || url.searchParams.get("query");
-  const coordMatch = href.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+  // `!3d`/`!4d` tragen den Standort-Pin des Profils, `@lat,lng` nur die Mitte
+  // des geteilten Kartenausschnitts. Die Mitte kann Kilometer daneben liegen,
+  // deshalb hat der Pin Vorrang und der Ausschnitt bleibt Fallback.
+  const pinMatch = href.match(/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/);
+  const viewportMatch = href.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+  const coordMatch = pinMatch || viewportMatch;
 
   let name = "";
   if (placeMatch) name = decodeMapsValue(placeMatch[1]).split("—")[0].trim();
@@ -257,7 +269,7 @@ export async function searchPlace(apiKey: string, query: string, lat?: string, l
 
   const data = await response.json();
   if (!response.ok || !data.places?.length) {
-    const error = new Error("No place found for this query.");
+    const error = new Error(PLACE_NOT_FOUND);
     (error as Error & { status?: number }).status = 404;
     throw error;
   }
@@ -290,7 +302,10 @@ export async function getPlaceDetails(apiKey: string, placeId: string): Promise<
 
   const data = await response.json();
   if (!response.ok || data.error) {
-    const error = new Error(data.error?.message || "Place not found.");
+    // Googles Originaltext bleibt im Log, nach außen geht nur der Code — er
+    // nennt sonst Interna wie den rohen Place-ID-String.
+    console.warn("[places details]", data.error?.message || `HTTP ${response.status}`);
+    const error = new Error(PLACE_NOT_FOUND);
     (error as Error & { status?: number }).status = 404;
     throw error;
   }
