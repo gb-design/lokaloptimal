@@ -1,0 +1,80 @@
+# LokalOptimal
+
+> LokalOptimal richtet Google Business Profile für lokale Unternehmen in
+> Österreich ein, optimiert sie und betreut sie laufend. Ziel ist mehr
+> Sichtbarkeit in Google Suche, Google Maps und KI-gestützten Antworten.
+
+Betreiber: george&burn design co., Inhaber Georg Redl-Fortelny, Wien.
+Sprache: Deutsch (de-AT). Leistungen richten sich an Unternehmen (B2B).
+
+WARTUNGSHINWEIS: Preise und Leistungen stammen aus src/data/pricing.ts.
+Bei Preisänderungen ist diese Datei mitzuziehen.
+
+## Was ist Google Business Profil Optimierung?
+
+Ein Google Business Profil (früher Google My Business) ist der Eintrag eines
+Unternehmens in Google Suche und Google Maps. Optimierung bedeutet, alle
+relevanten Felder vollständig, korrekt und aktuell zu pflegen: Kategorien,
+Leistungen, Beschreibung, Öffnungszeiten, Fotos, Bewertungen und Kontaktwege.
+Ein vollständiges Profil verbessert den ersten Eindruck und ist zugleich eine
+zentrale Datenquelle für KI-Systeme, die lokale Anbieter empfehlen.
+
+## Leistungen und Preise
+
+Alle Preise exkl. 20% MwSt., Angebote richten sich an Unternehmen (B2B).
+
+### Pakete
+
+- **Starter** (€347 einmalig): Der perfekte Einstieg für ein professionelles Profil-Setup. Enthält GBP Audit & Analyse, vollständiges Profil-Setup sowie Kategorien, Texte und Öffnungszeiten.
+- **Essential** (€697 einmalig): Das komplette Setup mit Wettbewerbs-Blick. Enthält alles aus Starter plus Foto-Briefing, 1x Google Post und Konkurrenzanalyse (3 Mitbewerber).
+- **Growth** (€1.397, 3 Monate Laufzeit): Aktives Management für mehr Sichtbarkeit. Enthält alles aus Essential plus 4x Google Posts pro Monat, Review-Monitoring und Antworten (bis 15 pro Monat) sowie monatliches PDF-Reporting.
+- **Local Pro** (€3.497, 6 Monate Laufzeit): Die Komplettlösung. Enthält alles aus Growth plus 8x Google Posts pro Monat, Review- und KI-Antworten-Management sowie einen Strategie-Call pro Monat.
+
+### Laufende Betreuung, monatlich kündbar
+
+- **Care** (€399 pro Monat): 4x Google Posts pro Monat, Review-Monitoring, monatliches Reporting.
+- **Pro Care** (€499 pro Monat): 8x Google Posts pro Monat, Review- und KI-Antworten-Management, Strategie-Call pro Quartal.
+
+Beim Direkteinstieg in die laufende Betreuung kommt einmalig der
+**Profil Quick-Check & Übernahme** (€147 einmalig) hinzu.
+
+### Add-ons
+
+- **Extra Google Posts** (€167 pro Monat): Zusätzlich 4 Beiträge pro Monat.
+- **Review-Response Service** (€127 pro Monat): Bis zu 15 Bewertungsantworten pro Monat, jede weitere €6.
+- **Landingpage** (€1.197 einmalig): Ein-Seiten-Website, lokal sichtbar und für KI-Suchmaschinen vorbereitet, inkl. einer Korrekturrunde.
+- **Konkurrenzanalyse** (€197 einmalig): Vergleich mit 3 Mitbewerbern.
+- **Foto-Briefing Dokument** (€97 einmalig): Anleitung für vertrauensbildende Profilbilder.
+- **KI-Antworten-Management** (€79 pro Monat): Typische Kundenfragen recherchieren und die Antworten dort hinterlegen, wo KI-Systeme sie auslesen. Bis zu 10 Fragen pro Monat.
+- **QR Review Trigger** (€147 einmalig): Individuell gestalteter QR-Code, der vor Ort direkt zur Google-Bewertung führt. Lieferung als druckfertige Dateien.
+- **Website GEO-Check** (€197 einmalig): Prüfung, ob ChatGPT, Perplexity und Google AI Overviews das Unternehmen korrekt erfassen und zitieren können.
+
+## Zielgruppe und Einzugsgebiet
+
+Lokale Dienstleister und Betriebe in Österreich, Schwerpunkt Wien und Umgebung:
+Ärztinnen und Ärzte, Zahnarzt- und Facharztpraxen, Anwälte, Notare,
+Steuerberater, Handwerksbetriebe, Installateure, Restaurants und Cafés,
+Friseure, Kosmetik- und Wellnessstudios, Fitnessstudios, Autohäuser,
+Tierärzte und Agenturen.
+
+## Was LokalOptimal nicht verspricht
+
+- Keine Ranking-Garantien. Google Suche und Google Maps hängen von vielen
+  Faktoren ab, die kein Dienstleister kontrolliert.
+- Kein garantierter wirtschaftlicher Erfolg. Geschuldet wird eine fachgerechte
+  Leistungserbringung nach aktuellen Best Practices.
+- Keine erfundenen Bewertungen, Referenzen oder Fallstudien.
+
+## Kontakt
+
+- E-Mail: lokaloptimal@gmail.com
+- Inhaber: Georg Redl-Fortelny
+- Adresse: Lorenz-Mandl-Gasse 16, 1160 Wien, Österreich
+- Kostenloses Erstgespräch und kostenloser GBP-Check über die Website
+
+## Seiten
+
+- [Startseite](https://www.lokaloptimal.at/): Leistungen, Preise, Ablauf, FAQ
+- [AGB](https://www.lokaloptimal.at/agb/): Leistungsumfang und Vertragsbedingungen
+- [Datenschutz](https://www.lokaloptimal.at/datenschutz/)
+- [Impressum](https://www.lokaloptimal.at/impressum/)

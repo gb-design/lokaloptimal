@@ -25,9 +25,10 @@ describe("Offer snapshots", () => {
     expect(() => buildOfferItems(null, [])).toThrow("mindestens eine Leistung");
   });
 
-  it("preserves on-request price labels instead of rendering zero euros", () => {
+  it("übernimmt den Fixpreis des QR Review Triggers", () => {
     const items = buildOfferItems(null, ["qr-review-trigger"]);
-    expect(items[0]).toMatchObject({ unitPrice: 0, priceLabel: "auf Anfrage" });
+    expect(items[0]).toMatchObject({ unitPrice: 147, priceLabel: null, interval: "einmalig" });
+    expect(calculateOfferTotals(items)).toEqual({ once: 147, monthly: 0 });
   });
 
   it("formats deterministic offer numbers", () => {

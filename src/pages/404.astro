@@ -1,0 +1,33 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+---
+
+<BaseLayout
+  title="Seite nicht gefunden | LokalOptimal"
+  description="Diese Seite existiert nicht oder wurde verschoben."
+  canonicalPath="/404"
+  noindex
+>
+  <Header />
+
+  <main>
+    <section class="section">
+      <div class="container section-heading">
+        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">search_off</span>Fehler 404</span>
+        <h1 class="h2">Diese Seite gibt es <span class="text-blue">nicht (mehr)</span></h1>
+        <p class="lead">Der Link ist vermutlich veraltet oder enthält einen Tippfehler. Über die Startseite finden Sie alle Leistungen und Preise.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/">
+            Zur Startseite
+            <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
+          </a>
+          <a class="learn-link" href="/#kontakt">Kontakt aufnehmen</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</BaseLayout>

@@ -3,4 +3,50 @@ Allow: /
 Disallow: /api/
 Disallow: /dashboard/
 
-Sitemap: https://www.lokaloptimal.at/sitemap.xml
+# --- KI-Suche / Answer Engines ---------------------------------------------
+# Diese Bots sind durch "User-agent: *" bereits erlaubt. Die expliziten Bloecke
+# halten die Entscheidung im Repo sichtbar und verhindern, dass ein spaeter
+# ergaenztes pauschales Disallow die KI-Sichtbarkeit versehentlich abschaltet.
+
+# OpenAI: Indexierung fuer ChatGPT Search
+User-agent: OAI-SearchBot
+Allow: /
+
+# OpenAI: Crawler
+User-agent: GPTBot
+Allow: /
+
+# OpenAI: Abruf auf Nutzeranfrage
+User-agent: ChatGPT-User
+Allow: /
+
+# Perplexity
+User-agent: PerplexityBot
+Allow: /
+
+# Anthropic
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+# Google Gemini / Vertex. Steuert NICHT die normale Google-Indexierung.
+User-agent: Google-Extended
+Allow: /
+
+# Apple Intelligence
+User-agent: Applebot-Extended
+Allow: /
+
+# Microsoft Copilot laeuft ueber den Bing-Index
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+
+# Common Crawl - Datenquelle vieler Sprachmodelle
+User-agent: CCBot
+Allow: /
+
+Sitemap: https://www.lokaloptimal.at/sitemap-index.xml

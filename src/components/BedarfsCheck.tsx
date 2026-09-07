@@ -7,7 +7,6 @@ import {
   formatEuro,
   geoCheck,
   packages,
-  qrReviewTrigger,
   quickCheck,
   retainers,
   type Addon,
@@ -31,7 +30,7 @@ const pathOffers: Record<Exclude<Path, "single">, { question: string; offers: Of
   care: { question: "Basis-Pflege oder Rundum-Betreuung?", offers: retainers },
 };
 
-const singleServices: Addon[] = [...addons, geoCheck, qrReviewTrigger];
+const singleServices: Addon[] = [...addons, geoCheck];
 
 function pathForOffer(offerId: string): Path {
   if (offerId === "starter" || offerId === "essential") return "setup";
@@ -363,7 +362,6 @@ export default function BedarfsCheck() {
           <div className="bc-summary">
             {totals.once > 0 && <span><small>Einmalig</small><b>{formatEuro(totals.once)}</b></span>}
             {totals.monthly > 0 && <span><small>Monatlich</small><b>{formatEuro(totals.monthly)}</b></span>}
-            {addonIds.includes("qr-review-trigger") && <span className="bc-summary-note"><small>QR Review Trigger</small><b>auf Anfrage</b></span>}
           </div>
 
           <div className="bc-nav">

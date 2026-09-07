@@ -7,7 +7,6 @@ import {
   addons,
   geoCheck,
   packages,
-  qrReviewTrigger,
   retainers,
 } from "../../data/pricing";
 import { buildOfferItems, calculateOfferTotals, selectionFromItems } from "../../lib/dashboard/offers";
@@ -33,7 +32,7 @@ type AuditOption = {
 };
 
 const baseOffers = [...packages, ...retainers];
-const allAddons = [...addons, geoCheck, qrReviewTrigger];
+const allAddons = [...addons, geoCheck];
 
 export type OfferFormValues = {
   offerId: string;

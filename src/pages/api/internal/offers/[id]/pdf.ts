@@ -127,7 +127,10 @@ export const GET: APIRoute = async (context) => {
       return Response.json({ error: `Das Angebot konnte nicht aktualisiert werden: ${updateError.message}` }, { status: 502, headers });
     }
 
-    return new Response(buffer, {
+    // @types/node kommt transitiv ueber @astrojs/sitemap herein und bringt die
+    // undici-Typen mit, deren BodyInit keine Binaerdaten kennt. Zur Laufzeit ist
+    // ein Buffer ein gueltiger Response-Body, der Cast ist daher rein typseitig.
+    return new Response(buffer as unknown as BodyInit, {
       headers: {
         ...headers,
         "Content-Type": "application/pdf",

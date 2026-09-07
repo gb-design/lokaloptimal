@@ -9,6 +9,7 @@ export type Addon = {
   period: string;
   interval: Interval;
   tooltip: string;
+  icon?: string;
 };
 
 export type Offer = {
@@ -79,7 +80,7 @@ export const packages: Offer[] = [
     interval: "laufzeit",
     termMonths: 6,
     text: "Die Komplettlösung für nachhaltiges Wachstum & maximale Präsenz.",
-    items: ["Alles aus Growth", "6 Monate aktives Management", "8x Google Posts / Monat", "Review- & Q&A Management (bis 15 Bewertungen & 10 Fragen / Monat)", "Strategie-Call pro Monat"],
+    items: ["Alles aus Growth", "6 Monate aktives Management", "8x Google Posts / Monat", "Review- & KI-Antworten-Management (bis 15 Bewertungen & 10 Fragen / Monat)", "Strategie-Call pro Monat"],
     includedAddonIds: ["foto-briefing", "konkurrenzanalyse", "review-response", "qa-management"],
   },
 ];
@@ -106,7 +107,7 @@ export const retainers: Offer[] = [
     period: "/ Monat",
     interval: "monatlich",
     text: "Die dauerhafte Rundum-Betreuung für maximale Präsenz – monatlich kündbar. Direkter Einstieg inkl. einmaligem Profil Quick-Check.",
-    items: ["8x Google Posts / Monat", "Review- & Q&A Management", "Strategie-Call pro Quartal"],
+    items: ["8x Google Posts / Monat", "Review- & KI-Antworten-Management", "Strategie-Call pro Quartal"],
     includedAddonIds: ["review-response", "qa-management"],
   },
 ];
@@ -121,6 +122,7 @@ export const addons: Addon[] = [
     period: "/ Monat",
     interval: "monatlich",
     tooltip: "Hält Ihr Profil sichtbar aktiv und bringt aktuelle Angebote, News oder Aktionen direkt in die Google-Suche.",
+    icon: "campaign",
   },
   {
     id: "review-response",
@@ -131,6 +133,7 @@ export const addons: Addon[] = [
     period: "/ Monat",
     interval: "monatlich",
     tooltip: "Zeigt Interessenten, dass Ihr Unternehmen auf Feedback reagiert und Kunden ernst nimmt. Inkludiert bis zu 15 Bewertungsantworten pro Monat, jede weitere €6.",
+    icon: "rate_review",
   },
   {
     id: "landingpage",
@@ -141,6 +144,7 @@ export const addons: Addon[] = [
     period: "einmalig",
     interval: "einmalig",
     tooltip: "LokalOptimal erstellt oder optimiert Ihre Website – klar, lokal sichtbar und vorbereitet für KI-Suchmaschinen. Inkl. einer Korrekturrunde.",
+    icon: "web",
   },
   {
     id: "konkurrenzanalyse",
@@ -151,6 +155,7 @@ export const addons: Addon[] = [
     period: "einmalig",
     interval: "einmalig",
     tooltip: "Macht sichtbar, wo Mitbewerber stärker auftreten und welche Chancen Ihr Profil noch nutzen kann.",
+    icon: "query_stats",
   },
   {
     id: "foto-briefing",
@@ -161,16 +166,29 @@ export const addons: Addon[] = [
     period: "einmalig",
     interval: "einmalig",
     tooltip: "Hilft Ihnen, genau die Bilder zu erstellen, die Vertrauen aufbauen und Ihr Profil professioneller wirken lassen.",
+    icon: "photo_camera",
   },
   {
     id: "qa-management",
-    name: "Q&A Management",
-    sub: "bis 10 / Monat",
+    name: "KI-Antworten-Management",
+    sub: "bis 10 Fragen / Monat",
     price: "€79",
     priceValue: 79,
     period: "/ Monat",
     interval: "monatlich",
-    tooltip: "Beantwortet typische Fragen direkt im Profil und reduziert Unsicherheit vor der Kontaktaufnahme. Inkludiert bis zu 10 Fragen pro Monat.",
+    tooltip: "Google beantwortet Kundenfragen inzwischen selbst per KI – aus Ihrem Profil, Ihren Bewertungen und Ihrer Website. Wir recherchieren die typischen Fragen Ihrer Kundschaft und hinterlegen die Antworten genau dort, wo die KI sie ausliest. Inkludiert bis zu 10 Fragen pro Monat.",
+    icon: "psychology",
+  },
+  {
+    id: "qr-review-trigger",
+    name: "QR Review Trigger",
+    sub: "Design + Druckdaten",
+    price: "€147",
+    priceValue: 147,
+    period: "einmalig",
+    interval: "einmalig",
+    tooltip: "Individuell gestalteter QR-Code mit Ihrem Logo und klarer Handlungsaufforderung, der Kundinnen und Kunden vor Ort direkt zur Google-Bewertung führt. Sie erhalten druckfertige Dateien.",
+    icon: "qr_code_2",
   },
 ];
 
@@ -185,17 +203,6 @@ export const geoCheck: Addon = {
   tooltip: "Prüft, ob KI-Suchmaschinen wie ChatGPT, Perplexity und Google AI Overviews Ihr Unternehmen korrekt erfassen und zitieren können.",
 };
 
-export const qrReviewTrigger: Addon = {
-  id: "qr-review-trigger",
-  name: "QR Review Trigger",
-  sub: "Aufsteller",
-  price: "auf Anfrage",
-  priceValue: 0,
-  period: "",
-  interval: "einmalig",
-  tooltip: "Individuell gestalteter QR-Code-Aufsteller, der Kundinnen und Kunden direkt vor Ort zur Google-Bewertung führt.",
-};
-
 export const quickCheck: Addon = {
   id: "quick-check",
   name: "Profil Quick-Check & Übernahme",
@@ -207,7 +214,7 @@ export const quickCheck: Addon = {
   tooltip: "Einmalige Prüfung und saubere Übernahme Ihres bestehenden Profils, bevor die laufende Betreuung startet.",
 };
 
-const allAddons: Addon[] = [...addons, geoCheck, qrReviewTrigger, quickCheck];
+const allAddons: Addon[] = [...addons, geoCheck, quickCheck];
 const allOffers: Offer[] = [...packages, ...retainers];
 
 export function findOffer(id: string): Offer | undefined {

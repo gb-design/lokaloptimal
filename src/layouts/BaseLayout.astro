@@ -8,6 +8,7 @@ interface Props {
   description?: string;
   canonicalPath?: string;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
 }
 
 const {
@@ -15,9 +16,11 @@ const {
   description = "LokalOptimal optimiert Google Business Profile für lokale Unternehmen, damit mehr Sichtbarkeit, Vertrauen und Anfragen entstehen.",
   canonicalPath = "/",
   structuredData,
+  noindex = false,
 } = Astro.props;
 
-const siteUrl = "https://www.lokaloptimal.at";
+// Einzige Quelle fuer die Domain ist `site` in astro.config.mjs.
+const siteUrl = Astro.site!.origin;
 const canonicalUrl = new URL(canonicalPath, siteUrl).toString();
 const ogImageUrl = new URL(defaultOgImage.src, siteUrl).toString();
 const structuredDataItems = structuredData ? (Array.isArray(structuredData) ? structuredData : [structuredData]) : [];
@@ -31,6 +34,7 @@ const structuredDataItems = structuredData ? (Array.isArray(structuredData) ? st
     <meta name="description" content={description} />
     <meta name="theme-color" content="#4965f5" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
+    {noindex && <meta name="robots" content="noindex, follow" />}
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
