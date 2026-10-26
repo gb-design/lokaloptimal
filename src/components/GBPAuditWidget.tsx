@@ -63,8 +63,8 @@ const categories: CategoryDefinition[] = [
     hints: {
       3: "Telefon, Website und Öffnungszeiten sind hinterlegt. Interessenten können ohne Umweg anrufen, buchen oder vorbeikommen.",
       2: "Eine der drei Grundangaben fehlt — Telefon, Website oder Öffnungszeiten. Genau an dieser Lücke springen Suchende ab.",
-      1: "Nur eine der drei Grundangaben ist gepflegt. Ohne Telefon, Website und Öffnungszeiten bleibt dein Profil eine Sackgasse.",
-      0: "Weder Telefon noch Website noch Öffnungszeiten sind hinterlegt. Suchende finden dich, können aber nichts damit anfangen.",
+      1: "Nur eine der drei Grundangaben ist gepflegt. Ohne Telefon, Website und Öffnungszeiten bleibt Ihr Profil eine Sackgasse.",
+      0: "Weder Telefon noch Website noch Öffnungszeiten sind hinterlegt. Suchende finden Sie, können aber nichts damit anfangen.",
     },
   },
   {
@@ -72,10 +72,10 @@ const categories: CategoryDefinition[] = [
     label: "Bewertungen: Menge",
     icon: Star,
     hints: {
-      3: "Du hast genug Bewertungen, dass sie statistisch tragen. Wichtig ist jetzt, dass regelmäßig neue dazukommen.",
+      3: "Sie haben genug Bewertungen, dass sie statistisch tragen. Wichtig ist jetzt, dass regelmäßig neue dazukommen.",
       2: "Eine solide Basis. Ab etwa 40 Bewertungen wirkt das Profil deutlich belastbarer als das der meisten Mitbewerber.",
       1: "Wenige Bewertungen. Neukunden vergleichen, und ein dünnes Bewertungsprofil verliert diesen Vergleich fast immer.",
-      0: "So gut wie keine Bewertungen. Das ist der wirksamste und billigste Hebel, den du gerade liegen lässt.",
+      0: "So gut wie keine Bewertungen. Das ist der wirksamste und billigste Hebel, den Sie gerade liegen lassen.",
     },
   },
   {
@@ -86,7 +86,7 @@ const categories: CategoryDefinition[] = [
       3: "Ein sehr guter Schnitt. Antworten auf Bewertungen halten dieses Niveau und zeigen, dass jemand zuhört.",
       2: "Ein ordentlicher Schnitt mit Luft nach oben. Gezielt zufriedene Kunden um eine Bewertung zu bitten hebt ihn spürbar.",
       1: "Der Schnitt liegt unter dem, was Suchende erwarten. Einzelne schlechte Bewertungen wiegen schwer, wenn wenige gute dagegenstehen.",
-      0: "Der Bewertungsschnitt kostet dich aktiv Anfragen. Hier lohnt sich zuerst ein Blick auf die Ursachen, dann auf die Menge.",
+      0: "Der Bewertungsschnitt kostet Sie aktiv Anfragen. Hier lohnt sich zuerst ein Blick auf die Ursachen, dann auf die Menge.",
     },
   },
   {
@@ -309,7 +309,7 @@ export default function GBPAuditWidget() {
           <div className="scan-copy">
             <p className="scan-kicker">Analyse läuft</p>
             <h3>{scanMessages[scanMessageIndex]}</h3>
-            <p>Wir prüfen die sichtbaren Profil-Signale und bereiten dein Ergebnis auf.</p>
+            <p>Ich prüfe die sichtbaren Profil-Signale und bereite Ihr Ergebnis auf.</p>
           </div>
         </div>
       ) : phase === "limit" ? (
@@ -321,7 +321,7 @@ export default function GBPAuditWidget() {
             <p className="result-label">Tageslimit erreicht</p>
             <h3>Ihr maximales tägliches Scan-Limit ist erreicht.</h3>
             <p>
-              Zögern Sie nicht und buchen Sie ein kostenloses Erstgespräch. Dort klären wir direkt, welche Maßnahmen für
+              Zögern Sie nicht und buchen Sie ein kostenloses Erstgespräch. Dort kläre ich direkt, welche Maßnahmen für
               Ihr Profil sinnvoll sind.
             </p>
           </div>
@@ -343,7 +343,7 @@ export default function GBPAuditWidget() {
             <p>
               Der Link ist korrekt — Ihr Profil ist nur noch nicht in Googles Datenschnittstelle enthalten. Das ist
               normal bei frisch verifizierten Profilen und bei Betrieben ohne öffentlich sichtbare Adresse, und es
-              sagt nichts über die Qualität Ihres Profils aus. Wir prüfen es im Erstgespräch manuell.
+              sagt nichts über die Qualität Ihres Profils aus. Ich prüfe es im Erstgespräch manuell.
             </p>
           </div>
           <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} rel="noreferrer" data-cal-open>
@@ -407,7 +407,7 @@ export default function GBPAuditWidget() {
               <p className="result-label">{currentZone.label}</p>
               <h3>{found?.name || "Ihr Google-Auftritt"} hat klare Hebel.</h3>
               <p>
-                In 30 Minuten zeigen wir, welche Maßnahmen sofort Sichtbarkeit, Vertrauen und Anfragen verbessern.
+                In 30 Minuten zeige ich Ihnen, welche Maßnahmen sofort Sichtbarkeit, Vertrauen und Anfragen verbessern.
               </p>
             </div>
           </div>
@@ -442,9 +442,9 @@ export default function GBPAuditWidget() {
 
           <p className="result-note">
             <strong>Was dieser Check nicht sieht</strong>
-            Bewertet wird ausschließlich, was Google öffentlich über dein Profil hergibt. Google Beiträge,
-            deine Website, deine Position gegenüber Mitbewerbern und dein Umgang mit Bewertungen lassen sich
-            hier nicht automatisch prüfen — sind aber oft die größten Hebel. Genau das schauen wir uns im
+            Bewertet wird ausschließlich, was Google öffentlich über Ihr Profil hergibt. Google Beiträge,
+            Ihre Website, Ihre Position gegenüber Mitbewerbern und Ihr Umgang mit Bewertungen lassen sich
+            hier nicht automatisch prüfen — sind aber oft die größten Hebel. Genau das sehen wir uns gemeinsam im
             Gespräch gemeinsam an.
           </p>
 

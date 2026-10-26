@@ -268,7 +268,7 @@ export default function BedarfsCheck() {
           {path === "care" && (
             <p className="bc-hint">
               <MaterialIcon name="info" size={16} />
-              Beim Direkteinstieg prüfen wir Ihr Profil vorab einmalig ({quickCheck.name}, {quickCheck.price}) – so starten wir ohne Überraschungen.
+              Beim Direkteinstieg prüfe ich Ihr Profil vorab einmalig ({quickCheck.name}, {quickCheck.price}) – so starten wir ohne Überraschungen.
             </p>
           )}
           <button type="button" className="bc-back" onClick={() => setStep(1)}>Zurück</button>
@@ -301,7 +301,7 @@ export default function BedarfsCheck() {
 
       {step === 3 && (
         <div className="bc-panel">
-          <p className="bc-question">{offer ? "Unsere Empfehlung für Sie" : "Ihre Auswahl"}</p>
+          <p className="bc-question">{offer ? "Meine Empfehlung für Sie" : "Ihre Auswahl"}</p>
 
           {offer && (
             <div className="bc-recommendation">
@@ -375,7 +375,7 @@ export default function BedarfsCheck() {
 
       {step === 4 && status !== "success" && (
         <form className="bc-panel bc-form contact-form" onSubmit={handleSubmit} aria-describedby={message ? "bc-form-message" : undefined}>
-          <p className="bc-question">Fast geschafft – wohin dürfen wir das Angebot schicken?</p>
+          <p className="bc-question">Fast geschafft – wohin darf ich das Angebot schicken?</p>
 
           <div className="bc-review">
             {lineItems.map((item) => (
@@ -411,7 +411,7 @@ export default function BedarfsCheck() {
 
           <label className="full" htmlFor="bc-message">
             Anmerkung (optional)
-            <textarea id="bc-message" className="field" name="message" rows={3} maxLength={1800} placeholder="Gibt es etwas, das wir vorab wissen sollten?" />
+            <textarea id="bc-message" className="field" name="message" rows={3} maxLength={1800} placeholder="Gibt es etwas, das ich vorab wissen sollte?" />
           </label>
 
           <button className="btn btn-primary full" disabled={status === "sending" || !privacyConsent} type="submit" aria-busy={status === "sending"}>
@@ -455,7 +455,7 @@ export default function BedarfsCheck() {
       )}
 
       <p className="bc-footnote">
-        Unsicher, was passt? <a href="#kontakt">Schreiben Sie uns direkt</a> – oder buchen Sie ein kostenloses Erstgespräch. Alle Preise exkl. 20% MwSt., Angebote richten sich an Unternehmen (B2B).
+        Unsicher, was passt? <a href="#kontakt">Schreiben Sie mir direkt</a> – oder buchen Sie ein kostenloses Erstgespräch. Alle Preise sind Endpreise (Kleinunternehmer, keine USt.), Angebote richten sich an Unternehmen (B2B).
       </p>
     </div>
   );

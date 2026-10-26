@@ -5,9 +5,9 @@ const calUrl = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/
 const calEmbedUrl = `${calUrl}${calUrl.includes("?") ? "&" : "?"}embed=true`;
 
 const navItems = [
-  { href: "#quick-check", label: "Quick Check" },
-  { href: "#vorteile", label: "Vorteile" },
-  { href: "#wirkung", label: "Wirkung" },
+  { href: "#ablauf", label: "Ablauf" },
+  { href: "#quick-check", label: "Gratis-Check" },
+  { href: "#warum", label: "Warum LO" },
   { href: "#preise", label: "Preise" },
   { href: "#faq", label: "FAQ" },
   { href: "#kontakt", label: "Kontakt" },
@@ -31,7 +31,7 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
 
     <button class="btn btn-secondary nav-cta" type="button" data-cal-open>
       <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
-      Termin vereinbaren
+      Erstgespräch buchen
     </button>
 
     <button class="mobile-menu-button" type="button" aria-label="Menü öffnen" aria-controls="mobile-menu" aria-expanded="false" data-menu-button>
@@ -42,7 +42,7 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
 
   <div class="mobile-menu" id="mobile-menu" data-mobile-menu>
     {navItems.map((item) => <a href={getNavHref(item.href)}>{item.label}</a>)}
-    <button class="mobile-cal-cta" type="button" data-cal-open>Termin vereinbaren</button>
+    <button class="mobile-cal-cta" type="button" data-cal-open>Kostenloses Erstgespräch buchen</button>
   </div>
 </header>
 
@@ -51,7 +51,7 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
     <div class="cal-dialog-head">
       <div>
         <span class="cal-kicker">Kostenloses Erstgespräch</span>
-        <h2 id="cal-modal-title">Termin vereinbaren</h2>
+        <h2 id="cal-modal-title">Kostenloses Erstgespräch buchen</h2>
       </div>
       <button class="cal-close" type="button" aria-label="Modal schließen" data-cal-close>
         <span class="material-symbols-rounded" aria-hidden="true">close</span>

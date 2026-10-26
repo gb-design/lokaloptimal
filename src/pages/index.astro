@@ -19,7 +19,7 @@ import grfProfileImage from "../../assets/avif/grf_profile.avif";
 const calUrl = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
 const siteUrl = Astro.site!.origin;
 const homeTitle = "Google Business Profil Optimierung Österreich | LokalOptimal";
-const homeDescription = "LokalOptimal optimiert Google Business Profile für lokale Unternehmen in Österreich: mehr Sichtbarkeit, Vertrauen und Anfragen mit kostenlosem GBP-Check.";
+const homeDescription = "Mehr Anrufe über Google Maps: LokalOptimal richtet Ihr Google Business Profil ein und hält es aktuell. Festpreise ab €347, kostenloser Check, Österreich.";
 
 const industries = [
   ["Notar", "business_center"],
@@ -52,44 +52,113 @@ const industryColumns = [
   },
 ];
 
+// Quelle aller Zahlen: BrightLocal, Local Consumer Review Survey 2026
+// (1.002 Befragte, USA, Februar 2026). Neue Zahlen nur mit Primärquelle.
+const benefitsSource = {
+  label: "BrightLocal, Local Consumer Review Survey 2026",
+  url: "https://www.brightlocal.com/research/local-consumer-review-survey/",
+  note: "Befragung von 1.002 Konsument:innen in den USA, Februar 2026",
+};
+
 const benefits = [
   {
-    icon: "search",
-    value: 76,
+    icon: "reviews",
+    value: 97,
     decimals: 0,
     suffix: "%",
     color: "green",
     layout: "tall",
-    text: "Besuchen nach lokaler Suche innerhalb von 24 Stunden ein Unternehmen.",
+    text: "lesen Bewertungen, bevor sie einen lokalen Betrieb wählen.",
+    action: "Ich sorge dafür, dass Ihr Eintrag vollständig ist und überzeugt.",
   },
   {
     icon: "star",
-    value: 88,
+    value: 47,
     decimals: 0,
     suffix: "%",
     color: "amber",
     layout: "wide",
-    text: "Vertrauen Online-Bewertungen fast wie persönlichen Empfehlungen.",
+    text: "wählen keinen Betrieb mit weniger als 20 Bewertungen.",
+    action: "Der QR-Aufsteller von LokalOptimal macht es zufriedenen Kunden leicht, Sie zu bewerten.",
   },
   {
-    icon: "equalizer",
-    value: 50,
+    icon: "forum",
+    value: 89,
     decimals: 0,
     suffix: "%",
     color: "red",
     layout: "compact",
-    text: "Mehr Kaufbereitschaft bei einem vollständigen Profil.",
+    text: "erwarten, dass Inhaber auf Bewertungen antworten.",
+    action: "Ich beantworte Ihre Bewertungen persönlich.",
   },
   {
-    icon: "verified_user",
-    value: 2.7,
-    decimals: 1,
-    suffix: "x",
+    icon: "smart_toy",
+    value: 45,
+    decimals: 0,
+    suffix: "%",
     color: "blue",
     layout: "compact",
-    text: "Mehr Vertrauen durch klare Infos, Fotos und Bewertungen.",
+    text: "fragen schon KI wie ChatGPT nach lokalen Betrieben.",
+    note: "2025 waren es noch 6 %.",
+    action: "Ich mache Ihren Eintrag auch für KI klar lesbar.",
   },
 ];
+
+const steps = [
+  {
+    title: "Kostenlos prüfen",
+    text: "Fügen Sie den Link zu Ihrem Google-Business-Profil ein. Sie sehen sofort, was fehlt. Noch kein Eintrag? Dann starten wir direkt mit dem Erstgespräch.",
+  },
+  {
+    title: "LokalOptimal richtet alles ein",
+    text: "Kategorien, Leistungen, Öffnungszeiten, Beschreibung und Fotos – vollständig und korrekt. Sie liefern die Infos, ich erledige den Rest.",
+  },
+  {
+    title: "Alles aus einer Hand",
+    text: "Regelmäßige Beiträge, Antworten auf Ihre Bewertungen und ein monatlicher Bericht. Sie sehen, was passiert, ohne selbst Zeit zu investieren.",
+  },
+];
+
+// Fallbeispiel: echte Werte aus der Google-Leistungsübersicht (Mai–Oktober 2026),
+// veröffentlicht mit Zustimmung des Kunden. Nur mit echten Daten aktualisieren.
+const caseStudy = {
+  client: "Univ.-Prof. Dr. René H. Fortelny",
+  period: "Mai bis Oktober 2026",
+  views: 271,
+  figures: [
+    { value: "271", label: "Aufrufe des Profils" },
+    { value: "102", label: "Kundeninteraktionen: Anrufe, Routen und Website-Klicks" },
+    { value: "Mai 2026", label: "eingerichtet und verifiziert" },
+  ],
+  // Reihenfolge so, dass "Suche" und "Maps" im Punkteraster zusammenhängen.
+  platforms: [
+    { label: "Google Suche · Smartphone", surface: "search", device: "mobile", value: 110 },
+    { label: "Google Suche · Computer", surface: "search", device: "desktop", value: 92 },
+    { label: "Google Maps · Computer", surface: "maps", device: "desktop", value: 37 },
+    { label: "Google Maps · Smartphone", surface: "maps", device: "mobile", value: 32 },
+  ],
+  before: [
+    "Kein Google-Eintrag für die neue Ordination",
+    "Keine Fotos, Öffnungszeiten oder Leistungen bei Google",
+    "Kein Anruf- und kein Routen-Button",
+  ],
+  after: [
+    "Eintrag eingerichtet und im Mai 2026 verifiziert",
+    "Kategorie Chirurg mit passenden Unterkategorien",
+    "Praxisfotos, Öffnungszeiten und Leistungen",
+    "Website, Telefon und Route verknüpft",
+  ],
+};
+
+const caseSurfaces = [
+  { key: "search", label: "Google Suche" },
+  { key: "maps", label: "Google Maps" },
+].map((surface) => {
+  const value = caseStudy.platforms
+    .filter((platform) => platform.surface === surface.key)
+    .reduce((sum, platform) => sum + platform.value, 0);
+  return { ...surface, value, share: Math.round((value / caseStudy.views) * 100) };
+});
 
 const tabs = [
   {
@@ -125,6 +194,26 @@ const tabs = [
 ];
 
 const faqs = [
+  {
+    question: "Kann ich meinen Google-Eintrag nicht selbst pflegen?",
+    answer: "Ja, das können Sie. Die Einrichtung ist kostenlos, und Google stellt alle Werkzeuge bereit. Der Aufwand liegt in der Regelmäßigkeit: Beiträge schreiben, Fotos aktualisieren, jede Bewertung beantworten, Änderungen prüfen. Wenn Ihnen dafür die Zeit fehlt oder es immer liegen bleibt, übernehme ich das.",
+  },
+  {
+    question: "Wie viel Aufwand habe ich dabei?",
+    answer: "Wenig. Im Erstgespräch klären wir gemeinsam Ihre Leistungen und Besonderheiten. Danach brauche ich von Ihnen nur Fotos und gelegentlich eine kurze Info zu Neuigkeiten oder Angeboten. Den Rest erledige ich.",
+  },
+  {
+    question: "Wann merke ich etwas?",
+    answer: "Die Änderungen an Ihrem Eintrag sind sofort nach der Einrichtung sichtbar. Wie schnell mehr Anrufe kommen, hängt von Ihrer Branche, Ihrem Standort und Ihren Mitbewerbern ab. Deshalb verspreche ich keine Zahlen. Mit laufender Betreuung sehen Sie im monatlichen Bericht, wie sich Anrufe, Routenanfragen und Website-Klicks entwickeln.",
+  },
+  {
+    question: "Bin ich lange gebunden?",
+    answer: "Die Einmal-Pakete Starter und Essential haben keine Laufzeit. Growth läuft 3 Monate, Local Pro 6 Monate. Die laufende Betreuung (Care, Pro Care) ist monatlich kündbar.",
+  },
+  {
+    question: "Brauche ich dafür eine Website?",
+    answer: "Nein. Ein guter Google-Eintrag funktioniert auch ohne Website. Wenn Sie keine haben oder Ihre Website veraltet ist, kann ich eine kompakte Landingpage ergänzen – das ist optional.",
+  },
   {
     question: "Was bringt eine Google Business Profil Optimierung?",
     answer: "Eine Google Business Profil Optimierung sorgt dafür, dass wichtige Informationen wie Leistungen, Öffnungszeiten, Fotos, Bewertungen und Kontaktwege vollständig, aktuell und vertrauenswürdig erscheinen. Das verbessert den ersten Eindruck in Google Suche und Google Maps und kann mehr relevante Anfragen aus lokalen Suchanfragen unterstützen.",
@@ -279,15 +368,22 @@ const homeStructuredData = [
     <section class="hero">
       <div class="container-wide hero-grid">
         <div class="hero-copy">
-          <h1 class="h1">Google Business Profil <span class="text-blue">Optimierung</span> für Unternehmen in Österreich</h1>
-          <p class="hero-subline">Weil der erste Eindruck zählt. Auf Google.</p>
+          <span class="eyebrow hero-eyebrow"><span class="material-symbols-rounded" aria-hidden="true">location_on</span>Google Business Profil Betreuung · Österreich</span>
+          <h1 class="h1">Mehr Anrufe von Kunden aus <span class="text-blue">Ihrer Umgebung.</span></h1>
+          <p class="hero-subline">LokalOptimal richtet Ihren Google-Eintrag ein und hält ihn aktuell. Für Betriebe in ganz Österreich.</p>
           <div class="hero-actions">
             <a class="btn btn-primary" href={calUrl} rel="noreferrer" data-cal-open>
-              Kostenloses Erstgespräch
+              Kostenloses Erstgespräch buchen
               <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
             </a>
-            <a class="learn-link" href="#quick-check">Mehr erfahren</a>
+            <a class="hero-price" href="#preise" aria-label={`Pakete ab ${formatEuro(packages[0].priceValue)}, einmalig, Festpreis – alle Pakete ansehen`}>
+              <span class="hero-price-from">ab</span>
+              <strong>{formatEuro(packages[0].priceValue)}</strong>
+              <span class="hero-price-note">einmalig · Festpreis</span>
+            </a>
           </div>
+          <a class="learn-link" href="#quick-check">Oder: Google-Eintrag kostenlos prüfen</a>
+          <p class="hero-microcopy">Erstgespräch: 30 Minuten · kostenlos · unverbindlich</p>
         </div>
 
         <div class="hero-visual" data-hero-tilt>
@@ -340,19 +436,44 @@ const homeStructuredData = [
 
       <div class="container trust-cluster">
         <div class="trust-row">
-          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Mehr Sichtbarkeit</span>
-          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Mehr Vertrauen</span>
-          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Mehr Anfragen</span>
+          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Festpreise, offen auf der Seite</span>
+          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Ein persönlicher Ansprechpartner</span>
+          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Betreuung monatlich kündbar</span>
         </div>
-        <span class="expert-badge"><span class="material-symbols-rounded" aria-hidden="true">hotel_class</span>Google Business Profil Experte</span>
+        <span class="hero-founder">
+          <img src={grfProfileImage.src} width="40" height="40" alt="" loading="eager" decoding="async" />
+          <span><strong>Georg R.-F.</strong> · Gründer · Wien</span>
+        </span>
+      </div>
+    </section>
+
+    <section class="section steps-section" id="ablauf" aria-labelledby="steps-title" data-reveal>
+      <div class="container-wide steps-layout">
+        <header class="steps-intro">
+          <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">route</span>So funktioniert's</span>
+          <h2 class="h2" id="steps-title">Ihr Google-Eintrag ist oft der erste Eindruck – noch bevor jemand Ihre Tür sieht.</h2>
+          <p class="lead">Wer einen Friseur, eine Ärztin oder einen Installateur in der Nähe sucht, entscheidet meist direkt bei Google: Wer hat gute Bewertungen? Wer hat aktuelle Fotos und die richtigen Öffnungszeiten? Viele Einträge werden einmal angelegt und dann vergessen. Genau dort gehen Anrufe an den Mitbewerber verloren – oft ohne dass Sie es merken.</p>
+        </header>
+
+        <ol class="future-principles steps-list" aria-label="In drei Schritten zu einem Google-Eintrag, der Kunden bringt">
+          {steps.map((step, index) => (
+            <li>
+              <span class="future-index" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
 
     <section class="section check-section" id="quick-check" data-reveal>
       <div class="container section-heading">
         <span class="map-icon" aria-hidden="true"><span>G</span></span>
-        <h2 class="h2">Machen Sie einen <span class="text-blue">kostenlosen</span> GBP-Check</h2>
-        <p class="lead">Einfach bestehende Google Business Profil-URL eingeben und prüfen lassen.</p>
+        <h2 class="h2">Prüfen Sie Ihren Google-Eintrag – <span class="text-blue">kostenlos</span></h2>
+        <p class="lead">Fügen Sie den Link zu Ihrem Google-Eintrag (Google Business Profil) ein. Sie sehen sofort, was fehlt.</p>
       </div>
       <div class="panel-shell widget-shell">
         <div class="panel-core widget-core">
@@ -393,9 +514,10 @@ const homeStructuredData = [
         <span class="stars" aria-label="Fünf Sterne">
           {Array.from({ length: 5 }).map(() => <span class="material-symbols-rounded" aria-hidden="true">star</span>)}
         </span>
-        <h2 class="h2">Warum ein gepflegtes Google-Profil mehr ist, als ein Brancheneintrag</h2>
+        <h2 class="h2">Was Kunden prüfen, bevor sie anrufen</h2>
+        <p class="lead">Aktuelle Zahlen zu Google-Einträgen und Bewertungen – und was LokalOptimal daraus für Ihren Betrieb macht.</p>
       </div>
-      <div class="container benefit-bento" aria-label="Vorteile in Zahlen">
+      <div class="container benefit-bento" aria-label="Zahlen zu Bewertungen und lokaler Suche">
         {benefits.map((benefit) => (
           <article class={`benefit-stat-card is-${benefit.layout} tone-${benefit.color}`}>
             <div class="benefit-shape" aria-hidden="true"></div>
@@ -406,18 +528,30 @@ const homeStructuredData = [
                 <small>{benefit.suffix}</small>
               </strong>
             </div>
-            <p>{benefit.text}</p>
+            <p>
+              {benefit.text}
+              {benefit.note && <small class="benefit-note">{benefit.note}</small>}
+            </p>
+            <p class="benefit-action">
+              <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+              {benefit.action}
+            </p>
           </article>
         ))}
       </div>
+      <p class="container benefit-source">
+        Quelle:{" "}
+        <a href={benefitsSource.url} target="_blank" rel="noopener noreferrer">{benefitsSource.label}</a>{" "}
+        ({benefitsSource.note}).
+      </p>
     </section>
 
-    <section class="section future-section" aria-labelledby="future-title">
+    <section class="section future-section" id="warum" aria-labelledby="future-title">
       <div class="container-wide future-layout">
         <header class="future-intro">
-          <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">update</span>Was 2026 zählt</span>
-          <h2 class="h2" id="future-title">Die&nbsp;Vollständigkeit Ihres Google-Profils ist erst der&nbsp;Anfang.</h2>
-          <p class="lead">Google nennt Relevanz, Entfernung und Bekanntheit als zentrale Faktoren für lokale Ergebnisse. Mehr und bessere Rezensionen können das Ranking unterstützen. Beiträge und hilfreiche Antworten halten Ihr Profil aktuell, zeigen Reaktionsfähigkeit und erleichtern potenziellen Kund:innen die Entscheidung.</p>
+          <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">handshake</span>Warum LokalOptimal</span>
+          <h2 class="h2" id="future-title">Sie kümmern sich um Ihre Kunden. Ich&nbsp;um&nbsp;Ihren Google-Eintrag.</h2>
+          <p class="lead">Google nennt Relevanz, Entfernung und Bekanntheit als zentrale Faktoren für lokale Ergebnisse. Bewertungen, Beiträge und hilfreiche Antworten halten Ihren Eintrag aktuell und erleichtern Kund:innen die Entscheidung. Genau diese laufende Arbeit nehme ich Ihnen ab.</p>
           {/*
             Die `{" "}` sind kein Rauschen: Astros compressHTML streicht Whitespace
             zwischen Tags ersatzlos, sobald er einen Zeilenumbruch enthält. Ohne sie
@@ -432,26 +566,30 @@ const homeStructuredData = [
           </p>
         </header>
 
-        <ol class="future-principles" aria-label="Drei Grundlagen für ein dauerhaft wirksames Google Unternehmensprofil">
+        <ol class="future-principles" aria-label="Drei Gründe für LokalOptimal">
           <li>
             <span class="future-index" aria-hidden="true">01</span>
             <div>
-              <h3>Aktuell sichtbar bleiben</h3>
-              <p>Beiträge, Angebote, Fotos und Öffnungszeiten regelmäßig aktualisieren – damit Interessierte keine veralteten Informationen vorfinden.</p>
+              <h3>Ein Ansprechpartner, kein Callcenter</h3>
+              <p>Sie sprechen immer mit mir persönlich – vom ersten Gespräch bis zum Monatsbericht.</p>
+              <button class="btn btn-secondary future-cta" type="button" data-cal-open>
+                <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
+                Erstgespräch buchen
+              </button>
             </div>
           </li>
           <li>
             <span class="future-index" aria-hidden="true">02</span>
             <div>
-              <h3>Auf Feedback reagieren</h3>
-              <p>Rezensionen zeitnah, individuell und professionell beantworten. Das zeigt, dass hinter dem Profil ein aufmerksames Unternehmen steht.</p>
+              <h3>Festpreise, offen auf der Seite</h3>
+              <p>Sie sehen alle Preise, bevor Sie mit mir sprechen. Keine versteckten Kosten, keine Überraschungen.</p>
             </div>
           </li>
           <li>
             <span class="future-index" aria-hidden="true">03</span>
             <div>
-              <h3>Konsistent auffindbar sein</h3>
-              <p>Leistungen, Profildaten und Website aufeinander abstimmen, damit Google und potenzielle Kund:innen ein klares Gesamtbild erhalten.</p>
+              <h3>Ehrlich statt groß versprochen</h3>
+              <p>Niemand kann Platz 1 bei Google garantieren – und ich tue es auch nicht. Ich verspreche saubere Arbeit nach Googles eigenen Richtlinien, die Sie jeden Monat im Bericht sehen.</p>
             </div>
           </li>
         </ol>
@@ -463,11 +601,163 @@ const homeStructuredData = [
       </div>
     </section>
 
+    <section class="section case-section" id="fallbeispiel" aria-labelledby="case-title" data-reveal>
+      <div class="container-wide case-layout">
+        <header class="case-intro">
+          <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">stethoscope</span>Fallbeispiel · Wien 19</span>
+          <h2 class="h2" id="case-title">Neue Ordination, neuer Google-Eintrag: seit Mai 271‑mal aufgerufen.</h2>
+          <p class="lead">Für die Ordination von {caseStudy.client} in der Billrothstraße gab es keinen Google-Eintrag. LokalOptimal hat ihn von Grund auf eingerichtet und im Mai 2026 verifiziert. Wer heute nach Prof. Fortelny sucht, findet ein vollständiges Profil mit Fotos, Öffnungszeiten, Telefon und Route.</p>
+
+          <div class="case-compare" aria-label="Vorher und nachher">
+            <div class="case-compare-col is-before">
+              <h3>Vorher</h3>
+              <ul>{caseStudy.before.map((item) => <li><span class="material-symbols-rounded" aria-hidden="true">close</span>{item}</li>)}</ul>
+            </div>
+            <div class="case-compare-col is-after">
+              <h3>Mit LokalOptimal</h3>
+              <ul>{caseStudy.after.map((item) => <li><span class="material-symbols-rounded" aria-hidden="true">check</span>{item}</li>)}</ul>
+            </div>
+          </div>
+        </header>
+
+        <div class="case-results">
+          <div class="case-figures">
+            {caseStudy.figures.map((figure) => (
+              <div class="case-figure">
+                <strong>{figure.value}</strong>
+                <span>{figure.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <figure class="case-chart" aria-labelledby="case-chart-title">
+            <figcaption>
+              <strong id="case-chart-title">Woher die {caseStudy.views} Aufrufe kamen</strong>
+              <span>{caseStudy.period}</span>
+            </figcaption>
+            <div class="case-split" aria-hidden="true">
+              {caseSurfaces.map((surface) => (
+                <span class={`case-split-seg is-${surface.key}`} style={`flex-grow: ${surface.value}`}></span>
+              ))}
+            </div>
+            <ul class="case-split-labels">
+              {caseSurfaces.map((surface) => (
+                <li><strong>{surface.value}</strong> {surface.label} <small>· {surface.share} %</small></li>
+              ))}
+            </ul>
+            <p class="case-split-note">Drei von vier Aufrufen kamen über die normale Google-Suche, nicht über Maps.</p>
+            <div class="sr-only">
+            <table>
+              <caption>Aufrufe nach Plattform und Gerät, {caseStudy.period}</caption>
+              <tbody>
+                {caseStudy.platforms.map((platform) => (
+                  <tr><th scope="row">{platform.label}</th><td>{platform.value}</td></tr>
+                ))}
+              </tbody>
+            </table>
+            </div>
+          </figure>
+
+          <p class="case-next">
+            <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
+            <span><strong>Nächster Schritt:</strong> erste Google-Bewertungen sammeln – über einen QR-Aufsteller in der Ordination.</span>
+          </p>
+          <p class="case-source">Quelle: Leistungsdaten des Google-Unternehmensprofils, {caseStudy.period}. Veröffentlicht mit Zustimmung von {caseStudy.client}.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pricing-section" id="preise" aria-labelledby="preise-title">
+      <div class="container section-heading" data-reveal>
+        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">sell</span>Preise</span>
+        <h2 class="h2" id="preise-title">Festpreise für <span class="text-blue">Ihren Google-Auftritt</span></h2>
+        <p class="lead">Alle Preise offen und vorab. Einmal-Pakete ohne Laufzeit oder mit fester Laufzeit – die Betreuung ist monatlich kündbar.</p>
+      </div>
+      <div class="container-wide pricing-grid">
+        {packages.map((pkg) => (
+          <article class={`price-card panel-shell ${pkg.featured ? "featured" : ""}`}>
+            <div class="panel-core price-core">
+              <div class="price-meta">
+                <span class="package-badge">{pkg.badge}</span>
+                {pkg.featured && (
+                  <span class="recommended">
+                    <span class="material-symbols-rounded" aria-hidden="true">verified</span>
+                    Empfohlen
+                  </span>
+                )}
+              </div>
+              <div class="price-head">
+                <h3>{pkg.name}</h3>
+              </div>
+              <p>{pkg.text}</p>
+              <strong class="price">{pkg.price}</strong>
+              <small>
+                {pkg.termMonths ? (
+                  <>
+                    Gesamtpreis · {pkg.period}
+                    <span class="price-sub">≈ {formatEuro(Math.round(pkg.priceValue / pkg.termMonths))}/Monat</span>
+                  </>
+                ) : (
+                  pkg.period
+                )}
+              </small>
+              <ul>
+                {pkg.items.map((item) => <li>{item}</li>)}
+              </ul>
+              <a
+                class={`btn ${pkg.featured ? "btn-primary" : "btn-secondary"}`}
+                href="#bedarfs-check"
+                data-bc-offer={pkg.id}
+                aria-label={`${pkg.name} Paket anfragen`}
+              >
+                Anfragen <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <p class="price-note container">Alle Preise sind Endpreise – als Kleinunternehmer (§ 6 Abs. 1 Z 27 UStG) verrechne ich keine Umsatzsteuer. Angebote richten sich an Unternehmen (B2B).</p>
+
+      <div class="container section-heading compact">
+        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">autorenew</span>Laufende Betreuung</span>
+        <h2 class="h3">Dauerhaft betreut bleiben <span class="text-blue">– monatlich kündbar</span></h2>
+        <p class="lead">Im Anschluss an Growth oder Local Pro – oder direkt, wenn Ihr Profil schon steht: Beim Direkteinstieg prüfe ich es vorab einmalig ({quickCheck.name}, {quickCheck.price}).</p>
+      </div>
+      <div class="container-wide retainer-grid">
+        {retainers.map((ret) => (
+          <article class="price-card panel-shell">
+            <div class="panel-core price-core">
+              <div class="price-meta">
+                <span class="package-badge">{ret.badge}</span>
+              </div>
+              <div class="price-head">
+                <h3>{ret.name}</h3>
+              </div>
+              <p>{ret.text}</p>
+              <strong class="price">{ret.price}</strong>
+              <small>{ret.period} · monatlich kündbar</small>
+              <ul>
+                {ret.items.map((item) => <li>{item}</li>)}
+              </ul>
+              <a class="btn btn-secondary" href="#bedarfs-check" data-bc-offer={ret.id} aria-label={`${ret.name} Betreuung anfragen`}>
+                Anfragen <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="container important-note">
+        <strong>Wichtiger Hinweis:</strong> LokalOptimal optimiert und pflegt Ihr Google Business Profil nach aktuellen Best Practices. Konkrete Rankingversprechen werden bewusst nicht gegeben.
+      </div>
+    </section>
+
     <section class="section addon-showcase" id="wirkung" data-reveal>
       <div class="container section-heading">
         <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">extension</span>Möglichkeiten für mehr Wirkung</span>
         <h2 class="h2">So holen Sie mehr aus <span class="text-blue">Ihrem Google-Profil</span></h2>
-        <p class="lead">Diese Leistungen erweitern Ihren Google-Auftritt gezielt – einzeln oder als Bestandteil ausgewählter Pakete. Anschließend finden Sie heraus, welche Kombination zu Ihrem Unternehmen passt.</p>
+        <p class="lead">Diese Leistungen ergänzen Ihr Paket gezielt – einzeln buchbar oder in ausgewählten Paketen enthalten.</p>
       </div>
       <div class="container addon-grid">
         <div class="panel-shell addon-tabs">
@@ -517,6 +807,9 @@ const homeStructuredData = [
         </div>
         <div class="review-visual panel-shell addon-visual">
           <div class="panel-core addon-visual-core">
+            <button class="addon-autoplay-toggle" type="button" aria-label="Automatischen Wechsel pausieren" title="Automatischen Wechsel pausieren" data-addon-autoplay hidden>
+              <span class="material-symbols-rounded" aria-hidden="true">pause</span>
+            </button>
             {tabs.map((tab, index) => (
               <img
                 src={tab.image}
@@ -530,122 +823,31 @@ const homeStructuredData = [
           </div>
         </div>
       </div>
-    </section>
 
-    <section class="section pricing-section" id="preise">
-      <div class="container section-heading" data-reveal>
-        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">tune</span>Paket-Finder · 3 Fragen</span>
-        <h2 class="h2">Das passende Paket für <span class="text-blue">Ihren Google-Auftritt</span></h2>
-        <p class="lead">Beantworten Sie kurz, wo Sie stehen – wir stellen Ihre Anfrage mit den passenden Leistungen zusammen. Unverbindlich, ohne Verkaufsdruck.</p>
-      </div>
-      <div class="container bedarfs-check-shell panel-shell" data-reveal>
-        <div class="panel-core bedarfs-check-core">
-          <BedarfsCheck client:visible />
+      <details class="container addon-list-toggle">
+        <summary>
+          <span class="btn btn-secondary">Alle {addons.length} Einzelleistungen mit Preisen anzeigen <span class="material-symbols-rounded addon-list-toggle-icon" aria-hidden="true">expand_more</span></span>
+        </summary>
+        <div class="addon-price-grid">
+          {addons.map(({ id, name, sub, price, period, tooltip, icon }) => (
+            <details class="addon-price panel-shell">
+              <summary class="panel-core">
+                <span class="material-symbols-rounded addon-icon" aria-hidden="true">{icon ?? "auto_awesome"}</span>
+                <div><strong>{name}</strong>{sub && <small>{sub}</small>}</div>
+                <b class="addon-price-value"><span>{price}</span><small>{period}</small></b>
+                <span class="material-symbols-rounded addon-toggle" aria-hidden="true">expand_more</span>
+              </summary>
+              <div class="addon-details">
+                <p>{tooltip}</p>
+                <a class="addon-cta" href="#bedarfs-check" data-bc-offer={id} aria-label={`${name} zur Anfrage hinzufügen`}>
+                  <span>Zur Anfrage hinzufügen</span>
+                  <span class="material-symbols-rounded" aria-hidden="true">add</span>
+                </a>
+              </div>
+            </details>
+          ))}
         </div>
-      </div>
-
-      <div class="container section-heading compact">
-        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">inventory_2</span>Unsere Pakete</span>
-        <h2 class="h3">Alle Pakete <span class="text-blue">im Überblick</span></h2>
-      </div>
-      <div class="container-wide pricing-grid">
-        {packages.map((pkg) => (
-          <article class={`price-card panel-shell ${pkg.featured ? "featured" : ""}`}>
-            <div class="panel-core price-core">
-              <div class="price-meta">
-                <span class="package-badge">{pkg.badge}</span>
-                {pkg.featured && (
-                  <span class="recommended">
-                    <span class="material-symbols-rounded" aria-hidden="true">verified</span>
-                    Empfohlen
-                  </span>
-                )}
-              </div>
-              <div class="price-head">
-                <h3>{pkg.name}</h3>
-              </div>
-              <p>{pkg.text}</p>
-              <strong class="price">{pkg.price}</strong>
-              <small>
-                {pkg.termMonths ? (
-                  <>
-                    Gesamtpreis · {pkg.period}
-                    <span class="price-sub">≈ {formatEuro(Math.round(pkg.priceValue / pkg.termMonths))}/Monat</span>
-                  </>
-                ) : (
-                  pkg.period
-                )}
-              </small>
-              <ul>
-                {pkg.items.map((item) => <li>{item}</li>)}
-              </ul>
-              <a
-                class={`btn ${pkg.featured ? "btn-primary" : "btn-secondary"}`}
-                href="#bedarfs-check"
-                data-bc-offer={pkg.id}
-                aria-label={`${pkg.name} Paket anfragen`}
-              >
-                Anfragen <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
-              </a>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <p class="price-note container">Alle Preise verstehen sich exkl. 20% MwSt. Angebote richten sich an Unternehmen (B2B).</p>
-
-      <div class="container section-heading compact">
-        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">autorenew</span>Laufende Betreuung</span>
-        <h2 class="h3">Dauerhaft betreut bleiben <span class="text-blue">– monatlich kündbar</span></h2>
-        <p class="lead">Im Anschluss an Growth oder Local Pro – oder direkt, wenn Ihr Profil schon steht: Beim Direkteinstieg prüfen wir es vorab einmalig ({quickCheck.name}, {quickCheck.price}).</p>
-      </div>
-      <div class="container-wide retainer-grid">
-        {retainers.map((ret) => (
-          <article class="price-card panel-shell">
-            <div class="panel-core price-core">
-              <div class="price-meta">
-                <span class="package-badge">{ret.badge}</span>
-              </div>
-              <div class="price-head">
-                <h3>{ret.name}</h3>
-              </div>
-              <p>{ret.text}</p>
-              <strong class="price">{ret.price}</strong>
-              <small>{ret.period} · monatlich kündbar</small>
-              <ul>
-                {ret.items.map((item) => <li>{item}</li>)}
-              </ul>
-              <a class="btn btn-secondary" href="#bedarfs-check" data-bc-offer={ret.id} aria-label={`${ret.name} Betreuung anfragen`}>
-                Anfragen <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
-              </a>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <div class="container section-heading compact">
-        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">add_circle</span>Zusätzliche Add-ons</span>
-        <h2 class="h3">Erweitern Sie Ihr Paket <span class="text-blue">nach Bedarf</span></h2>
-      </div>
-      <div class="container addon-price-grid">
-        {addons.map(({ id, name, sub, price, period, tooltip, icon }) => (
-          <details class="addon-price panel-shell">
-            <summary class="panel-core">
-              <span class="material-symbols-rounded addon-icon" aria-hidden="true">{icon ?? "auto_awesome"}</span>
-              <div><strong>{name}</strong>{sub && <small>{sub}</small>}</div>
-              <b class="addon-price-value"><span>{price}</span><small>{period}</small></b>
-              <span class="material-symbols-rounded addon-toggle" aria-hidden="true">expand_more</span>
-            </summary>
-            <div class="addon-details">
-              <p>{tooltip}</p>
-              <a class="addon-cta" href="#bedarfs-check" data-bc-offer={id} aria-label={`${name} zur Anfrage hinzufügen`}>
-                <span>Zur Anfrage hinzufügen</span>
-                <span class="material-symbols-rounded" aria-hidden="true">add</span>
-              </a>
-            </div>
-          </details>
-        ))}
-      </div>
+      </details>
 
       <div class="container geo-check panel-shell">
         <div class="geo-check-core panel-core">
@@ -661,7 +863,7 @@ const homeStructuredData = [
             </a>
           </div>
           <div class="geo-check-list">
-            <span class="geo-check-list-label">Was wir checken</span>
+            <span class="geo-check-list-label">Was ich prüfe</span>
             <ul>
               <li><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Zugänglichkeit für KI-Crawler</li>
               <li><span class="material-symbols-rounded" aria-hidden="true">check_circle</span>Struktur Ihrer Kerninhalte</li>
@@ -671,9 +873,18 @@ const homeStructuredData = [
           </div>
         </div>
       </div>
+    </section>
 
-      <div class="container important-note">
-        <strong>Wichtiger Hinweis:</strong> LokalOptimal optimiert und pflegt Ihr Google Business Profil nach aktuellen Best Practices. Konkrete Rankingversprechen werden bewusst nicht gegeben.
+    <section class="section finder-section" id="paket-finder" aria-labelledby="paket-finder-title">
+      <div class="container section-heading" data-reveal>
+        <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">tune</span>Paket-Finder · 3 Fragen</span>
+        <h2 class="h2" id="paket-finder-title">Welches Paket <span class="text-blue">passt zu Ihnen?</span></h2>
+        <p class="lead">Beantworten Sie kurz, wo Sie stehen – ich stelle Ihre Anfrage mit den passenden Leistungen zusammen. Unverbindlich, ohne Verkaufsdruck.</p>
+      </div>
+      <div class="container bedarfs-check-shell panel-shell" data-reveal>
+        <div class="panel-core bedarfs-check-core">
+          <BedarfsCheck client:visible />
+        </div>
       </div>
     </section>
 
@@ -701,9 +912,11 @@ const homeStructuredData = [
       <div class="container contact-grid" data-reveal>
         <div>
           <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">forum</span>Kontakt</span>
-          <h2 class="h2">Lassen Sie uns Ihren lokalen Auftritt sauber einordnen.</h2>
-          <p class="lead">Schicken Sie eine kurze Anfrage oder buchen Sie direkt einen Termin. Der erste Check ist kostenlos und unverbindlich.</p>
-          <a class="btn btn-secondary contact-cal" href={calUrl} target="_blank" rel="noopener noreferrer" data-cal-open>Kostenloses Erstgespräch buchen</a>
+          <h2 class="h2">Wie steht Ihr Google-Eintrag da? Finden wir es gemeinsam heraus.</h2>
+          <p class="lead">Im kostenlosen Erstgespräch (30 Minuten) sehen wir uns Ihren Eintrag gemeinsam an. Sie erfahren, was fehlt und was es kostet, das zu ändern. Unverbindlich, ohne Verkaufsdruck.</p>
+          <div class="contact-actions">
+            <a class="btn btn-secondary contact-cal" href={calUrl} target="_blank" rel="noopener noreferrer" data-cal-open>Kostenloses Erstgespräch buchen</a>
+          </div>
           <figure class="founder-card">
             <div class="founder-avatar">
               <div class="founder-ring" aria-hidden="true"></div>
@@ -756,13 +969,24 @@ const homeStructuredData = [
       const panels = Array.from(tabsRoot.querySelectorAll<HTMLElement>("[role='tabpanel']"));
       const images = Array.from(addonGrid?.querySelectorAll<HTMLImageElement>(".addon-visual img") ?? []);
       const progressFill = tabsRoot.querySelector<HTMLElement>(".tab-progress-fill");
+      const autoplayToggle = addonGrid?.querySelector<HTMLButtonElement>("[data-addon-autoplay]");
+      const autoplayToggleIcon = autoplayToggle?.querySelector<HTMLElement>(".material-symbols-rounded");
       const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
       let currentIndex = 0;
       let autoplayActive = false;
       let autoplayStopped = false;
 
-      const pauseState = { hover: false, focus: false, offscreen: true, hiddenDoc: false };
+      // "user" kommt vom Pause/Play-Knopf; Hover pausiert bewusst nicht.
+      const pauseState = { user: false, focus: false, offscreen: true, hiddenDoc: false };
+
+      const syncToggle = () => {
+        if (!autoplayToggle) return;
+        const label = pauseState.user ? "Automatischen Wechsel starten" : "Automatischen Wechsel pausieren";
+        autoplayToggle.setAttribute("aria-label", label);
+        autoplayToggle.title = label;
+        if (autoplayToggleIcon) autoplayToggleIcon.textContent = pauseState.user ? "play_arrow" : "pause";
+      };
 
       const syncPaused = () => {
         tabsRoot.classList.toggle(
@@ -783,6 +1007,13 @@ const homeStructuredData = [
         autoplayStopped = true;
         tabsRoot.classList.remove("is-paused");
         progressFill?.classList.remove("is-animating");
+        if (autoplayToggle) autoplayToggle.hidden = true;
+      };
+
+      const pauseByUser = () => {
+        pauseState.user = true;
+        syncToggle();
+        syncPaused();
       };
 
       const activateTab = (nextIndex: number, shouldFocus = false) => {
@@ -807,8 +1038,10 @@ const homeStructuredData = [
 
       tabs.forEach((tab, index) => {
         tab.addEventListener("click", () => {
-          stopAutoplay();
           activateTab(index);
+          if (!autoplayActive) return;
+          pauseByUser();
+          restartProgress();
         });
         tab.addEventListener("keydown", (event) => {
           const lastIndex = tabs.length - 1;
@@ -821,8 +1054,10 @@ const homeStructuredData = [
           else return;
 
           event.preventDefault();
-          stopAutoplay();
           activateTab(nextIndex, true);
+          if (!autoplayActive) return;
+          pauseByUser();
+          restartProgress();
         });
       });
 
@@ -833,14 +1068,14 @@ const homeStructuredData = [
           restartProgress();
         });
 
-        addonGrid.addEventListener("mouseenter", () => {
-          pauseState.hover = true;
-          syncPaused();
-        });
-        addonGrid.addEventListener("mouseleave", () => {
-          pauseState.hover = false;
-          syncPaused();
-        });
+        if (autoplayToggle) {
+          autoplayToggle.hidden = false;
+          autoplayToggle.addEventListener("click", () => {
+            pauseState.user = !pauseState.user;
+            syncToggle();
+            syncPaused();
+          });
+        }
 
         tabsRoot.addEventListener("focusin", () => {
           pauseState.focus = true;

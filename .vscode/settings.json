@@ -1,0 +1,3 @@
+{
+  "cssvar.ignore": ["**/node_modules/**", "dist/**", ".vercel/**"]
+}

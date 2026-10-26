@@ -1,5 +1,49 @@
 @import "tailwindcss";
 
+/* Google Sans, selbst gehostet (SIL OFL 1.1, siehe public/fonts/google-sans/OFL.txt).
+   Auf Latin, Latin-1 und gängige Zeichen (inkl. €) reduziert. Zwischengewichte wie 720 oder 800
+   werden auf die nächste statische Schnitt-Datei (700) abgebildet. Kursiv nur 400 (.founder-quote). */
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/google-sans/GoogleSans-400.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/google-sans/GoogleSans-500.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/google-sans/GoogleSans-600.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/google-sans/GoogleSans-700.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Google Sans";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/google-sans/GoogleSans-400-italic.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 :root {
   color-scheme: light;
   --font-display: "Google Sans", "Aptos Display", "Segoe UI", sans-serif;
@@ -92,13 +136,16 @@ svg {
   max-width: 100%;
 }
 
+/* Icon-Schrift lokal via @fontsource-variable/material-symbols-rounded (full.css, alle Achsen).
+   Basisregeln ersetzen die frueher von Google Fonts gelieferte Klasse. */
 .material-symbols-rounded {
   display: inline-grid;
   place-items: center;
   direction: ltr;
-  font-family: "Material Symbols Rounded";
+  font-family: "Material Symbols Rounded Variable";
   font-weight: 520;
   font-style: normal;
+  font-size: 24px;
   line-height: 1;
   letter-spacing: 0;
   text-transform: none;
@@ -107,6 +154,7 @@ svg {
   font-feature-settings: "liga";
   -webkit-font-feature-settings: "liga";
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .container,
@@ -928,6 +976,485 @@ body[data-cal-modal-open] {
     "opsz" 24;
 }
 
+.hero-copy .hero-subline {
+  max-width: 46ch;
+}
+
+.hero-microcopy {
+  margin: -0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 560;
+}
+
+.hero-founder {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.hero-founder img {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.hero-price {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  column-gap: 0.35rem;
+  padding-left: 1.25rem;
+  border-left: 1px solid color-mix(in oklch, var(--blue), white 70%);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.hero-price-from {
+  color: var(--muted);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.hero-price strong {
+  color: var(--blue-deep);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.4vw, 2.6rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.hero-price-note {
+  grid-column: 1 / -1;
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.hero-price:hover strong,
+.hero-price:focus-visible strong {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.15em;
+}
+
+.case-section {
+  background: var(--blue);
+  color: white;
+}
+
+.case-section .eyebrow {
+  background: white;
+  color: var(--blue-deep);
+}
+
+.case-section .lead {
+  color: white;
+}
+
+.case-section :focus-visible {
+  outline: 2px solid white;
+}
+
+.case-layout {
+  display: grid;
+  grid-template-columns: minmax(22rem, 1fr) minmax(26rem, 1fr);
+  align-items: start;
+  gap: clamp(2.5rem, 6vw, 5rem);
+}
+
+.case-intro {
+  display: grid;
+  justify-items: start;
+  gap: 1.25rem;
+}
+
+.case-intro .h2 {
+  max-width: 20ch;
+  color: white;
+}
+
+.case-compare {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: clamp(1.5rem, 3vw, 2rem);
+}
+
+.case-compare-col {
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.case-compare-col.is-before {
+  border-color: rgb(255 255 255 / 0.18);
+  background: color-mix(in oklch, var(--blue), black 28%);
+  color: white;
+}
+
+.case-compare-col.is-after {
+  border-color: white;
+  background: white;
+  color: var(--ink);
+}
+
+.case-compare-col h3 {
+  margin: 0 0 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 760;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.case-compare-col.is-before h3 {
+  color: white;
+}
+
+.case-compare-col.is-after h3 {
+  color: var(--blue-deep);
+}
+
+.case-compare-col ul {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-compare-col li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.case-compare-col .material-symbols-rounded {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+}
+
+.case-compare-col.is-before .material-symbols-rounded {
+  color: white;
+}
+
+.case-compare-col.is-after .material-symbols-rounded {
+  color: var(--blue-deep);
+}
+
+.case-results {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2rem);
+}
+
+.case-figures {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  padding-bottom: clamp(1.25rem, 3vw, 1.75rem);
+  border-bottom: 1px solid rgb(255 255 255 / 0.35);
+}
+
+.case-figure {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+}
+
+.case-figure strong {
+  color: white;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.case-figure span {
+  color: white;
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.4;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+.case-chart {
+  position: relative;
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+}
+
+.case-chart figcaption {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.case-chart figcaption strong {
+  color: white;
+  font-weight: 740;
+}
+
+.case-chart figcaption span {
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.case-split {
+  display: flex;
+  gap: 2px;
+  height: 0.9rem;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.case-split-seg {
+  flex-basis: 0;
+}
+
+.case-split-seg.is-search {
+  background: white;
+}
+
+.case-split-seg.is-maps {
+  background: color-mix(in oklch, var(--blue), black 45%);
+}
+
+.case-split-labels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.35rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-split-labels li {
+  color: white;
+  font-size: 0.92rem;
+}
+
+.case-split-labels li:last-child {
+  margin-left: auto;
+  text-align: right;
+}
+
+.case-split-labels strong {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 760;
+}
+
+.case-split-labels small {
+  color: white;
+  font-size: inherit;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.case-split-note {
+  margin: 0;
+  color: white;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.sr-only {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.case-next {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 0.85rem;
+  background: color-mix(in oklch, var(--blue), black 28%);
+  color: white;
+  line-height: 1.5;
+}
+
+.case-next strong {
+  color: white;
+}
+
+.case-next .material-symbols-rounded {
+  color: white;
+  line-height: 1.5;
+}
+
+.case-source {
+  margin: 0;
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.55;
+}
+
+.steps-layout {
+  display: grid;
+  grid-template-columns: minmax(22rem, 0.95fr) minmax(28rem, 1.05fr);
+  align-items: start;
+  gap: clamp(2.5rem, 6vw, 6rem) clamp(3rem, 6vw, 5rem);
+}
+
+.steps-intro {
+  display: grid;
+  justify-items: start;
+  gap: 1.35rem;
+}
+
+.steps-intro .h2 {
+  max-width: 20ch;
+}
+
+/* Die Liste nutzt die .future-principles-Optik, aber nicht deren Grid-Area. */
+.steps-layout .steps-list {
+  grid-area: auto;
+}
+
+.benefits-section .section-heading .lead {
+  text-align: center;
+}
+
+.benefit-stat-card p {
+  white-space: normal;
+}
+
+.benefit-stat-card p.benefit-action {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-top: clamp(0.9rem, 1.6vw, 1.2rem);
+  color: var(--blue-deep);
+  font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+  font-weight: 650;
+}
+
+.benefit-action .material-symbols-rounded {
+  color: var(--blue);
+  font-size: 1.15em;
+  line-height: 1.3;
+}
+
+.benefit-note {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.82em;
+  font-weight: 460;
+}
+
+.future-cta {
+  margin-top: 1rem;
+}
+
+.addon-visual-core {
+  position: relative;
+}
+
+.addon-autoplay-toggle {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 1;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in oklch, white, transparent 8%);
+  color: var(--ink);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+  transition: background-color 180ms var(--ease), color 180ms var(--ease);
+}
+
+.addon-autoplay-toggle .material-symbols-rounded {
+  font-size: 1.4rem;
+  font-variation-settings: "FILL" 1;
+}
+
+.addon-autoplay-toggle:hover {
+  background: var(--blue);
+  color: white;
+}
+
+.addon-autoplay-toggle:focus-visible {
+  outline: 2px solid var(--blue-deep);
+  outline-offset: 2px;
+}
+
+.addon-autoplay-toggle[hidden] {
+  display: none;
+}
+
+.benefit-source {
+  margin: clamp(1.25rem, 3vw, 1.75rem) auto 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.benefit-source a,
+.future-principles p a {
+  color: var(--blue-deep);
+  font-weight: 720;
+  text-underline-offset: 0.18em;
+}
+
+.case-facts {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.case-facts dt {
+  color: var(--blue);
+  font-size: 0.74rem;
+  font-weight: 760;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+
+.case-facts dd {
+  margin: 0.15rem 0 0;
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.5rem;
+}
+
 .section-heading {
   display: grid;
   justify-items: center;
@@ -1188,10 +1715,24 @@ body[data-cal-modal-open] {
   position: relative;
   overflow: hidden;
   border-block: 1px solid color-mix(in oklch, var(--blue), white 78%);
-  background: color-mix(in oklch, var(--soft-blue), white 52%);
+  background: var(--panel);
+}
+
+.future-section::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(color-mix(in oklch, var(--blue), white 58%) 1.1px, transparent 1.4px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse at 70% 40%, black, transparent 75%);
+  mask-image: radial-gradient(ellipse at 70% 40%, black, transparent 75%);
 }
 
 .future-layout {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: minmax(22rem, 0.95fr) minmax(28rem, 1.05fr);
   grid-template-areas:
@@ -1330,7 +1871,8 @@ body[data-cal-modal-open] {
   line-height: 1.4;
 }
 
-.pricing-section {
+.pricing-section,
+.finder-section {
   background: linear-gradient(180deg, #edf2ff, #f6f7ff);
 }
 
@@ -2019,6 +2561,56 @@ body[data-cal-modal-open] {
 
 .compact {
   margin-bottom: 1.5rem;
+}
+
+/* Aufklappbare Add-on-Preisliste in #wirkung */
+
+.addon-list-toggle {
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+.addon-list-toggle > summary {
+  display: flex;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  border-radius: 999px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.addon-list-toggle > summary::-webkit-details-marker {
+  display: none;
+}
+
+.addon-list-toggle > summary:focus-visible {
+  outline: 2px solid var(--blue-deep);
+  outline-offset: 3px;
+}
+
+.addon-list-toggle > summary .btn {
+  text-align: center;
+  line-height: 1.25;
+}
+
+.addon-list-toggle-icon {
+  flex-shrink: 0;
+  transition: transform 260ms var(--ease);
+}
+
+.addon-list-toggle[open] .addon-list-toggle-icon {
+  transform: rotate(180deg);
+}
+
+.addon-list-toggle > .addon-price-grid {
+  margin-top: 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .addon-list-toggle-icon {
+    transition: none;
+  }
 }
 
 .addon-price-grid {
@@ -3979,6 +4571,15 @@ textarea.field {
     max-width: 40rem;
   }
 
+  .steps-layout {
+    grid-template-columns: 1fr;
+    gap: clamp(2.25rem, 7vw, 4rem);
+  }
+
+  .case-layout {
+    grid-template-columns: 1fr;
+  }
+
   .mobile-menu[data-open] {
     opacity: 1;
     pointer-events: auto;
@@ -4096,6 +4697,16 @@ textarea.field {
     width: 100%;
   }
 
+  .hero-actions {
+    justify-content: center;
+  }
+
+  .hero-price {
+    justify-content: center;
+    padding-left: 0;
+    border-left: 0;
+  }
+
   .hero-visual {
     justify-self: center;
     width: 80%;
@@ -4167,6 +4778,24 @@ textarea.field {
 @media (max-width: 700px) {}
 
 @media (max-width: 620px) {
+  .future-section::before {
+    background-size: 18px 18px;
+  }
+
+  .case-figures {
+    grid-template-columns: 1fr;
+  }
+
+  .case-compare {
+    grid-template-columns: 1fr;
+  }
+
+  .case-figure {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: 1rem;
+  }
+
   :root {
     --header-height: 4.5rem;
   }

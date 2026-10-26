@@ -95,7 +95,7 @@ function buildSelection(raw: unknown): SelectionResult {
     once > 0 ? `${formatEuro(once)} einmalig` : "",
     monthly > 0 ? `${formatEuro(monthly)}/Monat` : "",
   ].filter(Boolean);
-  if (totals.length) lines.push(`Summe: ${totals.join(" + ")} (exkl. MwSt.)`);
+  if (totals.length) lines.push(`Summe: ${totals.join(" + ")} (Endpreise, keine USt. – Kleinunternehmer)`);
 
   return { lines };
 }

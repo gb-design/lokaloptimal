@@ -176,7 +176,7 @@ export const addons: Addon[] = [
     priceValue: 79,
     period: "/ Monat",
     interval: "monatlich",
-    tooltip: "Google beantwortet Kundenfragen inzwischen selbst per KI – aus Ihrem Profil, Ihren Bewertungen und Ihrer Website. Wir recherchieren die typischen Fragen Ihrer Kundschaft und hinterlegen die Antworten genau dort, wo die KI sie ausliest. Inkludiert bis zu 10 Fragen pro Monat.",
+    tooltip: "Google beantwortet Kundenfragen inzwischen selbst per KI – aus Ihrem Profil, Ihren Bewertungen und Ihrer Website. Ich recherchiere die typischen Fragen Ihrer Kundschaft und hinterlege die Antworten genau dort, wo die KI sie ausliest. Inkludiert bis zu 10 Fragen pro Monat.",
     icon: "psychology",
   },
   {
