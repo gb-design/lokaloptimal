@@ -25,9 +25,9 @@ const pathOptions: { id: Path; icon: string; title: string; text: string }[] = [
 ];
 
 const pathOffers: Record<Exclude<Path, "single">, { question: string; offers: Offer[] }> = {
-  setup: { question: "Nur ein sauberes Setup – oder inklusive Wettbewerbs-Blick?", offers: packages.slice(0, 2) },
+  setup: { question: "Nur ein sauberes Setup – oder zusätzlich mit Konkurrenzanalyse?", offers: packages.slice(0, 2) },
   growth: { question: "3 Monate fokussiert – oder 6 Monate mit voller Betreuung?", offers: packages.slice(2, 4) },
-  care: { question: "Basis-Pflege oder Rundum-Betreuung?", offers: retainers },
+  care: { question: "Basis-Pflege oder erweiterte Betreuung?", offers: retainers },
 };
 
 const singleServices: Addon[] = [...addons, geoCheck];
@@ -95,15 +95,15 @@ export default function BedarfsCheck() {
   );
 
   const lineItems = useMemo(() => {
-    const items: { name: string; price: string; note?: string }[] = [];
+    const items: { name: string; price: string; sub?: string; note?: string }[] = [];
     if (offer) {
-      items.push({ name: `${offer.name}`, price: `${offer.price} ${offer.period}` });
+      items.push({ name: offer.name, price: `${offer.price} ${offer.period}`, sub: offer.scope });
       if (offer.interval === "monatlich") {
-        items.push({ name: quickCheck.name, price: `${quickCheck.price} einmalig`, note: "Pflicht beim Direkteinstieg" });
+        items.push({ name: quickCheck.name, price: `${quickCheck.price} einmalig`, sub: "Zusatzleistung · Pflicht beim Direkteinstieg", note: "Pflicht beim Direkteinstieg" });
       }
     }
     selectedAddons.forEach((addon) => {
-      items.push({ name: addon.name, price: addon.priceValue ? `${addon.price} ${addon.period}` : "auf Anfrage" });
+      items.push({ name: addon.name, price: addon.priceValue ? `${addon.price} ${addon.period}` : "auf Anfrage", sub: offer ? "Zusatzleistung" : undefined });
     });
     return items;
   }, [offer, selectedAddons]);
@@ -379,17 +379,24 @@ export default function BedarfsCheck() {
 
           <div className="bc-review">
             {lineItems.map((item) => (
-              <span key={item.name}><small>{item.name}</small><i className="bc-dots" aria-hidden="true"></i><b>{item.price}</b></span>
+              <div key={item.name} className="bc-review-row">
+                <span className="bc-review-label">
+                  <small>{item.name}</small>
+                  {item.sub && <em className="bc-review-sub">{item.sub}</em>}
+                </span>
+                <i className="bc-dots" aria-hidden="true"></i>
+                <b>{item.price}</b>
+              </div>
             ))}
-            <span className="bc-review-total">
-              <small>Ihre Anfrage</small>
+            <div className="bc-review-row bc-review-total">
+              <span className="bc-review-label"><small>Ihre Anfrage</small></span>
               <i className="bc-dots" aria-hidden="true"></i>
               <b>
-                {totals.once > 0 && `${formatEuro(totals.once)} einmalig`}
+                {totals.once > 0 && <span className="bc-nowrap">{formatEuro(totals.once)} einmalig</span>}
                 {totals.once > 0 && totals.monthly > 0 && " + "}
-                {totals.monthly > 0 && `${formatEuro(totals.monthly)}/Monat`}
+                {totals.monthly > 0 && <span className="bc-nowrap">{formatEuro(totals.monthly)}/Monat</span>}
               </b>
-            </span>
+            </div>
           </div>
 
           <input className="trap" type="text" name="company_url" tabIndex={-1} autoComplete="off" aria-hidden="true" />

@@ -62,7 +62,7 @@ const categories: CategoryDefinition[] = [
     icon: Shield,
     hints: {
       3: "Telefon, Website und Öffnungszeiten sind hinterlegt. Interessenten können ohne Umweg anrufen, buchen oder vorbeikommen.",
-      2: "Eine der drei Grundangaben fehlt — Telefon, Website oder Öffnungszeiten. Genau an dieser Lücke springen Suchende ab.",
+      2: "Eine der drei Grundangaben fehlt: Telefon, Website oder Öffnungszeiten. Genau an dieser Lücke springen Suchende ab.",
       1: "Nur eine der drei Grundangaben ist gepflegt. Ohne Telefon, Website und Öffnungszeiten bleibt Ihr Profil eine Sackgasse.",
       0: "Weder Telefon noch Website noch Öffnungszeiten sind hinterlegt. Suchende finden Sie, können aber nichts damit anfangen.",
     },
@@ -94,7 +94,7 @@ const categories: CategoryDefinition[] = [
     label: "Fotos",
     icon: Check,
     hints: {
-      3: "Deine Galerie ist gut gefüllt. Aktuelle, echte Bilder erhöhen die Klickrate direkt im Suchergebnis.",
+      3: "Die Galerie ist gut gefüllt. Aktuelle, echte Bilder erhöhen die Klickrate direkt im Suchergebnis.",
       2: "Ein paar Bilder sind da. Mehr Aufnahmen von Räumen, Team und Arbeit machen den Unterschied zwischen anschauen und anrufen.",
       1: "Kaum Fotos. Nutzer bekommen keinen Eindruck vom Unternehmen und klicken eher auf den Mitbewerber daneben.",
       0: "Keine Fotos im Profil. Das ist die auffälligste Lücke, die Suchende sofort bemerken.",
@@ -102,7 +102,7 @@ const categories: CategoryDefinition[] = [
   },
 ];
 
-const GOOGLE_MAPS_URL_ERROR = "Bitte füge den Teilen-Link deines Google-Unternehmensprofils aus Google Maps ein.";
+const GOOGLE_MAPS_URL_ERROR = "Bitte fügen Sie den Teilen-Link Ihres Google-Unternehmensprofils aus Google Maps ein.";
 
 function isAllowedGoogleMapsUrl(raw: string) {
   try {
@@ -321,12 +321,12 @@ export default function GBPAuditWidget() {
             <p className="result-label">Tageslimit erreicht</p>
             <h3>Ihr maximales tägliches Scan-Limit ist erreicht.</h3>
             <p>
-              Zögern Sie nicht und buchen Sie ein kostenloses Erstgespräch. Dort kläre ich direkt, welche Maßnahmen für
+              Buchen Sie ein kostenloses Erstgespräch. Dort kläre ich direkt, welche Maßnahmen für
               Ihr Profil sinnvoll sind.
             </p>
           </div>
           <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} rel="noreferrer" data-cal-open>
-            Jetzt handeln und Termin vereinbaren
+            Termin vereinbaren
             <span className="btn-icon">
               <ArrowRight size={18} />
             </span>
@@ -341,7 +341,7 @@ export default function GBPAuditWidget() {
             <p className="result-label">Profil nicht abrufbar</p>
             <h3>Google gibt dieses Profil über die Schnittstelle nicht heraus.</h3>
             <p>
-              Der Link ist korrekt — Ihr Profil ist nur noch nicht in Googles Datenschnittstelle enthalten. Das ist
+              Der Link ist korrekt, Ihr Profil ist nur noch nicht in Googles Datenschnittstelle enthalten. Das ist
               normal bei frisch verifizierten Profilen und bei Betrieben ohne öffentlich sichtbare Adresse, und es
               sagt nichts über die Qualität Ihres Profils aus. Ich prüfe es im Erstgespräch manuell.
             </p>
@@ -407,7 +407,7 @@ export default function GBPAuditWidget() {
               <p className="result-label">{currentZone.label}</p>
               <h3>{found?.name || "Ihr Google-Auftritt"} hat klare Hebel.</h3>
               <p>
-                In 30 Minuten zeige ich Ihnen, welche Maßnahmen sofort Sichtbarkeit, Vertrauen und Anfragen verbessern.
+                In 30 Minuten zeige ich Ihnen, welche Maßnahmen Ihr Profil am schnellsten voranbringen.
               </p>
             </div>
           </div>
@@ -444,12 +444,12 @@ export default function GBPAuditWidget() {
             <strong>Was dieser Check nicht sieht</strong>
             Bewertet wird ausschließlich, was Google öffentlich über Ihr Profil hergibt. Google Beiträge,
             Ihre Website, Ihre Position gegenüber Mitbewerbern und Ihr Umgang mit Bewertungen lassen sich
-            hier nicht automatisch prüfen — sind aber oft die größten Hebel. Genau das sehen wir uns gemeinsam im
+            hier nicht automatisch prüfen, sind aber oft die größten Hebel. Genau das sehen wir uns im
             Gespräch gemeinsam an.
           </p>
 
           <a className="btn btn-primary widget-button" href={CAL_URL} rel="noreferrer" data-cal-open>
-            Jetzt handeln und Termin vereinbaren
+            Termin vereinbaren
             <span className="btn-icon">
               <ArrowRight size={18} />
             </span>

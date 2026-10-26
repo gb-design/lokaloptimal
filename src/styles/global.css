@@ -3225,11 +3225,29 @@ body[data-cal-modal-open] {
   background: color-mix(in oklch, white, var(--soft-blue) 22%);
 }
 
-.bc-review span {
+.bc-review-row {
   display: flex;
   align-items: baseline;
   gap: 0.6rem;
   font-size: 0.92rem;
+}
+
+.bc-review-label {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.bc-review-sub {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: normal;
+  line-height: 1.35;
+  overflow-wrap: break-word;
+}
+
+.bc-nowrap {
+  white-space: nowrap;
 }
 
 .bc-dots {
@@ -3240,14 +3258,44 @@ body[data-cal-modal-open] {
 }
 
 .bc-review small {
+  min-width: 0;
   color: var(--muted);
   font-size: 0.9rem;
   font-weight: 600;
+  overflow-wrap: break-word;
 }
 
 .bc-review b {
   font-weight: 760;
+  text-align: right;
   white-space: nowrap;
+}
+
+.bc-review-total b {
+  white-space: normal;
+}
+
+.bc-review-total .bc-review-label {
+  flex: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .bc-review {
+    padding: 0.9rem 1rem;
+  }
+
+  .bc-review-row {
+    gap: 0.6rem;
+  }
+
+  .bc-review-row .bc-dots {
+    display: none;
+  }
+
+  .bc-review-row b {
+    margin-left: auto;
+  }
 }
 
 .bc-review-total {

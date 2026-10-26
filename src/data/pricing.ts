@@ -21,6 +21,7 @@ export type Offer = {
   period: string;
   interval: Interval;
   termMonths?: number;
+  scope: string;
   text: string;
   items: string[];
   featured?: boolean;
@@ -35,37 +36,40 @@ export const packages: Offer[] = [
   {
     id: "starter",
     name: "Starter",
+    scope: "Google Business Profil: Setup",
     badge: "Einmalig",
     price: "€347",
     priceValue: 347,
     period: "einmalig",
     interval: "einmalig",
-    text: "Der perfekte Einstieg für ein professionelles Profil-Setup.",
+    text: "Der Einstieg: ein sauberes, vollständiges Profil-Setup.",
     items: ["GBP Audit & Analyse", "Vollständiges Profil-Setup", "Kategorien, Texte, Öffnungszeiten"],
     includedAddonIds: [],
   },
   {
     id: "essential",
     name: "Essential",
+    scope: "Google Business Profil: Setup & Konkurrenzanalyse",
     badge: "Einmalig",
     price: "€697",
     priceValue: 697,
     period: "einmalig",
     interval: "einmalig",
-    text: "Das komplette Setup mit Wettbewerbs-Blick für einen starken ersten Eindruck.",
+    text: "Das komplette Setup, inklusive Blick auf die Mitbewerber.",
     items: ["Alles aus Starter", "Foto-Briefing Dokument", "1x Google Post", "Konkurrenzanalyse (3 Mitbewerber)"],
     includedAddonIds: ["foto-briefing", "konkurrenzanalyse"],
   },
   {
     id: "growth",
     name: "Growth",
+    scope: "Google Business Profil: Setup & 3 Monate Betreuung",
     badge: "3 Monate",
     price: "€1.397",
     priceValue: 1397,
     period: "3 Monate Laufzeit",
     interval: "laufzeit",
     termMonths: 3,
-    text: "Aktives Management für mehr Sichtbarkeit und Interaktionen.",
+    text: "Aktives Management: regelmäßige Beiträge, Bewertungsantworten und monatlicher Bericht.",
     items: ["Alles aus Essential", "3 Monate aktives Management", "4x Google Posts / Monat", "Review-Monitoring & Antworten (bis 15 / Monat)", "Monatliches PDF-Reporting"],
     featured: true,
     includedAddonIds: ["foto-briefing", "konkurrenzanalyse", "review-response"],
@@ -73,13 +77,14 @@ export const packages: Offer[] = [
   {
     id: "local-pro",
     name: "Local Pro",
+    scope: "Google Business Profil: Setup & 6 Monate Betreuung",
     badge: "6 Monate",
     price: "€3.497",
     priceValue: 3497,
     period: "6 Monate Laufzeit",
     interval: "laufzeit",
     termMonths: 6,
-    text: "Die Komplettlösung für nachhaltiges Wachstum & maximale Präsenz.",
+    text: "Wie Growth, aber über 6 Monate, mit mehr Beiträgen, KI-Antworten-Management und monatlichem Strategie-Call.",
     items: ["Alles aus Growth", "6 Monate aktives Management", "8x Google Posts / Monat", "Review- & KI-Antworten-Management (bis 15 Bewertungen & 10 Fragen / Monat)", "Strategie-Call pro Monat"],
     includedAddonIds: ["foto-briefing", "konkurrenzanalyse", "review-response", "qa-management"],
   },
@@ -89,6 +94,7 @@ export const retainers: Offer[] = [
   {
     id: "care",
     name: "Care",
+    scope: "Google Business Profil: laufende Betreuung",
     badge: "Direkt buchbar",
     price: "€399",
     priceValue: 399,
@@ -101,12 +107,13 @@ export const retainers: Offer[] = [
   {
     id: "pro-care",
     name: "Pro Care",
+    scope: "Google Business Profil: laufende Betreuung",
     badge: "Direkt buchbar",
     price: "€499",
     priceValue: 499,
     period: "/ Monat",
     interval: "monatlich",
-    text: "Die dauerhafte Rundum-Betreuung für maximale Präsenz – monatlich kündbar. Direkter Einstieg inkl. einmaligem Profil Quick-Check.",
+    text: "Dauerhafte Betreuung mit mehr Beiträgen und KI-Antworten-Management – monatlich kündbar. Direkter Einstieg inkl. einmaligem Profil Quick-Check.",
     items: ["8x Google Posts / Monat", "Review- & KI-Antworten-Management", "Strategie-Call pro Quartal"],
     includedAddonIds: ["review-response", "qa-management"],
   },
@@ -165,7 +172,7 @@ export const addons: Addon[] = [
     priceValue: 97,
     period: "einmalig",
     interval: "einmalig",
-    tooltip: "Hilft Ihnen, genau die Bilder zu erstellen, die Vertrauen aufbauen und Ihr Profil professioneller wirken lassen.",
+    tooltip: "Hilft Ihnen, genau die Bilder zu erstellen, die Vertrauen aufbauen.",
     icon: "photo_camera",
   },
   {
