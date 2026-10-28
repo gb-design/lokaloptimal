@@ -129,6 +129,35 @@ const first = variants[0];
       });
     };
 
+    // Zahl folgt dem Ring: Der CSS-Counter wird mobil (animierte Maske am Stage) nicht zuverlässig neu gezeichnet.
+    // Das Script liest pro Frame den aktuellen Ring-Wert und schreibt ihn als Text.
+    const fill = stage.querySelector<SVGCircleElement>(".hero-ring-fill");
+    const value = stage.querySelector<HTMLElement>(".hero-ring-value");
+
+    if (fill && value && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      let visible = true;
+      let last = -1;
+
+      // Chrome liefert den Wert als "calc(56px)", daher die erste Zahl herauslesen statt parseFloat.
+      const tick = () => {
+        if (visible) {
+          const match = getComputedStyle(fill).strokeDashoffset.match(/^(?:calc\()?\s*(-?\d+(?:\.\d+)?)(?:px)?\s*\)?$/);
+          const n = match ? Math.round(100 - parseFloat(match[1])) : NaN;
+          if (Number.isFinite(n) && n !== last) {
+            last = n;
+            value.textContent = `${n}%`;
+            stage.classList.add("is-counting");
+          }
+        }
+        requestAnimationFrame(tick);
+      };
+
+      new IntersectionObserver(([entry]) => {
+        visible = entry.isIntersecting;
+      }).observe(stage);
+      requestAnimationFrame(tick);
+    }
+
     // Ende des Zyklus: Karte ist unsichtbar, der Punkt pulsiert. Jetzt ist der Wechsel unsichtbar.
     dot.addEventListener("animationiteration", (event) => {
       if (event.target !== dot || event.animationName !== "hero-dot-cycle") return;

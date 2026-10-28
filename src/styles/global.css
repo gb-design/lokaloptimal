@@ -1065,6 +1065,15 @@ body[data-cal-modal-open] {
   content: counter(hero-n) "%";
 }
 
+/* Mit Script folgt die Zahl dem Ring (siehe HeroProfileCard.astro); der Counter bleibt nur als Fallback. */
+.hero-stage.is-counting .hero-ring-value {
+  animation: none;
+}
+
+.hero-stage.is-counting .hero-ring-value::before {
+  content: none;
+}
+
 .hero-ring-caption {
   margin-top: 0.15rem;
   color: oklch(0.5 0.02 274);
@@ -1222,18 +1231,19 @@ body[data-cal-modal-open] {
 
 @keyframes hero-ring {
   0%,
-  21% {
+  20% {
     stroke-dashoffset: calc(100 - var(--s0));
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   }
 
-  28%,
-  31% {
+  26% {
     stroke-dashoffset: calc(100 - var(--s1));
+    animation-timing-function: linear;
   }
 
-  38%,
-  41% {
+  36% {
     stroke-dashoffset: calc(100 - var(--s2));
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
   }
 
   48%,
@@ -1249,18 +1259,19 @@ body[data-cal-modal-open] {
 
 @keyframes hero-count {
   0%,
-  21% {
+  20% {
     --hero-n: var(--s0);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   }
 
-  28%,
-  31% {
+  26% {
     --hero-n: var(--s1);
+    animation-timing-function: linear;
   }
 
-  38%,
-  41% {
+  36% {
     --hero-n: var(--s2);
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
   }
 
   48%,
