@@ -1,6 +1,5 @@
 <script>
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const hasFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const header = document.querySelector<HTMLElement>(".site-header");
 
   const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>(".nav-links a[href^='#']"));
@@ -57,99 +56,64 @@
     });
   }
 
+  const hasFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+  // Leichte Neigung der Hero-Karte, nur mit Maus und ohne reduzierte Bewegung.
   if (!reduceMotion && hasFinePointer) {
     document.querySelectorAll<HTMLElement>("[data-hero-tilt]").forEach((element) => {
-      const stack = element.querySelector<HTMLElement>(".hero-visual-stack");
-      const layers = Array.from(element.querySelectorAll<HTMLElement>("[data-hero-layer]"));
-
-      if (!stack || layers.length === 0) return;
-
+      const maxRotation = 4;
       let targetX = 0;
       let targetY = 0;
-      let targetRotateX = 0;
-      let targetRotateY = 0;
       let currentX = 0;
       let currentY = 0;
-      let currentRotateX = 0;
-      let currentRotateY = 0;
       let frameId = 0;
-
-      const maxRotation = 5;
-      const settleThreshold = 0.001;
-
-      const renderTilt = () => {
-        currentX += (targetX - currentX) * 0.14;
-        currentY += (targetY - currentY) * 0.14;
-        currentRotateX += (targetRotateX - currentRotateX) * 0.14;
-        currentRotateY += (targetRotateY - currentRotateY) * 0.14;
-
-        stack.style.setProperty("--hero-tilt-x", `${currentRotateX.toFixed(3)}deg`);
-        stack.style.setProperty("--hero-tilt-y", `${currentRotateY.toFixed(3)}deg`);
-
-        layers.forEach((layer) => {
-          const depth = Number(layer.dataset.depth ?? "8");
-          layer.style.setProperty("--hero-layer-x", `${(currentX * depth).toFixed(3)}px`);
-          layer.style.setProperty("--hero-layer-y", `${(currentY * depth * 0.65).toFixed(3)}px`);
-        });
-
-        const hasSettled =
-          Math.abs(targetX - currentX) < settleThreshold &&
-          Math.abs(targetY - currentY) < settleThreshold &&
-          Math.abs(targetRotateX - currentRotateX) < settleThreshold &&
-          Math.abs(targetRotateY - currentRotateY) < settleThreshold;
-
-        if (!hasSettled) {
-          frameId = window.requestAnimationFrame(renderTilt);
-        } else {
-          frameId = 0;
-        }
-      };
-
-      const startTiltLoop = () => {
-        if (frameId) return;
-        frameId = window.requestAnimationFrame(renderTilt);
-      };
-
-      const resetTilt = () => {
-        targetX = 0;
-        targetY = 0;
-        targetRotateX = 0;
-        targetRotateY = 0;
-        if (!frameId) frameId = window.requestAnimationFrame(renderTilt);
-      };
-
       let isInView = false;
 
-      const tiltObserver = new IntersectionObserver((entries) => {
+      const render = () => {
+        currentX += (targetX - currentX) * 0.08;
+        currentY += (targetY - currentY) * 0.08;
+
+        element.style.setProperty("--hero-tilt-x", `${(-currentY * maxRotation).toFixed(3)}deg`);
+        element.style.setProperty("--hero-tilt-y", `${(currentX * maxRotation).toFixed(3)}deg`);
+        element.style.setProperty("--hero-px", currentX.toFixed(3));
+        element.style.setProperty("--hero-py", currentY.toFixed(3));
+
+        const settled = Math.abs(targetX - currentX) < 0.001 && Math.abs(targetY - currentY) < 0.001;
+        frameId = settled ? 0 : window.requestAnimationFrame(render);
+      };
+
+      const start = () => {
+        if (!frameId) frameId = window.requestAnimationFrame(render);
+      };
+
+      const reset = () => {
+        targetX = 0;
+        targetY = 0;
+        start();
+      };
+
+      new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           isInView = entry.isIntersecting;
-          if (!isInView) resetTilt();
+          if (!isInView) reset();
         });
-      });
-      tiltObserver.observe(element);
+      }).observe(element);
 
-      // Mausbewegung im ganzen Fenster steuert die Neigung, solange der Hero sichtbar ist.
       window.addEventListener(
         "pointermove",
         (event) => {
           if (!isInView) return;
-
-          const x = (event.clientX / window.innerWidth - 0.5) * 2;
-          const y = (event.clientY / window.innerHeight - 0.5) * 2;
-
-          targetX = Math.max(-1, Math.min(1, x));
-          targetY = Math.max(-1, Math.min(1, y));
-          targetRotateX = -targetY * maxRotation;
-          targetRotateY = targetX * maxRotation;
-          startTiltLoop();
+          targetX = Math.max(-1, Math.min(1, (event.clientX / window.innerWidth - 0.5) * 2));
+          targetY = Math.max(-1, Math.min(1, (event.clientY / window.innerHeight - 0.5) * 2));
+          start();
         },
         { passive: true },
       );
 
       document.addEventListener("pointerout", (event) => {
-        if (!event.relatedTarget) resetTilt();
+        if (!event.relatedTarget) reset();
       });
-      window.addEventListener("blur", resetTilt);
+      window.addEventListener("blur", reset);
     });
   }
 

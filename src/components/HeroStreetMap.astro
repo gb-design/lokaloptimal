@@ -1,0 +1,60 @@
+---
+// Dezenter Straßenplan hinter der Hero-Karte: nur Linien, einfarbig, zum Rand hin ausgeblendet.
+// Frei gezeichnet (Häuserblöcke mit Haupt- und Nebenstraßen), keine echten Kartendaten.
+---
+
+<div class="hero-map" aria-hidden="true">
+  <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor" stroke-linejoin="round">
+    <defs>
+    <g id="hero-roads" transform="rotate(-14 300 300)">
+      <path d="M-260 40 L860 40" stroke-width="6"></path>
+      <path d="M-260 255 L860 255" stroke-width="6"></path>
+      <path d="M-260 478 L860 478" stroke-width="5"></path>
+      <path d="M118 -260 L118 860" stroke-width="6"></path>
+      <path d="M340 -260 L340 860" stroke-width="5.5"></path>
+      <path d="M568 -260 L568 860" stroke-width="6"></path>
+      <path d="M-260 150 L860 150" stroke-width="3.4"></path>
+      <path d="M-260 372 L860 372" stroke-width="3.4"></path>
+      <path d="M-260 590 L860 590" stroke-width="3.4"></path>
+      <path d="M10 -260 L10 860" stroke-width="3.4"></path>
+      <path d="M236 -260 L236 860" stroke-width="3.4"></path>
+      <path d="M462 -260 L462 860" stroke-width="3.4"></path>
+      <path d="M690 -260 L690 860" stroke-width="3.4"></path>
+      <path d="M10 114 L118 117" stroke-width="1.8"></path>
+      <path d="M82 40 L80 150" stroke-width="1.8"></path>
+      <path d="M118 111 L236 108" stroke-width="1.8"></path>
+      <path d="M152 40 L154 150" stroke-width="1.8"></path>
+      <path d="M340 103 L462 104" stroke-width="1.8"></path>
+      <path d="M369 40 L369 150" stroke-width="1.8"></path>
+      <path d="M10 207 L118 210" stroke-width="1.8"></path>
+      <path d="M198 150 L198 255" stroke-width="1.8"></path>
+      <path d="M296 150 L295 255" stroke-width="1.8"></path>
+      <path d="M404 150 L408 255" stroke-width="1.8"></path>
+      <path d="M611 150 L609 255" stroke-width="1.8"></path>
+      <path d="M278 255 L274 372" stroke-width="1.8"></path>
+      <path d="M297 255 L295 372" stroke-width="1.8"></path>
+      <path d="M525 255 L525 372" stroke-width="1.8"></path>
+      <path d="M462 295 L568 297" stroke-width="1.8"></path>
+      <path d="M618 255 L622 372" stroke-width="1.8"></path>
+      <path d="M152 372 L149 478" stroke-width="1.8"></path>
+      <path d="M291 372 L290 478" stroke-width="1.8"></path>
+      <path d="M299 372 L296 478" stroke-width="1.8"></path>
+      <path d="M396 372 L393 478" stroke-width="1.8"></path>
+      <path d="M432 372 L435 478" stroke-width="1.8"></path>
+      <path d="M462 401 L568 398" stroke-width="1.8"></path>
+      <path d="M162 478 L164 590" stroke-width="1.8"></path>
+      <path d="M236 528 L340 524" stroke-width="1.8"></path>
+      <path d="M340 520 L462 520" stroke-width="1.8"></path>
+      <path d="M462 513 L568 514" stroke-width="1.8"></path>
+      <path d="M568 516 L690 513" stroke-width="1.8"></path>
+      <path d="M60 640 L330 372" stroke-width="5"></path>
+      <path d="M330 372 L470 300" stroke-width="5"></path>
+      <path d="M118 150 L118 98 L236 98 L236 40" stroke-width="3.4"></path>
+    </g>
+    </defs>
+    <use href="#hero-roads"></use>
+  </svg>
+  <svg class="hero-map-scan" viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice" fill="none" stroke="currentColor" stroke-linejoin="round">
+    <use href="#hero-roads"></use>
+  </svg>
+</div>

@@ -3,6 +3,8 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import MotionScript from "@/components/MotionScript.astro";
+import HeroProfileCard from "@/components/HeroProfileCard.astro";
+import HeroStreetMap from "@/components/HeroStreetMap.astro";
 import GBPAuditWidget from "@/components/GBPAuditWidget";
 import ContactForm from "@/components/ContactForm";
 import BedarfsCheck from "@/components/BedarfsCheck";
@@ -10,10 +12,6 @@ import { addons, formatEuro, packages, quickCheck, retainers } from "@/data/pric
 import addonArticlesImage from "../../assets/avif/addon-articles.avif";
 import addonLandingpageImage from "../../assets/avif/addon-landingpage.avif";
 import addonQrImage from "../../assets/avif/addon-qr.avif";
-import heroBrowserImage from "../../assets/avif/hero-visual/chrome-browser.avif";
-import heroPinImage from "../../assets/avif/hero-visual/pin-marker.avif";
-import heroProfileCardImage from "../../assets/avif/hero-visual/profile-card.avif";
-import heroScoreCardImage from "../../assets/avif/hero-visual/score-card.avif";
 import grfProfileImage from "../../assets/avif/grf_profile.avif";
 
 const calUrl = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
@@ -436,60 +434,16 @@ const homeStructuredData = [
               Kostenloses Erstgespräch buchen
               <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
             </a>
-            <a class="hero-price" href="#preise" aria-label={`Pakete ab ${formatEuro(packages[0].priceValue)}, einmalig, Festpreis – alle Pakete ansehen`}>
-              <span class="hero-price-from">ab</span>
-              <strong>{formatEuro(packages[0].priceValue)}</strong>
-              <span class="hero-price-note">einmalig · Festpreis</span>
-            </a>
           </div>
-          <a class="learn-link" href="#quick-check">Oder: Google-Eintrag kostenlos prüfen</a>
-          <p class="hero-microcopy">Erstgespräch: 30 Minuten · kostenlos · unverbindlich</p>
+          <p class="hero-microcopy">
+            30 Minuten, unverbindlich · Pakete <a href="#preise">ab {formatEuro(packages[0].priceValue)}</a> im Festpreis
+          </p>
         </div>
 
         <div class="hero-visual" data-hero-tilt>
-          <div class="hero-visual-stack">
-            <img
-              class="hero-browser-image"
-              src={heroBrowserImage.src}
-              width={heroBrowserImage.width}
-              height={heroBrowserImage.height}
-              alt="Google-Business-Profil in einer Kartenansicht mit Profilstärke und Standortmarker."
-              loading="eager"
-              decoding="async"
-            />
-            <div class="hero-layer hero-profile-card-layer" data-hero-layer data-depth="10">
-              <img
-                class="hero-profile-card-image"
-                src={heroProfileCardImage.src}
-                width={heroProfileCardImage.width}
-                height={heroProfileCardImage.height}
-                alt=""
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-            <div class="hero-layer hero-score-card-layer" data-hero-layer data-depth="14">
-              <img
-                class="hero-score-card-image"
-                src={heroScoreCardImage.src}
-                width={heroScoreCardImage.width}
-                height={heroScoreCardImage.height}
-                alt=""
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-            <div class="hero-layer hero-pin-layer" data-hero-layer data-depth="8">
-              <img
-                class="hero-pin-image"
-                src={heroPinImage.src}
-                width={heroPinImage.width}
-                height={heroPinImage.height}
-                alt=""
-                loading="eager"
-                decoding="async"
-              />
-            </div>
+          <HeroStreetMap />
+          <div class="hero-tilt">
+            <HeroProfileCard />
           </div>
         </div>
       </div>

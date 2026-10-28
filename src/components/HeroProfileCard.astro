@@ -1,0 +1,138 @@
+---
+// Beispielkarte im Hero: zeigt, wie ein gepflegter Google-Eintrag stärker wird.
+// Reines HTML/SVG. Die Animation ist eine ruhige Endlosschleife per CSS (Punkt → Karte → Wegwischen).
+// Drei Beispielbetriebe wechseln zufällig, jeweils wenn die Karte unsichtbar ist (siehe Script unten).
+// Die Prozentwerte stehen in global.css (.hero-stage[data-variant]) und müssen zu scores passen.
+const variants = [
+  {
+    name: "Beispiel-Praxis",
+    meta: "Zahnarzt · Wien",
+    checks: ["Öffnungszeiten aktuell", "Fotos ergänzt", "Bewertungen beantwortet"],
+    chip: "Mehr Anrufe über Google",
+    score: 92,
+  },
+  {
+    name: "Beispiel-Salon",
+    meta: "Friseur · Graz",
+    checks: ["Leistungen eingetragen", "Neue Fotos hochgeladen", "Fragen beantwortet"],
+    chip: "Mehr Routenanfragen",
+    score: 86,
+  },
+  {
+    name: "Beispiel-Installateur",
+    meta: "Installateur · Linz",
+    checks: ["Einsatzgebiet festgelegt", "Notdienst-Zeiten ergänzt", "Bewertungen angefragt"],
+    chip: "Mehr Anfragen aus der Nähe",
+    score: 95,
+  },
+].map((variant) => ({
+  ...variant,
+  caption: `Beispiel: ${variant.name}, ${variant.meta}. Mit gepflegten Angaben steigt die Profilstärke auf ${variant.score} Prozent. ${variant.chip}.`,
+}));
+const first = variants[0];
+---
+
+<div class="hero-stage" data-variant="0" data-variants={JSON.stringify(variants)}>
+<span class="hero-dot" aria-hidden="true"></span>
+<figure class="hero-card" aria-labelledby="hero-card-caption">
+  <div class="hero-card-head" aria-hidden="true">
+    <span class="hero-card-pin">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+        <path d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"></path>
+      </svg>
+    </span>
+    <span class="hero-card-id">
+      <strong data-hero-name>{first.name}</strong>
+      <span data-hero-meta>{first.meta}</span>
+    </span>
+    <span class="hero-card-tag">Beispiel</span>
+  </div>
+
+  <div class="hero-card-live" aria-hidden="true">
+    <div class="hero-card-body">
+      <div class="hero-ring">
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <circle class="hero-ring-track" cx="60" cy="60" r="50" pathLength="100"></circle>
+          <circle class="hero-ring-fill" cx="60" cy="60" r="50" pathLength="100"></circle>
+        </svg>
+        <span class="hero-ring-label">
+          <span class="hero-ring-value"></span>
+          <span class="hero-ring-caption">Profilstärke</span>
+        </span>
+      </div>
+
+      <ul class="hero-checks">
+        {first.checks.map((label) => (
+          <li>
+            <span class="hero-check-dot">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3.5 8.5l3 3 6-7" pathLength="1"></path>
+              </svg>
+            </span>
+            <span data-hero-check>{label}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="hero-card-foot">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+        <path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1Z"></path>
+      </svg>
+      <span data-hero-chip>{first.chip}</span>
+    </div>
+  </div>
+
+  <figcaption class="sr-only" id="hero-card-caption" data-hero-caption>{first.caption}</figcaption>
+</figure>
+</div>
+
+<script>
+  type Variant = { name: string; meta: string; checks: string[]; chip: string; caption: string };
+
+  const stage = document.querySelector<HTMLElement>(".hero-stage");
+  const variants: Variant[] = JSON.parse(stage?.dataset.variants ?? "[]");
+  const dot = stage?.querySelector<HTMLElement>(".hero-dot");
+
+  if (stage && dot && variants.length > 1) {
+    let current = 0;
+    let queue: number[] = [];
+
+    // Gemischte Reihenfolge: alle drei Betriebe kommen dran, keiner zweimal direkt hintereinander.
+    const nextIndex = () => {
+      if (queue.length === 0) {
+        queue = variants.map((_, index) => index);
+        for (let i = queue.length - 1; i > 0; i -= 1) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [queue[i], queue[j]] = [queue[j], queue[i]];
+        }
+        if (queue[0] === current) queue.push(queue.shift() as number);
+      }
+      return queue.shift() as number;
+    };
+
+    const setText = (selector: string, value: string) => {
+      const element = stage.querySelector(selector);
+      if (element) element.textContent = value;
+    };
+
+    const apply = (index: number) => {
+      const variant = variants[index];
+      current = index;
+      stage.dataset.variant = String(index);
+      setText("[data-hero-name]", variant.name);
+      setText("[data-hero-meta]", variant.meta);
+      setText("[data-hero-chip]", variant.chip);
+      setText("[data-hero-caption]", variant.caption);
+      stage.querySelectorAll("[data-hero-check]").forEach((element, i) => {
+        element.textContent = variant.checks[i] ?? "";
+      });
+    };
+
+    // Ende des Zyklus: Karte ist unsichtbar, der Punkt pulsiert. Jetzt ist der Wechsel unsichtbar.
+    dot.addEventListener("animationiteration", (event) => {
+      if (event.target !== dot || event.animationName !== "hero-dot-cycle") return;
+      apply(nextIndex());
+    });
+  }
+</script>
