@@ -52,13 +52,23 @@ const industryColumns = [
   },
 ];
 
-// Quelle aller Zahlen: BrightLocal, Local Consumer Review Survey 2026
-// (1.002 Befragte, USA, Februar 2026). Neue Zahlen nur mit Primärquelle.
-const benefitsSource = {
+// Jede Karte nennt ihre eigene Quelle samt Land. Die BrightLocal-Zahlen stammen
+// aus den USA und müssen auch so ausgewiesen werden. Neue Zahlen nur mit Primärquelle.
+const brightLocalSource = {
   label: "BrightLocal, Local Consumer Review Survey 2026",
   url: "https://www.brightlocal.com/research/local-consumer-review-survey/",
-  note: "Befragung von 1.002 Konsument:innen in den USA, Februar 2026",
+  note: "USA, 1.002 Befragte",
 };
+
+// Statistik Austria, IKT-Einsatz in Haushalten 2025: rund 40 % nutzten in den drei
+// Monaten vor der Befragung generative KI (2024: 28 %). Belegt im WIFO-Monatsbericht 11/2025.
+const kiSource = {
+  label: "WIFO-Monatsberichte 11/2025",
+  url: "https://www.wifo.ac.at/wp-content/uploads/upload-1063/mb_2025_11_03_digitalisierung.pdf",
+  note: "Österreich, Daten von Statistik Austria",
+};
+
+const benefitSources = [brightLocalSource, kiSource];
 
 const benefits = [
   {
@@ -67,9 +77,23 @@ const benefits = [
     decimals: 0,
     suffix: "%",
     color: "green",
-    layout: "tall",
+    layout: "half",
+    demo: "reviews",
     text: "lesen Bewertungen, bevor sie einen lokalen Betrieb wählen.",
     action: "LokalOptimal macht Ihren Eintrag vollständig und überzeugend.",
+  },
+  {
+    icon: "smart_toy",
+    prefix: "rund",
+    value: 40,
+    decimals: 0,
+    suffix: "%",
+    color: "blue",
+    layout: "half",
+    demo: "chat",
+    text: "nutzen in Österreich KI wie ChatGPT.",
+    note: "Vor einem Jahr waren es 28 %.",
+    action: "LokalOptimal macht Ihren Eintrag auch für KI klar lesbar.",
   },
   {
     icon: "star",
@@ -77,7 +101,8 @@ const benefits = [
     decimals: 0,
     suffix: "%",
     color: "amber",
-    layout: "wide",
+    layout: "half",
+    demo: "rate",
     text: "wählen keinen Betrieb mit weniger als 20 Bewertungen.",
     action: "Der QR-Aufsteller von LokalOptimal macht es zufriedenen Kunden leicht, Sie zu bewerten.",
   },
@@ -87,20 +112,55 @@ const benefits = [
     decimals: 0,
     suffix: "%",
     color: "red",
-    layout: "compact",
+    layout: "half",
+    demo: "reply",
     text: "erwarten, dass Inhaber auf Bewertungen antworten.",
     action: "Ich beantworte Ihre Bewertungen persönlich.",
   },
+];
+
+// Beispiele für die Animationen. Namen und Betriebe sind frei erfunden;
+// der Bezug ist Wien und Umgebung, die Branchen sind bewusst gemischt.
+const exampleReviews = [
+  { name: "Katharina", stars: 5, text: "Rohrbruch am Sonntag: Nach 25 Minuten war jemand im 3. Bezirk da." },
+  { name: "Selin", stars: 5, text: "Kurzfristig einen Termin für Wimpern im 7. Bezirk bekommen. Gerne wieder!" },
+  { name: "Markus", stars: 4, text: "Klare Aufklärung vor dem Eingriff, Praxis im 9. Bezirk. Sehr angenehm." },
+  { name: "Julia", stars: 5, text: "Die Kosmetikerin hat sich Zeit genommen und ehrlich beraten." },
+  { name: "Thomas", stars: 5, text: "Pünktlich in Klosterneuburg, saubere Arbeit, fairer Preis." },
+  { name: "Petra", stars: 4, text: "Ordination in Mödling: kurze Wartezeit, alles verständlich erklärt." },
+];
+
+const replyExample = {
+  name: "Anna",
+  stars: 4,
+  text: "Sehr freundlich, nur die Wartezeit war etwas lang.",
+  answer: "Danke für Ihr Feedback, Anna! Die Wartezeit tut uns leid, wir haben die Terminplanung angepasst. Bis bald im 3. Bezirk!",
+};
+
+const chatScenes = [
   {
-    icon: "smart_toy",
-    value: 45,
-    decimals: 0,
-    suffix: "%",
-    color: "blue",
-    layout: "compact",
-    text: "fragen schon KI wie ChatGPT nach lokalen Betrieben.",
-    note: "2025 waren es noch 6 %.",
-    action: "LokalOptimal macht Ihren Eintrag auch für KI klar lesbar.",
+    question: "Welcher Installateur in Wien-Favoriten ist gut und hat Notdienst?",
+    answers: [
+      { name: "Installateur Mustermann", meta: "4,9 ★ · Notdienst rund um die Uhr · 10. Bezirk" },
+      { name: "Haustechnik Musterfrau GmbH", meta: "4,8 ★ · Notdienst bis 22 Uhr · 10. Bezirk" },
+      { name: "Wasser & Wärme Beispiel", meta: "4,7 ★ · Notdienst · Vösendorf" },
+    ],
+  },
+  {
+    question: "Wo bekomme ich im 7. Bezirk kurzfristig einen Termin bei einer guten Kosmetikerin?",
+    answers: [
+      { name: "Kosmetikstudio Mustermann", meta: "4,9 ★ · Online-Termine · 7. Bezirk" },
+      { name: "Beauty Atelier Beispiel", meta: "4,8 ★ · Termine diese Woche · 6. Bezirk" },
+      { name: "Hautpflege Musterfrau", meta: "4,8 ★ · Samstag geöffnet · 1. Bezirk" },
+    ],
+  },
+  {
+    question: "Welche Ärztin oder welcher Chirurg in Wien hat gute Bewertungen und nimmt neue Patienten?",
+    answers: [
+      { name: "Ordination Dr. Mustermann", meta: "4,9 ★ · Neue Patient:innen · 9. Bezirk" },
+      { name: "Praxis Dr. Beispiel", meta: "4,8 ★ · Online-Termine · 1. Bezirk" },
+      { name: "Chirurgie Dr. Musterfrau", meta: "4,8 ★ · Erstgespräch · Mödling" },
+    ],
   },
 ];
 
@@ -368,7 +428,7 @@ const homeStructuredData = [
     <section class="hero">
       <div class="container-wide hero-grid">
         <div class="hero-copy">
-          <span class="eyebrow hero-eyebrow"><span class="material-symbols-rounded" aria-hidden="true">location_on</span>Google Business Profil Betreuung · Österreich</span>
+          <p class="hero-eyebrow">Google-Eintrag-Betreuung · Österreich</p>
           <h1 class="h1">Mehr Anrufe von Kunden aus <span class="text-blue">Ihrer Umgebung.</span></h1>
           <p class="hero-subline">LokalOptimal richtet Ihren Google-Eintrag ein und hält ihn aktuell. Für Betriebe in ganz Österreich.</p>
           <div class="hero-actions">
@@ -524,6 +584,7 @@ const homeStructuredData = [
             <div class="benefit-stat-head">
               <span class="benefit-stat-icon material-symbols-rounded" aria-hidden="true">{benefit.icon}</span>
               <strong class="benefit-stat-value">
+                {benefit.prefix && <small class="benefit-prefix">{benefit.prefix}</small>}
                 <span>{benefit.value.toLocaleString("de-DE", { minimumFractionDigits: benefit.decimals, maximumFractionDigits: benefit.decimals })}</span>
                 <small>{benefit.suffix}</small>
               </strong>
@@ -532,6 +593,116 @@ const homeStructuredData = [
               {benefit.text}
               {benefit.note && <small class="benefit-note">{benefit.note}</small>}
             </p>
+
+            {benefit.demo === "reviews" && (
+              <div class="demo-wrap">
+                <span class="demo-tag">Beispieldaten</span>
+                <div class="reviews-demo" aria-hidden="true">
+                  <div class="reviews-track">
+                    {[0, 1].map(() => (
+                      <ul class="reviews-list">
+                        {exampleReviews.map((review) => (
+                          <li class="review-card">
+                            <span class="review-stars">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <span class={`material-symbols-rounded${i < review.stars ? " is-on" : ""}`}>star</span>
+                              ))}
+                            </span>
+                            <strong>{review.name}</strong>
+                            <span class="review-text">{review.text}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {benefit.demo === "rate" && (
+                <div class="rate" data-rate>
+                  <div
+                    class="rate-stars"
+                    role="slider"
+                    tabindex="0"
+                    aria-label="Beispiel: Wie viele Sterne würden Sie vergeben?"
+                    aria-valuemin="3"
+                    aria-valuemax="5"
+                    aria-valuenow="3"
+                    aria-valuetext="3 von 5 Sternen"
+                  >
+                    {Array.from({ length: 5 }).map(() => (
+                      <span class="rate-star">
+                        <span class="material-symbols-rounded rate-base" aria-hidden="true">star</span>
+                        <span class="material-symbols-rounded rate-fill" aria-hidden="true">star</span>
+                      </span>
+                    ))}
+                  </div>
+                  <span class="rate-hint" aria-live="polite" data-rate-hint>Probieren Sie es aus: So leicht bewertet ein Kunde.</span>
+                </div>
+            )}
+
+            {benefit.demo === "reply" && (
+              <div class="demo-wrap reply-demo" aria-hidden="true">
+                <span class="demo-tag">Beispieldaten</span>
+                <div class="reply-scene">
+                  <div class="review-card">
+                    <span class="review-stars">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span class={`material-symbols-rounded${i < replyExample.stars ? " is-on" : ""}`}>star</span>
+                      ))}
+                    </span>
+                    <strong>{replyExample.name}</strong>
+                    <span class="review-text">{replyExample.text}</span>
+                  </div>
+                  <div class="owner-reply">
+                    <span class="owner-reply-label">
+                      <span class="material-symbols-rounded">subdirectory_arrow_right</span>
+                      Antwort vom Inhaber
+                    </span>
+                    <span class="owner-reply-text">
+                      {replyExample.answer.split(" ").map((word, w) => (
+                        <span class="reply-word" style={`--d:${(1.8 + w * 0.13).toFixed(2)}s`}>{word} </span>
+                      ))}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {benefit.demo === "chat" && (
+              <div class="chat-demo" aria-hidden="true">
+                <span class="demo-tag">Beispieldaten</span>
+                <div class="chat-scenes">
+                  {chatScenes.map((scene, s) => {
+                    const start = s * 8;
+                    const words = scene.question.split(" ");
+                    const answerStart = start + 0.6 + words.length * 0.17 + 0.5;
+                    return (
+                      <div class="chat-scene" style={`--start:${start}s`}>
+                        <div class="chat-input">
+                          <span class="chat-prompt">
+                            {words.map((word, w) => (
+                              <span class="chat-word" style={`--d:${(start + 0.6 + w * 0.17).toFixed(2)}s`}>{word} </span>
+                            ))}
+                          </span>
+                          <span class="material-symbols-rounded chat-send">arrow_upward</span>
+                        </div>
+                        <ul class="chat-answers">
+                          {scene.answers.map((answer, a) => (
+                            <li class="chat-answer" style={`--d:${(answerStart + a * 0.55).toFixed(2)}s`}>
+                              <strong>{answer.name}</strong>
+                              <span>{answer.meta}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
             <p class="benefit-action">
               <span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span>
               {benefit.action}
@@ -540,9 +711,14 @@ const homeStructuredData = [
         ))}
       </div>
       <p class="container benefit-source">
-        Quelle:{" "}
-        <a href={benefitsSource.url} target="_blank" rel="noopener noreferrer">{benefitsSource.label}</a>{" "}
-        ({benefitsSource.note}).
+        Quellen:{" "}
+        {benefitSources.map((source, i) => (
+          <>
+            {i > 0 && " · "}
+            <a href={source.url} target="_blank" rel="noopener noreferrer">{source.label}</a>{" "}
+            ({source.note})
+          </>
+        ))}
       </p>
     </section>
 
@@ -611,11 +787,11 @@ const homeStructuredData = [
           <div class="case-compare" aria-label="Vorher und nachher">
             <div class="case-compare-col is-before">
               <h3>Vorher</h3>
-              <ul>{caseStudy.before.map((item) => <li><span class="material-symbols-rounded" aria-hidden="true">close</span>{item}</li>)}</ul>
+              <ul>{caseStudy.before.map((item, i) => <li style={`--i:${i}`}><span class="material-symbols-rounded" aria-hidden="true">close</span>{item}</li>)}</ul>
             </div>
             <div class="case-compare-col is-after">
               <h3>Mit LokalOptimal</h3>
-              <ul>{caseStudy.after.map((item) => <li><span class="material-symbols-rounded" aria-hidden="true">check</span>{item}</li>)}</ul>
+              <ul>{caseStudy.after.map((item, i) => <li style={`--i:${caseStudy.before.length + i}`}><span class="material-symbols-rounded" aria-hidden="true">check</span>{item}</li>)}</ul>
             </div>
           </div>
         </header>
@@ -624,7 +800,7 @@ const homeStructuredData = [
           <div class="case-figures">
             {caseStudy.figures.map((figure) => (
               <div class="case-figure">
-                <strong>{figure.value}</strong>
+                <strong data-count-to={/^\d+$/.test(figure.value) ? figure.value : undefined}>{figure.value}</strong>
                 <span>{figure.label}</span>
               </div>
             ))}
@@ -642,7 +818,7 @@ const homeStructuredData = [
             </div>
             <ul class="case-split-labels">
               {caseSurfaces.map((surface) => (
-                <li><strong>{surface.value}</strong> {surface.label} <small>· {surface.share} %</small></li>
+                <li><strong data-count-to={surface.value}>{surface.value}</strong> {surface.label} <small>· {surface.share} %</small></li>
               ))}
             </ul>
             <p class="case-split-note">Drei von vier Aufrufen kamen über die normale Google-Suche, nicht über Maps.</p>
@@ -912,8 +1088,8 @@ const homeStructuredData = [
       <div class="container contact-grid" data-reveal>
         <div>
           <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">forum</span>Kontakt</span>
-          <h2 class="h2">Wie steht Ihr Google-Eintrag da? Finden wir es gemeinsam heraus.</h2>
-          <p class="lead">Im kostenlosen Erstgespräch (30 Minuten) sehen wir uns Ihren Eintrag gemeinsam an. Sie erfahren, was fehlt und was es kostet, das zu ändern. Unverbindlich, ohne Verkaufsdruck.</p>
+          <h2 class="h2">In 30 Minuten wissen Sie, was Ihrem Google-Eintrag fehlt.</h2>
+          <p class="lead">Im kostenlosen Erstgespräch sehe ich mir Ihren Eintrag mit Ihnen an. Sie erfahren, was fehlt und was es kostet, das zu ändern. Unverbindlich, ohne Verkaufsdruck.</p>
           <div class="contact-actions">
             <a class="btn btn-secondary contact-cal" href={calUrl} target="_blank" rel="noopener noreferrer" data-cal-open>Kostenloses Erstgespräch buchen</a>
           </div>
@@ -938,8 +1114,28 @@ const homeStructuredData = [
             </figcaption>
           </figure>
         </div>
-        <div class="panel-shell">
-          <div class="panel-core contact-core">
+        <div class="gbp-card">
+          <div class="gbp-cover" aria-hidden="true">
+            <span class="material-symbols-rounded gbp-pin">location_on</span>
+          </div>
+          <div class="gbp-head">
+            <h3>LokalOptimal</h3>
+            <p>Google-Eintrag-Betreuung · Wien · ganz Österreich</p>
+          </div>
+          <div class="gbp-actions">
+            <span class="gbp-action is-active" aria-current="true">
+              <span class="material-symbols-rounded" aria-hidden="true">mail</span>Nachricht schreiben
+            </span>
+            <button class="gbp-action" type="button" data-cal-open>
+              <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>Termin buchen
+            </button>
+          </div>
+          <ul class="gbp-info">
+            <li><span class="material-symbols-rounded" aria-hidden="true">location_on</span>Wien und ganz Österreich</li>
+            <li><span class="material-symbols-rounded" aria-hidden="true">schedule</span>Erstgespräch: 30 Minuten · kostenlos · unverbindlich</li>
+          </ul>
+          <div class="gbp-form">
+            <h4>Nachricht senden</h4>
             <ContactForm client:visible />
           </div>
         </div>
@@ -950,6 +1146,147 @@ const homeStructuredData = [
   <Footer />
   <MotionScript />
   <script>
+    // Fallbeispiel: einmalige Choreografie beim Scrollen (Zahlen, Balken, Listen).
+    // Ohne JS oder bei "Bewegung reduzieren" bleibt alles im Endzustand sichtbar.
+    {
+      const section = document.querySelector<HTMLElement>(".case-section");
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (section && !reduced && "IntersectionObserver" in window) {
+        const counters = Array.from(section.querySelectorAll<HTMLElement>("[data-count-to]"));
+        const targets = counters.map((el) => Number(el.dataset.countTo));
+        counters.forEach((el) => {
+          el.textContent = "0";
+        });
+        section.classList.add("case-animate");
+
+        const countUp = (el: HTMLElement, to: number, delay: number, duration: number) => {
+          const start = performance.now() + delay;
+          const tick = (now: number) => {
+            const t = Math.min(1, Math.max(0, (now - start) / duration));
+            el.textContent = Math.round(to * (1 - Math.pow(1 - t, 3))).toLocaleString("de-DE");
+            if (t < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        };
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            if (!entries.some((entry) => entry.isIntersecting)) return;
+            observer.disconnect();
+            section.classList.add("is-inview");
+            counters.forEach((el, i) => {
+              const inLabels = Boolean(el.closest(".case-split-labels"));
+              countUp(el, targets[i], inLabels ? 300 : 0, inLabels ? 1200 : 1200);
+            });
+          },
+          { threshold: 0.3 },
+        );
+        observer.observe(section);
+      }
+    }
+
+    // Kleine Spielerei in der Bewertungskarte: Sterne vergeben (3 bis 5, auch halbe).
+    // Reiner Gag, es wird nichts gespeichert oder gesendet.
+    document.querySelectorAll<HTMLElement>("[data-rate]").forEach((root) => {
+      const slider = root.querySelector<HTMLElement>(".rate-stars");
+      const hint = root.querySelector<HTMLElement>("[data-rate-hint]");
+      if (!slider || !hint) return;
+      const stars = Array.from(slider.querySelectorAll<HTMLElement>(".rate-star"));
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const MIN = 3;
+      const MAX = 5;
+      const format = (n: number) => n.toLocaleString("de-DE");
+      let value = MIN;
+      let pressing = false;
+
+      const paint = (v: number) => {
+        stars.forEach((star, i) => {
+          star.style.setProperty("--fill", String(Math.min(1, Math.max(0, v - i))));
+        });
+      };
+
+      const fromPointer = (event: PointerEvent) => {
+        const rect = slider.getBoundingClientRect();
+        const ratio = (event.clientX - rect.left) / rect.width;
+        const raw = Math.ceil(Math.min(1, Math.max(0, ratio)) * MAX * 2) / 2;
+        return Math.min(MAX, Math.max(MIN, raw));
+      };
+
+      const burst = (x: number, y: number) => {
+        if (reducedMotion.matches) return;
+        const host = root.getBoundingClientRect();
+        for (let i = 0; i < 6; i++) {
+          const spark = document.createElement("span");
+          spark.className = "material-symbols-rounded rate-spark";
+          spark.textContent = "star";
+          spark.setAttribute("aria-hidden", "true");
+          spark.style.left = `${x - host.left}px`;
+          spark.style.top = `${y - host.top}px`;
+          root.appendChild(spark);
+          const angle = (-160 + Math.random() * 140) * (Math.PI / 180);
+          const distance = 26 + Math.random() * 26;
+          const animation = spark.animate(
+            [
+              { transform: "translate(-50%, -50%) scale(1)", opacity: 1 },
+              {
+                transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0.35)`,
+                opacity: 0,
+              },
+            ],
+            { duration: 520 + Math.random() * 160, easing: "cubic-bezier(0.22, 1, 0.36, 1)" },
+          );
+          animation.onfinish = () => spark.remove();
+        }
+      };
+
+      const commit = (next: number, x: number, y: number) => {
+        value = next;
+        paint(value);
+        slider.setAttribute("aria-valuenow", String(value));
+        slider.setAttribute("aria-valuetext", `${format(value)} von 5 Sternen`);
+        hint.textContent = `Danke für ${format(value)} Sterne! So einfach geht das für Ihre Kunden.`;
+        burst(x, y);
+      };
+
+      slider.addEventListener("pointermove", (event) => {
+        if (event.pointerType === "mouse" || pressing) paint(fromPointer(event));
+      });
+      slider.addEventListener("pointerleave", () => {
+        if (!pressing) paint(value);
+      });
+      slider.addEventListener("pointerdown", (event) => {
+        if (event.button !== 0) return;
+        pressing = true;
+        slider.setPointerCapture(event.pointerId);
+        paint(fromPointer(event));
+      });
+      slider.addEventListener("pointerup", (event) => {
+        if (!pressing || event.button !== 0) return;
+        pressing = false;
+        commit(fromPointer(event), event.clientX, event.clientY);
+      });
+      slider.addEventListener("pointercancel", () => {
+        pressing = false;
+        paint(value);
+      });
+
+      slider.addEventListener("keydown", (event) => {
+        const step =
+          event.key === "ArrowRight" || event.key === "ArrowUp" ? 0.5
+          : event.key === "ArrowLeft" || event.key === "ArrowDown" ? -0.5
+          : 0;
+        let next = value + step;
+        if (event.key === "Home") next = MIN;
+        else if (event.key === "End") next = MAX;
+        else if (!step) return;
+        event.preventDefault();
+        const rect = slider.getBoundingClientRect();
+        commit(Math.min(MAX, Math.max(MIN, next)), rect.left + (rect.width * next) / MAX, rect.top + rect.height / 2);
+      });
+
+      paint(value);
+    });
+
     document.querySelectorAll<HTMLAnchorElement>("[data-bc-offer]").forEach((link) => {
       link.addEventListener("click", () => {
         const offerId = link.dataset.bcOffer;

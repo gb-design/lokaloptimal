@@ -207,6 +207,15 @@ svg {
     "opsz" 20;
 }
 
+.hero-eyebrow {
+  margin: 0;
+  color: var(--blue-deep);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .h1,
 .h2,
 .h3 {
@@ -317,6 +326,18 @@ svg {
   border: 1px solid color-mix(in oklch, var(--blue), white 42%);
   background: color-mix(in oklch, white, var(--soft-blue) 30%);
   color: var(--blue-deep);
+}
+
+/* Einheitlicher Hover für alle sekundären Buttons (Nav, Karten, Kontakt). */
+.btn-secondary:hover {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: white;
+  box-shadow: 0 16px 34px oklch(0.5 0.21 266 / 0.24);
+}
+
+.btn-secondary:hover .material-symbols-rounded {
+  color: white;
 }
 
 .btn-icon {
@@ -506,19 +527,9 @@ svg {
   gap: 0.55rem;
 }
 
-.nav-cta:hover {
-  border-color: var(--blue);
-  background: var(--blue);
-  color: white;
-  box-shadow: 0 16px 34px oklch(0.5 0.21 266 / 0.24);
-}
 
 .nav-cta .material-symbols-rounded {
   font-size: 1.15rem;
-}
-
-.nav-cta:hover .material-symbols-rounded {
-  color: white;
 }
 
 .mobile-menu-button {
@@ -1347,7 +1358,7 @@ body[data-cal-modal-open] {
   display: flex;
   align-items: flex-start;
   gap: 0.4rem;
-  margin-top: clamp(0.9rem, 1.6vw, 1.2rem);
+  margin-top: 1rem;
   color: var(--blue-deep);
   font-size: clamp(0.95rem, 1.4vw, 1.05rem);
   font-weight: 650;
@@ -1365,6 +1376,262 @@ body[data-cal-modal-open] {
   color: var(--muted);
   font-size: 0.82em;
   font-weight: 460;
+}
+
+.benefit-prefix {
+  margin-right: 0.35em;
+  font-size: 0.3em;
+  font-weight: 640;
+  letter-spacing: 0.02em;
+}
+
+/* Beispielbewertungen: langsam scrollende Liste, oben und unten ausgeblendet. */
+.reviews-demo {
+  height: 17rem;
+  margin-top: 0;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent);
+}
+
+.reviews-track {
+  display: flex;
+  flex-direction: column;
+  animation: reviews-scroll 38s linear infinite;
+}
+
+.reviews-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0 0 0.6rem;
+  list-style: none;
+}
+
+.review-card {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: oklch(1 0 0 / 0.9);
+  font-size: 0.88rem;
+  line-height: 1.38;
+}
+
+.review-card strong {
+  font-weight: 700;
+}
+
+.review-text {
+  color: #3f3f48;
+}
+
+.review-stars {
+  display: flex;
+  gap: 0.05rem;
+}
+
+.review-stars .material-symbols-rounded {
+  color: var(--line);
+  font-size: 1rem;
+  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 20;
+}
+
+.review-stars .material-symbols-rounded.is-on {
+  color: color-mix(in oklch, var(--amber), black 8%);
+}
+
+@keyframes reviews-scroll {
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+/* Sterne-Spielerei: nicht unter 3, halbe Sterne möglich. */
+.rate {
+  position: relative;
+  display: grid;
+  gap: 0.3rem;
+  margin-top: 1.1rem;
+}
+
+.rate-stars {
+  display: flex;
+  width: max-content;
+  gap: 0.1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.rate-stars:focus-visible {
+  outline: 2px solid var(--blue-deep);
+  outline-offset: 3px;
+}
+
+.rate-star {
+  position: relative;
+  width: 2.2rem;
+  height: 2.2rem;
+}
+
+.rate-star .material-symbols-rounded {
+  position: absolute;
+  inset: 0;
+  width: 1em;
+  height: 1em;
+  font-size: 2.2rem;
+  line-height: 1;
+}
+
+.rate-base {
+  color: color-mix(in oklch, var(--amber), black 18%);
+  font-variation-settings: "FILL" 0, "wght" 500, "GRAD" 0, "opsz" 40;
+}
+
+.rate-fill {
+  color: var(--amber);
+  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 40;
+  clip-path: inset(0 calc((1 - var(--fill, 0)) * 100%) 0 0);
+  transition: clip-path 140ms var(--ease);
+}
+
+.rate-hint {
+  max-width: 32ch;
+  color: #3f3f48;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.rate-spark {
+  position: absolute;
+  z-index: 3;
+  color: color-mix(in oklch, var(--amber), black 6%);
+  font-size: 0.85rem;
+  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 20;
+  pointer-events: none;
+}
+
+/* KI-Chat-Beispiel: drei Fragen im Wechsel, Wörter erscheinen nacheinander.
+   Alle Animationen laufen im selben 24-s-Takt (3 Szenen à 8 s). */
+.chat-demo {
+  max-width: 36rem;
+  margin-top: 1.1rem;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 1.1rem;
+  background: oklch(1 0 0 / 0.78);
+}
+
+.chat-scenes {
+  display: grid;
+}
+
+.chat-scene {
+  grid-area: 1 / 1;
+  opacity: 0;
+  animation: chat-scene 24s linear var(--start) infinite backwards;
+}
+
+.chat-input {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.6rem 0.6rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 1.1rem;
+  background: white;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.chat-prompt {
+  padding-top: 0.2rem;
+}
+
+.chat-word {
+  opacity: 0;
+  animation: chat-item 24s linear var(--d) infinite backwards;
+}
+
+.chat-send {
+  display: grid;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--blue);
+  color: white;
+  font-size: 1.2rem;
+}
+
+.chat-answers {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.65rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chat-answer {
+  display: grid;
+  padding: 0.5rem 0.8rem;
+  border-left: 3px solid var(--blue);
+  border-radius: 0.6rem;
+  background: color-mix(in oklch, var(--blue), white 94%);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  opacity: 0;
+  animation: chat-item 24s linear var(--d) infinite backwards;
+}
+
+.chat-answer strong {
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.chat-answer span {
+  color: #3f3f48;
+}
+
+@keyframes chat-scene {
+  0% { opacity: 0; }
+  2% { opacity: 1; }
+  30% { opacity: 1; }
+  33%, 100% { opacity: 0; }
+}
+
+@keyframes chat-item {
+  0% { opacity: 0; transform: translateY(4px); }
+  1.5% { opacity: 1; transform: none; }
+  30% { opacity: 1; transform: none; }
+  32%, 100% { opacity: 0; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reviews-track {
+    animation: none;
+  }
+
+  .rate-fill {
+    transition: none;
+  }
+
+  .chat-scene,
+  .chat-word,
+  .chat-answer {
+    opacity: 1;
+    animation: none;
+  }
+
+  .chat-scene:not(:first-child) {
+    display: none;
+  }
 }
 
 .future-cta {
@@ -1897,8 +2164,8 @@ body[data-cal-modal-open] {
 
 .benefit-bento {
   display: grid;
-  grid-template-columns: minmax(17rem, 0.92fr) repeat(2, minmax(0, 0.78fr));
-  grid-template-rows: minmax(13.5rem, auto) minmax(13.5rem, auto);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: none;
   gap: clamp(0.95rem, 1.7vw, 1.25rem);
   align-items: stretch;
   width: var(--container-wide);
@@ -1911,7 +2178,6 @@ body[data-cal-modal-open] {
   display: grid;
   align-content: start;
   min-width: 0;
-  min-height: 13.5rem;
   padding: var(--benefit-card-padding);
   overflow: hidden;
   border: 1px solid oklch(1 0 0 / 0.72);
@@ -2009,19 +2275,19 @@ body[data-cal-modal-open] {
 
 .benefit-stat-icon {
   display: grid;
-  width: clamp(4.9rem, 8vw, 5.75rem);
-  height: clamp(4.9rem, 8vw, 5.75rem);
+  width: clamp(2.6rem, 4vw, 3rem);
+  height: clamp(2.6rem, 4vw, 3rem);
   place-items: center;
   flex: 0 0 auto;
   border-radius: 999px;
   background: color-mix(in oklch, var(--stat-color), white 74%);
   color: color-mix(in oklch, var(--stat-color), black 18%);
-  font-size: clamp(2.6rem, 4.6vw, 3.15rem);
+  font-size: clamp(1.45rem, 2.4vw, 1.7rem);
   font-variation-settings:
     "FILL" var(--icon-fill, 0),
-    "wght" 620,
+    "wght" 600,
     "GRAD" 0,
-    "opsz" 44;
+    "opsz" 24;
 }
 
 .benefit-stat-value {
@@ -2030,7 +2296,7 @@ body[data-cal-modal-open] {
   gap: 0.11em;
   color: color-mix(in oklch, var(--stat-color), black 13%);
   font-family: var(--font-display);
-  font-size: clamp(3.25rem, 7vw, 4.65rem);
+  font-size: clamp(2.6rem, 4.6vw, 3.4rem);
   font-variant-numeric: tabular-nums;
   font-weight: 820;
   line-height: 0.92;
@@ -2048,8 +2314,8 @@ body[data-cal-modal-open] {
 }
 
 .benefit-stat-card p {
-  max-width: 24ch;
-  margin: clamp(0.7rem, 1.4vw, 1rem) 0 0;
+  max-width: 30ch;
+  margin: 0.7rem 0 0;
   color: #141414;
   font-size: clamp(1.06rem, 1.8vw, 1.25rem);
   font-weight: 460;
@@ -3572,13 +3838,6 @@ body[data-cal-modal-open] {
   width: fit-content;
 }
 
-.contact-cal:hover {
-  border-color: var(--blue);
-  background: var(--blue);
-  color: white;
-  box-shadow: 0 16px 34px oklch(0.5 0.21 266 / 0.24);
-}
-
 .contact-core {
   padding: clamp(1rem, 4vw, 1.6rem);
 }
@@ -4886,7 +5145,29 @@ textarea.field {
   }
 
   .hero-grid {
-    gap: clamp(2.75rem, 10vw, 3.75rem);
+    gap: clamp(2rem, 8vw, 2.75rem);
+  }
+
+  .hero-copy {
+    gap: 1rem;
+  }
+
+  .hero .h1 {
+    margin-bottom: 0;
+  }
+
+  .hero-copy .h1 {
+    font-size: clamp(2.1rem, 8.5vw, 2.4rem);
+  }
+
+  .hero-price {
+    grid-template-columns: auto auto 1fr;
+    column-gap: 0.4rem;
+  }
+
+  .hero-price-note {
+    grid-column: auto;
+    margin-top: 0;
   }
 
   .hero-visual {
@@ -5211,5 +5492,334 @@ textarea.field {
   .tab-icon {
     width: 2.85rem;
     height: 2.85rem;
+  }
+}
+
+/* CookieYes-Revisit-Button: Markenblau statt Dashboard-Standardfarbe, kleiner,
+   damit er auf dem Handy keinen Hero-Text überdeckt. */
+.cky-btn-revisit-wrapper {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  background-color: var(--blue) !important;
+}
+
+.cky-btn-revisit-wrapper .cky-btn-revisit img {
+  width: 1.4rem !important;
+  height: 1.4rem !important;
+}
+
+/* 2x2-Raster: Icon und Zahl immer nebeneinander, kompakt. */
+.benefit-stat-card.is-half .benefit-stat-head {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.demo-wrap {
+  position: relative;
+  margin-top: 1.1rem;
+}
+
+.demo-tag {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in oklch, var(--stat-color, var(--blue)), white 86%);
+  color: #3f3f48;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.chat-demo .demo-tag {
+  margin-bottom: 0.6rem;
+}
+
+.benefit-source {
+  max-width: 60rem;
+}
+
+/* Antwort auf eine Bewertung: Bewertung erscheint, dann tippt die Antwort sich Wort für Wort ein (10-s-Takt). */
+.reply-scene {
+  display: grid;
+  gap: 0.5rem;
+  opacity: 0;
+  animation: reply-scene 10s linear infinite;
+}
+
+.owner-reply {
+  display: grid;
+  gap: 0.2rem;
+  margin-left: 1rem;
+  padding: 0.6rem 0.85rem;
+  border-left: 3px solid var(--red);
+  border-radius: 0.6rem;
+  background: color-mix(in oklch, var(--red), white 94%);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.owner-reply-label {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: color-mix(in oklch, var(--red), black 25%);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.owner-reply-label .material-symbols-rounded {
+  font-size: 1rem;
+}
+
+.owner-reply-text {
+  color: #3f3f48;
+}
+
+.reply-word {
+  opacity: 0;
+  animation: reply-word 10s linear var(--d) infinite backwards;
+}
+
+@keyframes reply-scene {
+  0% { opacity: 0; transform: translateY(6px); }
+  5% { opacity: 1; transform: none; }
+  90% { opacity: 1; transform: none; }
+  95%, 100% { opacity: 0; transform: none; }
+}
+
+@keyframes reply-word {
+  0% { opacity: 0; }
+  2% { opacity: 1; }
+  92% { opacity: 1; }
+  94%, 100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reply-scene,
+  .reply-word {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* Half-Karten: Aktionszeile unten, Sternedemo (47 %) mittig und größer. */
+.benefit-stat-card.is-half {
+  display: flex;
+  flex-direction: column;
+}
+
+.benefit-stat-card.is-half p.benefit-action {
+  margin-top: auto;
+  padding-top: 1.1rem;
+}
+
+.benefit-stat-card.is-half .rate {
+  align-self: center;
+  justify-items: center;
+  margin-block: auto;
+  padding-top: 1.1rem;
+  text-align: center;
+}
+
+.benefit-stat-card.is-half .rate-star {
+  width: 2.9rem;
+  height: 2.9rem;
+}
+
+.benefit-stat-card.is-half .rate-star .material-symbols-rounded {
+  font-size: 2.9rem;
+}
+
+.benefit-stat-card.is-half .rate-hint {
+  max-width: 28ch;
+  font-size: 1rem;
+}
+
+/* `.benefit-stat-card > *` setzt position: relative und würde die Deko-Form im Flex-Layout Platz belegen lassen. */
+.benefit-stat-card.is-half > .benefit-shape {
+  position: absolute;
+}
+
+/* Fallbeispiel-Choreografie: einmalig, ausgelöst über .is-inview (Script in index.astro).
+   Startzustände gelten nur mit .case-animate, ohne JS bleibt alles sichtbar. */
+.case-figure strong,
+.case-split-labels strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.case-animate .case-split-seg {
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.case-animate.is-inview .case-split-seg {
+  transform: none;
+  transition: transform 900ms var(--ease);
+}
+
+.case-animate.is-inview .case-split-seg.is-search {
+  transition-delay: 300ms;
+}
+
+.case-animate.is-inview .case-split-seg.is-maps {
+  transition-duration: 500ms;
+  transition-delay: 1100ms;
+}
+
+.case-animate .case-compare-col li {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.case-animate.is-inview .case-compare-col li {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 500ms var(--ease),
+    transform 500ms var(--ease);
+  transition-delay: calc(600ms + var(--i, 0) * 90ms);
+}
+
+.case-animate .case-compare-col.is-after .material-symbols-rounded {
+  transform: scale(0.6);
+}
+
+.case-animate.is-inview .case-compare-col.is-after .material-symbols-rounded {
+  transform: none;
+  transition: transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-delay: calc(700ms + var(--i, 0) * 90ms);
+}
+
+.case-animate.is-inview .case-next .material-symbols-rounded {
+  animation: case-nudge 500ms var(--ease) 2s 1 both;
+}
+
+@keyframes case-nudge {
+  50% { transform: translateX(4px); }
+}
+
+/* Kontaktformular als Karte im Stil eines Unternehmensprofils (ohne Marke, ohne erfundene Bewertungen). */
+.gbp-card {
+  overflow: hidden;
+  border-radius: 1rem;
+  background: white;
+  box-shadow: 6px 10px 22px rgb(57 75 138 / 0.13);
+}
+
+.gbp-cover {
+  position: relative;
+  height: 6rem;
+  background:
+    linear-gradient(90deg, rgb(68 102 246 / 0.1) 1px, transparent 1px) 0 0 / 2.2rem 2.2rem,
+    linear-gradient(0deg, rgb(68 102 246 / 0.1) 1px, transparent 1px) 0 0 / 2.2rem 2.2rem,
+    linear-gradient(135deg, #e3eaff, #fcf6e8);
+}
+
+.gbp-pin {
+  position: absolute;
+  right: 18%;
+  bottom: 0.9rem;
+  color: var(--red);
+  font-size: 2.2rem;
+  font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 40;
+}
+
+.gbp-head {
+  padding: 1rem clamp(1.1rem, 3vw, 1.6rem) 0;
+}
+
+.gbp-head h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.gbp-head p {
+  margin: 0.2rem 0 0;
+  color: #5d5d68;
+  font-size: 0.92rem;
+}
+
+.gbp-actions {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+  padding: 0 clamp(1.1rem, 3vw, 1.6rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.gbp-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: transparent;
+  color: #3f3f48;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.gbp-action .material-symbols-rounded {
+  font-size: 1.2rem;
+}
+
+.gbp-action.is-active {
+  border-bottom-color: var(--blue);
+  color: var(--blue-deep);
+  cursor: default;
+}
+
+button.gbp-action:hover {
+  color: var(--blue-deep);
+}
+
+button.gbp-action:focus-visible {
+  outline: 2px solid var(--blue-deep);
+  outline-offset: -2px;
+}
+
+.gbp-info {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 1rem clamp(1.1rem, 3vw, 1.6rem) 0;
+  list-style: none;
+  font-size: 0.92rem;
+}
+
+.gbp-info li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.gbp-info .material-symbols-rounded {
+  color: var(--blue);
+  font-size: 1.25rem;
+}
+
+.gbp-form {
+  margin-top: 1rem;
+  padding: 1.1rem clamp(1.1rem, 3vw, 1.6rem) clamp(1.1rem, 3vw, 1.6rem);
+  border-top: 1px solid var(--line);
+}
+
+.gbp-form h4 {
+  margin: 0 0 0.9rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+@media (max-width: 620px) {
+  .gbp-cover {
+    height: 4.5rem;
   }
 }
