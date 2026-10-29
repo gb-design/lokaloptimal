@@ -954,10 +954,7 @@ const homeStructuredData = [
         </div>
       </div>
 
-      <details class="container addon-list-toggle">
-        <summary>
-          <span class="btn btn-secondary">Alle {addons.length} Einzelleistungen mit Preisen anzeigen <span class="material-symbols-rounded addon-list-toggle-icon" aria-hidden="true">expand_more</span></span>
-        </summary>
+      <div class="container addon-list">
         <div class="addon-price-grid">
           {addons.map(({ id, name, sub, price, period, tooltip, icon }) => (
             <details class="addon-price panel-shell">
@@ -977,7 +974,7 @@ const homeStructuredData = [
             </details>
           ))}
         </div>
-      </details>
+      </div>
 
       <div class="container geo-check panel-shell">
         <div class="geo-check-core panel-core">

@@ -2,32 +2,33 @@
 // Beispielkarte im Hero: zeigt, wie ein gepflegter Google-Eintrag stärker wird.
 // Reines HTML/SVG. Die Animation ist eine ruhige Endlosschleife per CSS (Punkt → Karte → Wegwischen).
 // Drei Beispielbetriebe wechseln zufällig, jeweils wenn die Karte unsichtbar ist (siehe Script unten).
-// Die Prozentwerte stehen in global.css (.hero-stage[data-variant]) und müssen zu scores passen.
+// steps: Profilstärke vor dem ersten Haken und nach jedem der drei Haken (letzter Wert = Endstand).
+// Das Script zeichnet Ring und Zahl daraus; global.css (.hero-stage[data-variant]) hält dieselben Werte als Fallback.
 const variants = [
   {
-    name: "Beispiel-Praxis",
+    name: "Zahnarztpraxis am Augarten",
     meta: "Zahnarzt · Wien",
     checks: ["Öffnungszeiten aktuell", "Fotos ergänzt", "Bewertungen beantwortet"],
     chip: "Mehr Anrufe über Google",
-    score: 92,
+    steps: [18, 46, 72, 86],
   },
   {
-    name: "Beispiel-Salon",
+    name: "Salon Schnittwerk",
     meta: "Friseur · Graz",
     checks: ["Leistungen eingetragen", "Neue Fotos hochgeladen", "Fragen beantwortet"],
     chip: "Mehr Routenanfragen",
-    score: 86,
+    steps: [22, 48, 64, 79],
   },
   {
-    name: "Beispiel-Installateur",
+    name: "Haustechnik Wallner",
     meta: "Installateur · Linz",
     checks: ["Einsatzgebiet festgelegt", "Notdienst-Zeiten ergänzt", "Bewertungen angefragt"],
     chip: "Mehr Anfragen aus der Nähe",
-    score: 95,
+    steps: [12, 60, 74, 88],
   },
 ].map((variant) => ({
   ...variant,
-  caption: `Beispiel: ${variant.name}, ${variant.meta}. Mit gepflegten Angaben steigt die Profilstärke auf ${variant.score} Prozent. ${variant.chip}.`,
+  caption: `Beispiel: ${variant.name}, ${variant.meta}. Mit gepflegten Angaben steigt die Profilstärke auf ${variant.steps[3]} Prozent. ${variant.chip}.`,
 }));
 const first = variants[0];
 ---
@@ -88,7 +89,7 @@ const first = variants[0];
 </div>
 
 <script>
-  type Variant = { name: string; meta: string; checks: string[]; chip: string; caption: string };
+  type Variant = { name: string; meta: string; checks: string[]; chip: string; caption: string; steps: number[] };
 
   const stage = document.querySelector<HTMLElement>(".hero-stage");
   const variants: Variant[] = JSON.parse(stage?.dataset.variants ?? "[]");
@@ -129,24 +130,47 @@ const first = variants[0];
       });
     };
 
-    // Zahl folgt dem Ring: Der CSS-Counter wird mobil (animierte Maske am Stage) nicht zuverlässig neu gezeichnet.
-    // Das Script liest pro Frame den aktuellen Ring-Wert und schreibt ihn als Text.
+    // Ring und Zahl zeichnet das Script selbst: CSS-Keyframes mit var() übernehmen den Variantenwechsel
+    // in Chrome nicht, und die Zahl soll exakt zum Ring passen. Der Takt kommt von der Karten-Animation,
+    // so bleibt alles synchron mit Punkt und Haken. Pro Haken wächst der Ring in einem weichen Schritt.
+    const card = stage.querySelector<HTMLElement>(".hero-card");
     const fill = stage.querySelector<SVGCircleElement>(".hero-ring-fill");
     const value = stage.querySelector<HTMLElement>(".hero-ring-value");
+    const clock = card?.getAnimations().find((a) => (a as CSSAnimation).animationName === "hero-card-cycle");
 
-    if (fill && value && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (fill && value && clock && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const cycle = 16000;
+      // Zyklusanteile, in denen der Ring wächst (passen zu hero-dot-0/1/2 in global.css).
+      const segments = [
+        [0.2, 0.26],
+        [0.3, 0.36],
+        [0.4, 0.46],
+      ];
+      const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+
+      const levelAt = (t: number, steps: number[]) => {
+        if (t >= 0.821) return steps[0];
+        let level = steps[0];
+        segments.forEach(([from, to], i) => {
+          if (t >= to) level = steps[i + 1];
+          else if (t > from) level = steps[i] + (steps[i + 1] - steps[i]) * ease((t - from) / (to - from));
+        });
+        return level;
+      };
+
+      stage.classList.add("is-scripted");
       let visible = true;
-      let last = -1;
+      let lastText = "";
 
-      // Chrome liefert den Wert als "calc(56px)", daher die erste Zahl herauslesen statt parseFloat.
       const tick = () => {
         if (visible) {
-          const match = getComputedStyle(fill).strokeDashoffset.match(/^(?:calc\()?\s*(-?\d+(?:\.\d+)?)(?:px)?\s*\)?$/);
-          const n = match ? Math.round(100 - parseFloat(match[1])) : NaN;
-          if (Number.isFinite(n) && n !== last) {
-            last = n;
-            value.textContent = `${n}%`;
-            stage.classList.add("is-counting");
+          const time = Number(clock.currentTime ?? 0);
+          const level = levelAt((time % cycle) / cycle, variants[current].steps);
+          fill.style.strokeDashoffset = String(100 - level);
+          const text = `${Math.round(level)}%`;
+          if (text !== lastText) {
+            lastText = text;
+            value.textContent = text;
           }
         }
         requestAnimationFrame(tick);

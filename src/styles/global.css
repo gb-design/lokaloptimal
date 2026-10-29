@@ -789,7 +789,7 @@ body[data-cal-modal-open] {
 @property --hero-n {
   syntax: "<integer>";
   inherits: false;
-  initial-value: 92;
+  initial-value: 86;
 }
 
 .hero {
@@ -845,7 +845,7 @@ body[data-cal-modal-open] {
   position: absolute;
   inset: 0;
   opacity: 0;
-  color: var(--blue-deep);
+  color: var(--red);
   -webkit-mask-image: radial-gradient(
     circle closest-side at 50% calc(50% - var(--hero-foot-space) / 2),
     transparent calc(var(--hero-scan) - 30%),
@@ -899,26 +899,26 @@ body[data-cal-modal-open] {
 
 /* Bühne: ein gemeinsamer Zyklus für Punkt, Karte und Inhalt (siehe Keyframes unten). */
 .hero-stage {
-  --s0: 38;
+  --s0: 41;
   --s1: 56;
-  --s2: 74;
-  --s3: 92;
+  --s2: 71;
+  --s3: 86;
   position: relative;
 }
 
 /* Werte der drei Beispielkarten (Texte wechselt HeroProfileCard.astro). */
 .hero-stage[data-variant="1"] {
-  --s0: 29;
-  --s1: 49;
-  --s2: 68;
-  --s3: 86;
+  --s0: 32;
+  --s1: 48;
+  --s2: 64;
+  --s3: 79;
 }
 
 .hero-stage[data-variant="2"] {
-  --s0: 44;
-  --s1: 62;
-  --s2: 81;
-  --s3: 95;
+  --s0: 46;
+  --s1: 60;
+  --s2: 74;
+  --s3: 88;
 }
 
 .hero-dot {
@@ -937,7 +937,7 @@ body[data-cal-modal-open] {
   height: 0.9rem;
   margin: -0.45rem 0 0 -0.45rem;
   border-radius: 50%;
-  background: var(--blue);
+  background: var(--red);
   box-shadow: 0 0 0 3px white;
   pointer-events: none;
   animation: hero-dot-cycle var(--hero-cycle) var(--hero-step) infinite;
@@ -947,7 +947,7 @@ body[data-cal-modal-open] {
 .hero-dot::after {
   position: absolute;
   inset: 0;
-  border: 2px solid var(--blue);
+  border: 2px solid var(--red);
   border-radius: 50%;
   content: "";
   animation: hero-pulse 1.8s ease-out infinite;
@@ -1065,12 +1065,13 @@ body[data-cal-modal-open] {
   content: counter(hero-n) "%";
 }
 
-/* Mit Script folgt die Zahl dem Ring (siehe HeroProfileCard.astro); der Counter bleibt nur als Fallback. */
-.hero-stage.is-counting .hero-ring-value {
+/* Mit Script zeichnet HeroProfileCard.astro Ring und Zahl; die Keyframes bleiben nur als Fallback. */
+.hero-stage.is-scripted .hero-ring-fill,
+.hero-stage.is-scripted .hero-ring-value {
   animation: none;
 }
 
-.hero-stage.is-counting .hero-ring-value::before {
+.hero-stage.is-scripted .hero-ring-value::before {
   content: none;
 }
 
@@ -1233,20 +1234,22 @@ body[data-cal-modal-open] {
   0%,
   20% {
     stroke-dashoffset: calc(100 - var(--s0));
-    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
   }
 
-  26% {
+  26%,
+  30% {
     stroke-dashoffset: calc(100 - var(--s1));
-    animation-timing-function: linear;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
   }
 
-  36% {
+  36%,
+  40% {
     stroke-dashoffset: calc(100 - var(--s2));
-    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
   }
 
-  48%,
+  46%,
   82% {
     stroke-dashoffset: calc(100 - var(--s3));
   }
@@ -1261,20 +1264,22 @@ body[data-cal-modal-open] {
   0%,
   20% {
     --hero-n: var(--s0);
-    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
   }
 
-  26% {
+  26%,
+  30% {
     --hero-n: var(--s1);
-    animation-timing-function: linear;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
   }
 
-  36% {
+  36%,
+  40% {
     --hero-n: var(--s2);
-    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.25, 1);
   }
 
-  48%,
+  46%,
   82% {
     --hero-n: var(--s3);
   }
@@ -1629,16 +1634,23 @@ body[data-cal-modal-open] {
     font-size: 1.75rem;
   }
 
+  .hero-ring-caption {
+    display: none;
+  }
+
   .hero-card-body {
     gap: 1.1rem;
   }
 
+  /* Höhenreserve für umbrechende Texte liegt auf der Liste, nicht pro Zeile:
+     Die Karte springt beim Variantenwechsel nicht, die Einträge bleiben trotzdem eng. */
   .hero-checks {
-    gap: 0.85rem;
+    align-content: center;
+    gap: 0.65rem;
+    min-height: 7.5rem;
   }
 
   .hero-checks li {
-    min-height: 2.5em;
     font-size: 1rem;
   }
 }
@@ -1784,6 +1796,16 @@ body[data-cal-modal-open] {
   padding: 1.1rem 1.25rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
+  transition:
+    transform 280ms var(--ease),
+    box-shadow 280ms var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .case-compare-col:hover {
+    box-shadow: 9px 18px 34px rgb(44 62 130 / 0.3);
+    transform: translateY(-0.35rem);
+  }
 }
 
 .case-compare-col.is-before {
@@ -2027,6 +2049,34 @@ body[data-cal-modal-open] {
 /* Die Liste nutzt die .future-principles-Optik, aber nicht deren Grid-Area. */
 .steps-layout .steps-list {
   grid-area: auto;
+}
+
+/* Desktop-Hover: weicher, hellgrauer Brand-Hintergrund hinter dem Schritt. */
+@media (hover: hover) and (pointer: fine) {
+  .steps-list li {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .steps-list li::before {
+    position: absolute;
+    inset: 0 clamp(-1.5rem, -2vw, -0.75rem);
+    z-index: -1;
+    border-radius: var(--radius-md);
+    background: color-mix(in oklch, var(--blue) 7%, oklch(0.97 0.004 274));
+    opacity: 0;
+    transform: scale(0.985);
+    transition:
+      opacity 420ms var(--ease),
+      transform 420ms var(--ease);
+    content: "";
+    pointer-events: none;
+  }
+
+  .steps-list li:hover::before {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .benefits-section .section-heading .lead {
@@ -3571,54 +3621,14 @@ body[data-cal-modal-open] {
   margin-bottom: 1.5rem;
 }
 
-/* Aufklappbare Add-on-Preisliste in #wirkung */
+/* Add-on-Preisliste in #wirkung: alle Einzelleistungen sofort sichtbar */
 
-.addon-list-toggle {
+.addon-list {
   margin-top: clamp(2rem, 4vw, 3rem);
 }
 
-.addon-list-toggle > summary {
-  display: flex;
-  justify-content: center;
-  width: fit-content;
-  max-width: 100%;
-  margin-inline: auto;
-  border-radius: 999px;
-  cursor: pointer;
-  list-style: none;
-}
-
-.addon-list-toggle > summary::-webkit-details-marker {
-  display: none;
-}
-
-.addon-list-toggle > summary:focus-visible {
-  outline: 2px solid var(--blue-deep);
-  outline-offset: 3px;
-}
-
-.addon-list-toggle > summary .btn {
-  text-align: center;
-  line-height: 1.25;
-}
-
-.addon-list-toggle-icon {
-  flex-shrink: 0;
-  transition: transform 260ms var(--ease);
-}
-
-.addon-list-toggle[open] .addon-list-toggle-icon {
-  transform: rotate(180deg);
-}
-
-.addon-list-toggle > .addon-price-grid {
+.addon-price-grid {
   margin-top: 1.5rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .addon-list-toggle-icon {
-    transition: none;
-  }
 }
 
 .addon-price-grid {
@@ -4336,11 +4346,21 @@ body[data-cal-modal-open] {
   line-height: 1.5;
 }
 
-.bc-footnote a {
+.bc-footnote a,
+.bc-footnote-link {
   color: var(--blue-deep);
   font-weight: 680;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.bc-footnote-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-weight: 680;
+  cursor: pointer;
 }
 
 .geo-check-intro .btn {

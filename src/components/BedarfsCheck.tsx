@@ -462,7 +462,7 @@ export default function BedarfsCheck() {
       )}
 
       <p className="bc-footnote">
-        Unsicher, was passt? <a href="#kontakt">Schreiben Sie mir direkt</a> – oder buchen Sie ein kostenloses Erstgespräch. Alle Preise sind Endpreise (Kleinunternehmer, keine USt.), Angebote richten sich an Unternehmen (B2B).
+        Unsicher, was passt? <a href="mailto:lokaloptimal@gmail.com">Schreiben Sie mir direkt</a> – oder buchen Sie ein <button type="button" className="bc-footnote-link" data-cal-open>kostenloses Erstgespräch</button>. Alle Preise sind Endpreise (Kleinunternehmer, keine USt.), Angebote richten sich an Unternehmen (B2B).
       </p>
     </div>
   );
