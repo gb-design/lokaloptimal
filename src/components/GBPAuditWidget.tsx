@@ -9,6 +9,7 @@ import {
   type SignalLevel,
 } from "../lib/place-signals";
 import { classifyAuditResponse } from "../lib/audit-response";
+import { extractMapsLink, isAllowedGoogleMapsUrl, mapsLinkErrorMessage } from "../lib/maps-link";
 
 const CAL_URL = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
 
@@ -49,7 +50,7 @@ const levelMeta: Record<SignalLevel, { label: string; tone: StatusTone }> = {
 };
 
 const scanMessages = [
-  "Profil-Link wird geprüft",
+  "Link wird geprüft",
   "Unternehmensdaten werden geladen",
   "Bewertungen und Fotos werden bewertet",
   "Ergebnis wird vorbereitet",
@@ -62,7 +63,7 @@ const categories: CategoryDefinition[] = [
     icon: Shield,
     hints: {
       3: "Telefon, Website und Öffnungszeiten sind hinterlegt. Interessenten können ohne Umweg anrufen, buchen oder vorbeikommen.",
-      2: "Eine der drei Grundangaben fehlt: Telefon, Website oder Öffnungszeiten. Genau an dieser Lücke springen Suchende ab.",
+      2: "Eine der drei Grundangaben fehlt: Telefon, Website oder Öffnungszeiten. Diese Lücke kann Suchende abschrecken.",
       1: "Nur eine der drei Grundangaben ist gepflegt. Ohne Telefon, Website und Öffnungszeiten bleibt Ihr Profil eine Sackgasse.",
       0: "Weder Telefon noch Website noch Öffnungszeiten sind hinterlegt. Suchende finden Sie, können aber nichts damit anfangen.",
     },
@@ -72,10 +73,10 @@ const categories: CategoryDefinition[] = [
     label: "Bewertungen: Menge",
     icon: Star,
     hints: {
-      3: "Sie haben genug Bewertungen, dass sie statistisch tragen. Wichtig ist jetzt, dass regelmäßig neue dazukommen.",
-      2: "Eine solide Basis. Ab etwa 40 Bewertungen wirkt das Profil deutlich belastbarer als das der meisten Mitbewerber.",
-      1: "Wenige Bewertungen. Neukunden vergleichen, und ein dünnes Bewertungsprofil verliert diesen Vergleich fast immer.",
-      0: "So gut wie keine Bewertungen. Das ist der wirksamste und billigste Hebel, den Sie gerade liegen lassen.",
+      3: "Sie haben schon eine gute Anzahl an Bewertungen. Wichtig ist jetzt, dass regelmäßig neue dazukommen.",
+      2: "Eine solide Basis. Ab etwa 40 Bewertungen wirkt das Profil deutlich belastbarer.",
+      1: "Wenige Bewertungen. Neukunden vergleichen, und wenige Bewertungen können dabei gegen Sie sprechen.",
+      0: "So gut wie keine Bewertungen. Hier lässt sich meist am einfachsten etwas verbessern.",
     },
   },
   {
@@ -84,9 +85,9 @@ const categories: CategoryDefinition[] = [
     icon: Message,
     hints: {
       3: "Ein sehr guter Schnitt. Antworten auf Bewertungen halten dieses Niveau und zeigen, dass jemand zuhört.",
-      2: "Ein ordentlicher Schnitt mit Luft nach oben. Gezielt zufriedene Kunden um eine Bewertung zu bitten hebt ihn spürbar.",
+      2: "Ein ordentlicher Schnitt mit Luft nach oben. Gezielt zufriedene Kunden um eine Bewertung zu bitten kann ihn heben.",
       1: "Der Schnitt liegt unter dem, was Suchende erwarten. Einzelne schlechte Bewertungen wiegen schwer, wenn wenige gute dagegenstehen.",
-      0: "Der Bewertungsschnitt kostet Sie aktiv Anfragen. Hier lohnt sich zuerst ein Blick auf die Ursachen, dann auf die Menge.",
+      0: "Der Bewertungsschnitt kann Sie Anfragen kosten. Hier lohnt sich zuerst ein Blick auf die Ursachen, dann auf die Menge.",
     },
   },
   {
@@ -94,28 +95,16 @@ const categories: CategoryDefinition[] = [
     label: "Fotos",
     icon: Check,
     hints: {
-      3: "Die Galerie ist gut gefüllt. Aktuelle, echte Bilder erhöhen die Klickrate direkt im Suchergebnis.",
+      3: "Die Galerie ist gut gefüllt. Aktuelle, echte Bilder geben Suchenden einen guten ersten Eindruck.",
       2: "Ein paar Bilder sind da. Mehr Aufnahmen von Räumen, Team und Arbeit machen den Unterschied zwischen anschauen und anrufen.",
-      1: "Kaum Fotos. Nutzer bekommen keinen Eindruck vom Unternehmen und klicken eher auf den Mitbewerber daneben.",
+      1: "Kaum Fotos. Nutzer bekommen keinen Eindruck vom Unternehmen.",
       0: "Keine Fotos im Profil. Das ist die auffälligste Lücke, die Suchende sofort bemerken.",
     },
   },
 ];
 
-const GOOGLE_MAPS_URL_ERROR = "Bitte fügen Sie den Teilen-Link Ihres Google-Unternehmensprofils aus Google Maps ein.";
-
-function isAllowedGoogleMapsUrl(raw: string) {
-  try {
-    const parsed = new URL(raw.trim());
-    if (parsed.protocol !== "https:") return false;
-    if (parsed.hostname === "www.google.com") return parsed.pathname.startsWith("/maps/");
-    if (parsed.hostname === "maps.app.goo.gl") return parsed.pathname.length > 1;
-    if (parsed.hostname === "goo.gl") return parsed.pathname.startsWith("/maps/");
-    return false;
-  } catch {
-    return false;
-  }
-}
+const EMPTY_LINK_MESSAGE = "Bitte fügen Sie zuerst den Link zu Ihrem Google-Eintrag ein.";
+const CONSENT_MESSAGE = "Bitte bestätigen Sie zuerst die Einwilligung oben.";
 
 function decodeMapsValue(value: string) {
   return decodeURIComponent(value).replace(/\+/g, " ").trim();
@@ -180,9 +169,9 @@ function evaluate(details: Details): { score: number; rows: ScoredCategory[] } {
 }
 
 function zone(score: number) {
-  if (score <= SCORE_BAND_THRESHOLDS.kritisch) return { label: "Kritischer Handlungsbedarf", tone: "bad" };
-  if (score <= SCORE_BAND_THRESHOLDS.solide) return { label: "Ausbaufähig", tone: "warn" };
-  return { label: "Gut aufgestellt", tone: "good" };
+  if (score <= SCORE_BAND_THRESHOLDS.kritisch) return { label: "Kritischer Handlungsbedarf", tone: "bad", headline: (name: string) => `${name}: Hier fehlen wichtige Angaben.` };
+  if (score <= SCORE_BAND_THRESHOLDS.solide) return { label: "Ausbaufähig", tone: "warn", headline: (name: string) => `${name} hat noch sichtbare Lücken.` };
+  return { label: "Gut aufgestellt", tone: "good", headline: (name: string) => `${name} ist gut aufgestellt. Jetzt geht es ums Dranbleiben.` };
 }
 
 export default function GBPAuditWidget() {
@@ -206,8 +195,8 @@ export default function GBPAuditWidget() {
   const activeCategory = openCategory === undefined ? weakestCategory : openCategory;
   const currentZone = zone(score);
   const isScanning = phase === "scanning";
-  const hasValidUrl = isAllowedGoogleMapsUrl(url);
-  const canScan = consent && !isScanning && hasValidUrl;
+  const link = extractMapsLink(url);
+  const hasValidUrl = isAllowedGoogleMapsUrl(link);
 
   useEffect(() => {
     if (!isScanning) {
@@ -223,11 +212,19 @@ export default function GBPAuditWidget() {
   }, [isScanning]);
 
   async function scan() {
-    if (!hasValidUrl) {
-      setMessage(GOOGLE_MAPS_URL_ERROR);
+    if (isScanning) return;
+    if (!link) {
+      setMessage(EMPTY_LINK_MESSAGE);
       return;
     }
-    if (!canScan) return;
+    if (!hasValidUrl) {
+      setMessage(mapsLinkErrorMessage(url));
+      return;
+    }
+    if (!consent) {
+      setMessage(CONSENT_MESSAGE);
+      return;
+    }
 
     setPhase("scanning");
     setMessage("");
@@ -238,7 +235,7 @@ export default function GBPAuditWidget() {
 
     try {
       if (import.meta.env.DEV) {
-        const preview = localMockResult(url);
+        const preview = localMockResult(link);
         setFound(preview.found);
         setDetails(preview.details);
         await new Promise((resolve) => window.setTimeout(resolve, 1800));
@@ -246,7 +243,7 @@ export default function GBPAuditWidget() {
         return;
       }
 
-      const params = new URLSearchParams({ action: "check", url: url.trim() });
+      const params = new URLSearchParams({ action: "check", url: link });
       const response = await fetch(`/api/places?${params}`, { signal: controller.signal });
       const contentType = response.headers.get("content-type") || "";
       const payload = contentType.includes("application/json") ? await response.json() : null;
@@ -254,7 +251,7 @@ export default function GBPAuditWidget() {
       const outcome = classifyAuditResponse(response.status, payload);
 
       if (outcome.kind === "invalid-url") {
-        setMessage(GOOGLE_MAPS_URL_ERROR);
+        setMessage(mapsLinkErrorMessage(url));
         setPhase("input");
         return;
       }
@@ -309,7 +306,7 @@ export default function GBPAuditWidget() {
           <div className="scan-copy">
             <p className="scan-kicker">Analyse läuft</p>
             <h3>{scanMessages[scanMessageIndex]}</h3>
-            <p>Ich prüfe die sichtbaren Profil-Signale und bereite Ihr Ergebnis auf.</p>
+            <p>Ich prüfe, was Google über Ihren Eintrag zeigt, und bereite Ihr Ergebnis auf.</p>
           </div>
         </div>
       ) : phase === "limit" ? (
@@ -319,14 +316,14 @@ export default function GBPAuditWidget() {
           </div>
           <div>
             <p className="result-label">Tageslimit erreicht</p>
-            <h3>Ihr maximales tägliches Scan-Limit ist erreicht.</h3>
+            <h3>Sie haben heute alle kostenlosen Prüfungen genutzt.</h3>
             <p>
               Buchen Sie ein kostenloses Erstgespräch. Dort kläre ich direkt, welche Maßnahmen für
               Ihr Profil sinnvoll sind.
             </p>
           </div>
           <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} rel="noreferrer" data-cal-open>
-            Termin vereinbaren
+            Kostenloses Erstgespräch buchen
             <span className="btn-icon">
               <ArrowRight size={18} />
             </span>
@@ -338,59 +335,83 @@ export default function GBPAuditWidget() {
             <Shield size={22} />
           </div>
           <div>
-            <p className="result-label">Profil nicht abrufbar</p>
-            <h3>Google gibt dieses Profil über die Schnittstelle nicht heraus.</h3>
+            <p className="result-label">Eintrag nicht abrufbar</p>
+            <h3>Diesen Eintrag kann der automatische Check nicht abrufen.</h3>
             <p>
-              Der Link ist korrekt, Ihr Profil ist nur noch nicht in Googles Datenschnittstelle enthalten. Das ist
-              normal bei frisch verifizierten Profilen und bei Betrieben ohne öffentlich sichtbare Adresse, und es
-              sagt nichts über die Qualität Ihres Profils aus. Ich prüfe es im Erstgespräch manuell.
+              Der Link ist korrekt, Google stellt diesen Eintrag für den automatischen Check nur noch nicht bereit. Das
+              ist normal bei frisch verifizierten Einträgen und bei Betrieben ohne öffentlich sichtbare Adresse, und es
+              sagt nichts über die Qualität Ihres Eintrags aus. Ich prüfe ihn im Erstgespräch manuell.
             </p>
           </div>
           <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} rel="noreferrer" data-cal-open>
-            Profil manuell prüfen lassen
+            Eintrag manuell prüfen lassen
             <span className="btn-icon">
               <ArrowRight size={18} />
             </span>
           </a>
           <button className="rescan-button" type="button" onClick={resetScan}>
-            Anderes Profil scannen
+            Anderen Eintrag prüfen
           </button>
         </div>
       ) : phase !== "results" ? (
         <>
           <div className="widget-head">
-            <span>Google Business Profil-URL</span>
+            <label htmlFor="audit-widget-link">Link zu Ihrem Google-Eintrag</label>
             <small>Kostenloser Erstcheck</small>
           </div>
 
           <input
+            id="audit-widget-link"
             className="widget-input"
             type="url"
             value={url}
             inputMode="url"
             maxLength={900}
-            aria-invalid={Boolean(url.trim() && !hasValidUrl)}
-            aria-describedby={message ? "audit-widget-message" : undefined}
+            aria-invalid={Boolean(link && !hasValidUrl)}
+            aria-describedby={message ? "audit-widget-message audit-link-help" : "audit-link-help"}
             onChange={(event) => {
               setUrl(event.target.value);
               setMessage("");
               if (phase === "fallback") setPhase("input");
             }}
             onBlur={() => {
-              if (url.trim() && !isAllowedGoogleMapsUrl(url)) setMessage(GOOGLE_MAPS_URL_ERROR);
+              if (link && !hasValidUrl) setMessage(mapsLinkErrorMessage(url));
             }}
-            placeholder="Google Maps Teilen-Link"
+            placeholder="Link hier einfügen"
           />
 
           {message && <p id="audit-widget-message" className="form-message error" role="alert">{message}</p>}
 
+          <div className="link-help" id="audit-link-help">
+            <p className="link-help-title">So finden Sie den Link</p>
+            <ol>
+              <li>
+                <span>
+                  <a href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer">Google Maps öffnen</a> und Ihren Betrieb suchen
+                </span>
+              </li>
+              <li><span>Auf „Teilen“ tippen oder klicken</span></li>
+              <li><span>„Link kopieren“ wählen und oben einfügen</span></li>
+            </ol>
+            <p className="link-help-none">
+              Noch kein Eintrag? <a href={CAL_URL} rel="noreferrer" data-cal-open>Erstgespräch buchen</a>
+            </p>
+          </div>
+
           <label className="check-line consent">
-            <input type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />
+            <input
+              type="checkbox"
+              checked={consent}
+              onChange={(event) => {
+                setConsent(event.target.checked);
+                if (message === CONSENT_MESSAGE) setMessage("");
+              }}
+            />
             Ich bin einverstanden, dass die eingegebenen Profildaten zur Analyse verarbeitet werden.
           </label>
 
-          <button className="btn btn-primary widget-button" disabled={!canScan || isScanning} onClick={scan}>
-            {isScanning ? "Profil wird geprüft..." : "Profil prüfen"}
+          <button className="btn btn-primary widget-button" disabled={isScanning} onClick={scan}>
+            {isScanning ? "Eintrag wird geprüft..." : "Eintrag prüfen"}
             <span className="btn-icon">
               <ArrowRight size={18} />
             </span>
@@ -405,7 +426,7 @@ export default function GBPAuditWidget() {
             </div>
             <div>
               <p className="result-label">{currentZone.label}</p>
-              <h3>{found?.name || "Ihr Google-Auftritt"} hat klare Hebel.</h3>
+              <h3>{currentZone.headline(found?.name || "Ihr Google-Eintrag")}</h3>
               <p>
                 In 30 Minuten zeige ich Ihnen, welche Maßnahmen Ihr Profil am schnellsten voranbringen.
               </p>
@@ -449,13 +470,13 @@ export default function GBPAuditWidget() {
           </p>
 
           <a className="btn btn-primary widget-button" href={CAL_URL} rel="noreferrer" data-cal-open>
-            Termin vereinbaren
+            Ergebnis im Erstgespräch besprechen
             <span className="btn-icon">
               <ArrowRight size={18} />
             </span>
           </a>
           <button className="rescan-button" type="button" onClick={resetScan}>
-            Anderes Profil scannen
+            Anderen Eintrag prüfen
           </button>
         </div>
       )}

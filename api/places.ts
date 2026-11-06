@@ -1,3 +1,5 @@
+import { isAllowedGoogleMapsUrl, isDirectGoogleMapsUrl } from "../src/lib/maps-link.js";
+
 const PLACES_BASE = "https://places.googleapis.com/v1";
 const DEFAULT_RATE_LIMIT_MAX = 3;
 const RATE_LIMIT_WINDOW_SECONDS = 60 * 60 * 24;
@@ -68,22 +70,9 @@ function dailyRateLimitMax() {
   return Number.isFinite(configuredLimit) && configuredLimit > 0 ? configuredLimit : DEFAULT_RATE_LIMIT_MAX;
 }
 
-function isAllowedSubmittedGoogleMapsUrl(raw: string) {
-  if (raw.length > MAX_URL_LENGTH) return false;
-
-  try {
-    const parsed = new URL(raw.trim());
-    if (parsed.protocol !== "https:") return false;
-    if (parsed.hostname === "www.google.com") return parsed.pathname.startsWith("/maps/");
-    if (parsed.hostname === "maps.app.goo.gl") return parsed.pathname.length > 1;
-    if (parsed.hostname === "goo.gl") return parsed.pathname.startsWith("/maps/");
-    return false;
-  } catch {
-    return false;
-  }
-}
-
 function isGoogleMapsDestination(raw: string) {
+  if (isDirectGoogleMapsUrl(raw)) return true;
+
   try {
     const parsed = new URL(raw);
     if (parsed.protocol !== "https:") return false;
@@ -128,15 +117,15 @@ function parseGoogleMapsUrl(raw: string) {
 }
 
 async function resolveGoogleMapsUrl(raw: string) {
-  if (!isAllowedSubmittedGoogleMapsUrl(raw)) {
+  if (!isAllowedGoogleMapsUrl(raw)) {
     const error = new Error(INVALID_GOOGLE_MAPS_URL);
     (error as Error & { status?: number }).status = 400;
     throw error;
   }
 
   let current = raw.trim();
-  const submittedUrl = new URL(current);
-  if (submittedUrl.hostname === "www.google.com") return current;
+  // Direkte Links werden nie abgerufen. Nur Kurzlinks von goo.gl muss der Server auflösen.
+  if (isDirectGoogleMapsUrl(current)) return current;
 
   for (let i = 0; i < 5; i += 1) {
     const response = await fetchWithTimeout(current, {

@@ -6,7 +6,6 @@ type Status = "idle" | "sending" | "success" | "error";
 export default function ContactForm() {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
-  const [privacyConsent, setPrivacyConsent] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,9 +31,8 @@ export default function ContactForm() {
       }
 
       form.reset();
-      setPrivacyConsent(false);
       setStatus("success");
-      setMessage("Danke. Ihre Anfrage ist angekommen.");
+      setMessage("Danke. Ihre Anfrage ist angekommen. Ich antworte innerhalb von 24 Stunden.");
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error && error.name !== "AbortError" ? error.message : "Bitte versuchen Sie es erneut.");
@@ -64,8 +62,8 @@ export default function ContactForm() {
 
       <label htmlFor="contact-topic">
         Worum geht es?
-        <select id="contact-topic" className="field" name="topic" defaultValue="GBP Audit">
-          <option>GBP Audit</option>
+        <select id="contact-topic" className="field" name="topic" defaultValue="Kostenloser Check">
+          <option>Kostenloser Check</option>
           <option>Starter Paket</option>
           <option>Essential Paket</option>
           <option>Growth Paket</option>
@@ -84,20 +82,12 @@ export default function ContactForm() {
           id="contact-message"
           className="field"
           name="message"
-          rows={5}
+          rows={3}
           maxLength={1800}
-          placeholder="Kurz beschreiben, wo Ihr Google Business Profil gerade steht."
+          placeholder="Zum Beispiel: Name Ihres Betriebs und Ihre Frage"
           required
         />
       </label>
-
-      <button className="btn btn-primary full" disabled={status === "sending" || !privacyConsent} type="submit" aria-busy={status === "sending"}>
-        {status === "sending" && <span className="button-spinner" aria-hidden="true" />}
-        <span>{status === "sending" ? "Wird gesendet..." : "Anfrage senden"}</span>
-        <span className="btn-icon">
-          <ArrowRight size={18} />
-        </span>
-      </button>
 
       <label className="privacy-consent full" htmlFor="contact-privacy-consent">
         <input
@@ -105,8 +95,6 @@ export default function ContactForm() {
           name="privacy_consent"
           type="checkbox"
           required
-          checked={privacyConsent}
-          onChange={(event) => setPrivacyConsent(event.target.checked)}
         />
         <span>
           Ich habe die{" "}
@@ -116,6 +104,14 @@ export default function ContactForm() {
           gelesen und stimme zu, dass meine Angaben zur Bearbeitung der Anfrage verarbeitet werden.
         </span>
       </label>
+
+      <button className="btn btn-primary full" disabled={status === "sending"} type="submit" aria-busy={status === "sending"}>
+        {status === "sending" && <span className="button-spinner" aria-hidden="true" />}
+        <span>{status === "sending" ? "Wird gesendet..." : "Anfrage senden"}</span>
+        <span className="btn-icon">
+          <ArrowRight size={18} />
+        </span>
+      </button>
 
       {message && (
         <p

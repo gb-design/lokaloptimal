@@ -301,7 +301,7 @@ export default function BedarfsCheck() {
 
       {step === 3 && (
         <div className="bc-panel">
-          <p className="bc-question">{offer ? "Meine Empfehlung für Sie" : "Ihre Auswahl"}</p>
+          <p className="bc-question">Ihre Auswahl</p>
 
           {offer && (
             <div className="bc-recommendation">

@@ -113,7 +113,7 @@ export const retainers: Offer[] = [
     priceValue: 499,
     period: "/ Monat",
     interval: "monatlich",
-    text: "Dauerhafte Betreuung mit mehr Beiträgen und KI-Antworten-Management – monatlich kündbar. Direkter Einstieg inkl. einmaligem Profil Quick-Check.",
+    text: "Wie Care, mit doppelt so vielen Beiträgen und KI-Antworten-Management. Direkter Einstieg inkl. Profil Quick-Check.",
     items: ["8x Google Posts / Monat", "Review- & KI-Antworten-Management", "Strategie-Call pro Quartal"],
     includedAddonIds: ["review-response", "qa-management"],
   },
