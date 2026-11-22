@@ -76,9 +76,35 @@ const structuredDataItems = structuredData ? (Array.isArray(structuredData) ? st
     <!-- Start cookieyes banner -->
     <script is:inline id="cookieyes" type="text/javascript" src="https://cdn-cookieyes.com/client_data/16a98acd4297ce348c47650676c03ad7/script.js"></script>
     <!-- End cookieyes banner -->
-    <!-- Google tag (gtag.js): von CookieYes blockiert, bis Analyse-Einwilligung vorliegt -->
-    <script is:inline type="text/plain" data-cookieyes="cookieyes-analytics" async src="https://www.googletagmanager.com/gtag/js?id=G-QWR2LWBX63"></script>
-    <script is:inline type="text/plain" data-cookieyes="cookieyes-analytics">gtag("js", new Date()); gtag("config", "G-QWR2LWBX63");</script>
+    <!-- Google tag (gtag.js): wird erst geladen, wenn CookieYes eine Analyse-Einwilligung meldet.
+         Fällt CookieYes aus, lädt GA gar nicht. Kein type="text/plain" + data-cookieyes verwenden:
+         Solche Skripte gibt die aktuelle CookieYes-Version nie frei. -->
+    <script is:inline>
+      (function () {
+        var loaded = false;
+        function loadGoogleAnalytics() {
+          if (loaded) return;
+          loaded = true;
+          gtag("consent", "update", { analytics_storage: "granted" });
+          gtag("js", new Date());
+          gtag("config", "G-QWR2LWBX63");
+          var script = document.createElement("script");
+          script.async = true;
+          script.src = "https://www.googletagmanager.com/gtag/js?id=G-QWR2LWBX63";
+          document.head.appendChild(script);
+        }
+        // Gespeicherte Einwilligung beim Laden der Seite
+        document.addEventListener("cookieyes_banner_load", function (event) {
+          var consent = event.detail;
+          if (consent && consent.categories && consent.categories.analytics) loadGoogleAnalytics();
+        });
+        // Neue Entscheidung im Banner
+        document.addEventListener("cookieyes_consent_update", function (event) {
+          var accepted = event.detail && event.detail.accepted;
+          if (accepted && accepted.indexOf("analytics") !== -1) loadGoogleAnalytics();
+        });
+      })();
+    </script>
     {structuredDataItems.map((item) => (
       <script type="application/ld+json" set:html={JSON.stringify(item)} />
     ))}

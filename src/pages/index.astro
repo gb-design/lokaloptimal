@@ -428,16 +428,18 @@ const homeStructuredData = [
           <p class="hero-eyebrow">Google-Eintrag-Betreuung · Österreich</p>
           <h1 class="h1">Mehr Anrufe von Kunden aus <span class="text-blue">Ihrer Umgebung.</span></h1>
           <p class="hero-subline">LokalOptimal richtet Ihren Google-Eintrag ein und hält ihn aktuell. Für Betriebe in ganz Österreich.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href={calUrl} rel="noreferrer" data-cal-open>
-              Kostenloses Erstgespräch buchen
-              <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
-            </a>
+          <div class="hero-cta">
+            <div class="hero-actions">
+              <a class="btn btn-primary" href={calUrl} rel="noreferrer" data-cal-open>
+                Kostenloses Erstgespräch buchen
+                <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
+              </a>
+            </div>
+            <p class="hero-microcopy">
+              30 Minuten, unverbindlich · Pakete <a href="#preise">ab {formatEuro(packages[0].priceValue)}</a> im Festpreis
+            </p>
+            <p class="hero-microcopy hero-microcopy-alt">Noch nicht sicher? <a href="#quick-check">Google-Eintrag gratis prüfen</a></p>
           </div>
-          <p class="hero-microcopy">
-            30 Minuten, unverbindlich · Pakete <a href="#preise">ab {formatEuro(packages[0].priceValue)}</a> im Festpreis
-          </p>
-          <p class="hero-microcopy">Noch nicht sicher? <a href="#quick-check">Google-Eintrag gratis prüfen</a></p>
         </div>
 
         <div class="hero-visual" data-hero-tilt>
@@ -868,7 +870,7 @@ const homeStructuredData = [
         ))}
       </div>
 
-      <p class="price-note container">Alle Preise sind Endpreise – als Kleinunternehmer (§ 6 Abs. 1 Z 27 UStG) verrechne ich keine Umsatzsteuer. Angebote richten sich an Unternehmen (B2B).</p>
+      <p class="price-note container">Alle Preise sind Endpreise. Angebote richten sich an Unternehmen (B2B).</p>
 
       <div class="container section-heading compact">
         <span class="eyebrow"><span class="material-symbols-rounded" aria-hidden="true">autorenew</span>Laufende Betreuung</span>
