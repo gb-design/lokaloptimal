@@ -71,8 +71,10 @@
   --amber: oklch(0.78 0.15 78);
   --red: oklch(0.62 0.18 25);
 
-  --container: min(100% - 2rem, 1120px);
-  --container-wide: min(100% - 2rem, 1280px);
+  /* Seitenrand pro Seite: 24 px auf dem Handy, wächst stufenlos bis 64 px. Gilt für alle Breiten. */
+  --page-gutter: clamp(1.5rem, 5vw, 4rem);
+  --container: min(100% - 2 * var(--page-gutter), 1120px);
+  --container-wide: min(100% - 2 * var(--page-gutter), 1280px);
   --radius-sm: 0.5rem;
   --radius-md: 1rem;
   --radius-lg: 1rem;
@@ -434,8 +436,6 @@ li {
 
 @media (max-width: 760px) {
   :root {
-    --container: min(100% - 2rem, 1120px);
-    --container-wide: min(100% - 2rem, 1280px);
     --section: clamp(3.75rem, 14vw, 5.5rem);
   }
 
@@ -1678,12 +1678,13 @@ body[data-cal-modal-open] {
   margin-top: clamp(2rem, 4vw, 3rem);
 }
 
-/* Vier Punkte im Hero-Raster: 1 Spalte auf dem Handy, ab dem Tablet 2 × 2 mittig,
-   ab 1360 px eine Zeile über die volle Breite. Ein Raster statt Flex verhindert 3 + 1-Umbrüche. */
+/* Vier Punkte im Hero-Raster: auf dem Handy 1 Spalte mittig (Häkchen bleiben untereinander bündig),
+   ab dem Tablet 2 × 2 mittig, ab 1360 px eine Zeile über die volle Breite.
+   Ein Raster statt Flex verhindert 3 + 1-Umbrüche. */
 .trust-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  justify-content: start;
+  grid-template-columns: minmax(0, max-content);
+  justify-content: center;
   width: 100%;
   gap: 0.75rem clamp(1.5rem, 4vw, 3rem);
   color: var(--ink);
@@ -1694,7 +1695,6 @@ body[data-cal-modal-open] {
 @media (min-width: 640px) {
   .trust-row {
     grid-template-columns: repeat(2, max-content);
-    justify-content: center;
   }
 }
 
@@ -2611,7 +2611,7 @@ body[data-cal-modal-open] {
 }
 
 .widget-shell {
-  width: min(100% - 2rem, 653px);
+  width: min(100% - 2 * var(--page-gutter), 653px);
   margin-inline: auto;
 }
 
@@ -5536,11 +5536,6 @@ textarea.field {
 }
 
 @media (max-width: 1080px) {
-  :root {
-    --container: min(100% - clamp(2rem, 5vw, 3.5rem), 1120px);
-    --container-wide: min(100% - clamp(2rem, 5vw, 3.5rem), 1280px);
-  }
-
   .pricing-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -5612,14 +5607,11 @@ textarea.field {
 @media (max-width: 860px) {
   :root {
     --header-height: 4.5rem;
-    --container: min(100% - 2rem, 1120px);
-    --container-wide: min(100% - 2rem, 1280px);
   }
 
   .nav {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 1rem;
-    width: min(100% - 2rem, 1280px);
   }
 
   .nav-links,
@@ -5639,7 +5631,7 @@ textarea.field {
     z-index: 19;
     display: grid;
     gap: 0.8rem;
-    width: calc(100% - 2rem);
+    width: calc(100% - 2 * var(--page-gutter));
     max-width: none;
     margin-inline: auto;
     padding: clamp(0.8rem, 2.6vw, 1.05rem);
@@ -6176,6 +6168,13 @@ textarea.field {
 }
 
 @media (max-width: 420px) {
+  /* Mit 24 px Seitenrand fehlen dem Hero-Button sonst wenige Pixel für eine einzeilige Beschriftung. */
+  .hero .btn-primary {
+    gap: 0.6rem;
+    padding-left: 1rem;
+    font-size: 0.94rem;
+  }
+
   .widget-shell {
     width: min(100% - 0.85rem, 653px);
   }
