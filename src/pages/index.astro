@@ -445,14 +445,28 @@ const homeStructuredData = [
           </div>
         </div>
       </div>
+    </section>
 
-      <div class="container-wide trust-cluster">
-        <div class="trust-row">
-          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Festpreise ab {formatEuro(packages[0].priceValue)}</span>
-          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Ein persönlicher Ansprechpartner</span>
-          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Betreuung monatlich kündbar</span>
-          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Erstgespräch unverbindlich</span>
-        </div>
+    <section class="trust-section" aria-label="Ihre Vorteile">
+      <div class="container-wide">
+        <ul class="trust-cards">
+          <li>
+            <span class="trust-icon material-symbols-rounded" aria-hidden="true">payments</span>
+            <div><strong>Festpreise ab <span class="text-blue">{formatEuro(packages[0].priceValue)}</span></strong><span>Sie wissen vorher, was es kostet.</span></div>
+          </li>
+          <li>
+            <span class="trust-icon material-symbols-rounded" aria-hidden="true">person</span>
+            <div><strong>Ein persönlicher Ansprechpartner</strong><span>Sie sprechen immer direkt mit mir.</span></div>
+          </li>
+          <li>
+            <span class="trust-icon material-symbols-rounded" aria-hidden="true">event_repeat</span>
+            <div><strong>Monatlich kündbar</strong><span>Keine lange Vertragsbindung.</span></div>
+          </li>
+          <li>
+            <span class="trust-icon material-symbols-rounded" aria-hidden="true">handshake</span>
+            <div><strong>Erstgespräch unverbindlich</strong><span>30 Minuten, kostenlos.</span></div>
+          </li>
+        </ul>
       </div>
     </section>
 
