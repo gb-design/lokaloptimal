@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowRight } from "./icons";
+import { track } from "../lib/track";
 
 type Status = "idle" | "sending" | "success" | "error";
 
@@ -31,6 +32,7 @@ export default function ContactForm() {
       }
 
       form.reset();
+      track("generate_lead", { form: "kontakt" });
       setStatus("success");
       setMessage("Danke. Ihre Anfrage ist angekommen. Ich antworte innerhalb von 24 Stunden.");
     } catch (error) {

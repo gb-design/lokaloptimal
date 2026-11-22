@@ -12,6 +12,7 @@ import {
   type Addon,
   type Offer,
 } from "../data/pricing";
+import { track } from "../lib/track";
 
 type Path = "setup" | "growth" | "care" | "single";
 type Step = 1 | 2 | 3 | 4;
@@ -188,6 +189,7 @@ export default function BedarfsCheck() {
 
       form.reset();
       setPrivacyConsent(false);
+      track("generate_lead", { form: "paket_finder", package: offerId ?? "einzelleistung" });
       setStatus("success");
       setMessage("Danke! Ihre Anfrage mit allen gewählten Optionen ist angekommen. Ich melde mich innerhalb von 24 Stunden.");
     } catch (error) {
@@ -462,7 +464,7 @@ export default function BedarfsCheck() {
       )}
 
       <p className="bc-footnote">
-        Unsicher, was passt? <a href="mailto:lokaloptimal@gmail.com">Schreiben Sie mir direkt</a> – oder buchen Sie ein <button type="button" className="bc-footnote-link" data-cal-open>kostenloses Erstgespräch</button>. Alle Preise sind Endpreise. Angebote richten sich an Unternehmen (B2B).
+        Unsicher, was passt? <a href="mailto:lokaloptimal@gmail.com">Schreiben Sie mir direkt</a> – oder buchen Sie ein <button type="button" className="bc-footnote-link" data-cal-open data-cta-position="paket_finder">kostenloses Erstgespräch</button>. Alle Preise sind Endpreise. Angebote richten sich an Unternehmen (B2B).
       </p>
     </div>
   );

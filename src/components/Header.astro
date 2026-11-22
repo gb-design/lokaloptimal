@@ -29,7 +29,7 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
       ))}
     </div>
 
-    <button class="btn btn-secondary nav-cta" type="button" data-cal-open>
+    <button class="btn btn-secondary nav-cta" type="button" data-cal-open data-cta-position="header">
       <span class="material-symbols-rounded" aria-hidden="true">calendar_month</span>
       Erstgespräch buchen
     </button>
@@ -42,7 +42,7 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
 
   <div class="mobile-menu" id="mobile-menu" data-mobile-menu>
     {navItems.map((item) => <a href={getNavHref(item.href)}>{item.label}</a>)}
-    <button class="mobile-cal-cta" type="button" data-cal-open>Kostenloses Erstgespräch buchen</button>
+    <button class="mobile-cal-cta" type="button" data-cal-open data-cta-position="mobile_menu">Kostenloses Erstgespräch buchen</button>
   </div>
 </header>
 
@@ -67,6 +67,8 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
 </div>
 
 <script>
+  import { isCalBookingMessage, track } from "../lib/track";
+
   const button = document.querySelector("[data-menu-button]");
   const menu = document.querySelector("[data-mobile-menu]");
   const modal = document.querySelector("[data-cal-modal]");
@@ -142,9 +144,24 @@ const getNavHref = (href: string) => (isHomePage ? href : `/${href}`);
     }, 260);
   };
 
+  // Position des zuletzt geklickten Buchungsbuttons, damit die Buchung ihm zugeordnet werden kann.
+  let bookingPosition = "unbekannt";
+  let bookingTracked = false;
+
   document.addEventListener("click", (event) => {
     const opener = event.target instanceof Element ? event.target.closest("[data-cal-open]") : null;
-    if (opener) openModal(event);
+    if (!opener) return;
+    bookingPosition = opener instanceof HTMLElement && opener.dataset.ctaPosition ? opener.dataset.ctaPosition : "unbekannt";
+    bookingTracked = false;
+    track("booking_click", { position: bookingPosition });
+    openModal(event);
+  });
+
+  // Cal meldet eine erfolgreiche Buchung per postMessage aus dem iframe (teils als V1 und V2, daher nur einmal zählen).
+  window.addEventListener("message", (event) => {
+    if (bookingTracked || !isCalBookingMessage(event.origin, event.data)) return;
+    bookingTracked = true;
+    track("booking_complete", { position: bookingPosition });
   });
 
   modalClose?.addEventListener("click", closeModal);

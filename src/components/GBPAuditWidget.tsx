@@ -10,6 +10,7 @@ import {
 } from "../lib/place-signals";
 import { classifyAuditResponse } from "../lib/audit-response";
 import { extractMapsLink, isAllowedGoogleMapsUrl, mapsLinkErrorMessage } from "../lib/maps-link";
+import { scoreBand, track } from "../lib/track";
 
 const CAL_URL = import.meta.env.PUBLIC_CAL_URL || "https://cal.com/DEIN-USERNAME/gbp-audit";
 
@@ -195,6 +196,13 @@ export default function GBPAuditWidget() {
   const activeCategory = openCategory === undefined ? weakestCategory : openCategory;
   const currentZone = zone(score);
   const isScanning = phase === "scanning";
+
+  // Ein Ereignis pro abgeschlossenem Check. Nur grobe Stufe, kein Score, kein Firmenname.
+  useEffect(() => {
+    if (phase === "results") track("gbp_check_complete", { result: "gefunden", score_band: scoreBand(currentZone.tone) });
+    if (phase === "notfound") track("gbp_check_complete", { result: "nicht_abrufbar" });
+    // Nur der Phasenwechsel soll zählen. currentZone gehört zu denselben Details wie "results".
+  }, [phase]);
   const link = extractMapsLink(url);
   const hasValidUrl = isAllowedGoogleMapsUrl(link);
 
@@ -322,7 +330,7 @@ export default function GBPAuditWidget() {
               Ihr Profil sinnvoll sind.
             </p>
           </div>
-          <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} rel="noreferrer" data-cal-open>
+          <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} rel="noreferrer" data-cal-open data-cta-position="gbp_check_limit">
             Kostenloses Erstgespräch buchen
             <span className="btn-icon">
               <ArrowRight size={18} />
@@ -343,7 +351,7 @@ export default function GBPAuditWidget() {
               sagt nichts über die Qualität Ihres Eintrags aus. Ich prüfe ihn im Erstgespräch manuell.
             </p>
           </div>
-          <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} rel="noreferrer" data-cal-open>
+          <a className="btn btn-primary widget-button cta-pulse" href={CAL_URL} rel="noreferrer" data-cal-open data-cta-position="gbp_check_nicht_abrufbar">
             Eintrag manuell prüfen lassen
             <span className="btn-icon">
               <ArrowRight size={18} />
@@ -394,7 +402,7 @@ export default function GBPAuditWidget() {
               <li><span>„Link kopieren“ wählen und oben einfügen</span></li>
             </ol>
             <p className="link-help-none">
-              Noch kein Eintrag? <a href={CAL_URL} rel="noreferrer" data-cal-open>Erstgespräch buchen</a>
+              Noch kein Eintrag? <a href={CAL_URL} rel="noreferrer" data-cal-open data-cta-position="gbp_check_kein_eintrag">Erstgespräch buchen</a>
             </p>
           </div>
 
@@ -469,7 +477,7 @@ export default function GBPAuditWidget() {
             Gespräch gemeinsam an.
           </p>
 
-          <a className="btn btn-primary widget-button" href={CAL_URL} rel="noreferrer" data-cal-open>
+          <a className="btn btn-primary widget-button" href={CAL_URL} rel="noreferrer" data-cal-open data-cta-position="gbp_check_ergebnis">
             Ergebnis im Erstgespräch besprechen
             <span className="btn-icon">
               <ArrowRight size={18} />
