@@ -1678,14 +1678,31 @@ body[data-cal-modal-open] {
   margin-top: clamp(2rem, 4vw, 3rem);
 }
 
+/* Vier Punkte im Hero-Raster: 1 Spalte auf dem Handy, ab dem Tablet 2 × 2 mittig,
+   ab 1360 px eine Zeile über die volle Breite. Ein Raster statt Flex verhindert 3 + 1-Umbrüche. */
 .trust-row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: clamp(1rem, 2vw, 2.5rem);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: start;
+  width: 100%;
+  gap: 0.75rem clamp(1.5rem, 4vw, 3rem);
   color: var(--ink);
   font-size: clamp(0.92rem, 1.55vw, 1.25rem);
   font-weight: 500;
+}
+
+@media (min-width: 640px) {
+  .trust-row {
+    grid-template-columns: repeat(2, max-content);
+    justify-content: center;
+  }
+}
+
+@media (min-width: 1360px) {
+  .trust-row {
+    grid-template-columns: repeat(4, max-content);
+    justify-content: space-between;
+  }
 }
 
 .trust-row span {
@@ -1753,25 +1770,6 @@ body[data-cal-modal-open] {
   box-shadow:
     0 1px 2px rgb(20 30 80 / 0.12),
     0 6px 14px -6px oklch(0.5 0.21 266 / 0.35);
-}
-
-.hero-microcopy {
-  margin: 0;
-  color: oklch(0.5 0.02 274);
-  font-size: 0.9rem;
-  font-weight: 560;
-  line-height: 1.55;
-  text-wrap: balance;
-}
-
-.hero-microcopy-alt {
-  font-weight: 500;
-}
-
-.hero-microcopy a {
-  color: var(--blue-deep);
-  font-weight: 700;
-  text-underline-offset: 0.2rem;
 }
 
 .case-section {
@@ -6192,11 +6190,6 @@ textarea.field {
 
   .consent {
     line-height: 1.4;
-  }
-
-  .trust-row {
-    align-items: stretch;
-    flex-direction: column;
   }
 
   .tab-nav {

@@ -435,10 +435,6 @@ const homeStructuredData = [
                 <span class="btn-icon"><span class="material-symbols-rounded" aria-hidden="true">arrow_forward</span></span>
               </a>
             </div>
-            <p class="hero-microcopy">
-              30 Minuten, unverbindlich · Pakete <a href="#preise">ab {formatEuro(packages[0].priceValue)}</a> im Festpreis
-            </p>
-            <p class="hero-microcopy hero-microcopy-alt">Noch nicht sicher? <a href="#quick-check">Google-Eintrag gratis prüfen</a></p>
           </div>
         </div>
 
@@ -450,11 +446,12 @@ const homeStructuredData = [
         </div>
       </div>
 
-      <div class="container trust-cluster">
+      <div class="container-wide trust-cluster">
         <div class="trust-row">
-          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Festpreise, offen auf der Seite</span>
+          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Festpreise ab {formatEuro(packages[0].priceValue)}</span>
           <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Ein persönlicher Ansprechpartner</span>
           <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Betreuung monatlich kündbar</span>
+          <span><i class="material-symbols-rounded" aria-hidden="true">check_circle</i>Erstgespräch unverbindlich</span>
         </div>
       </div>
     </section>
